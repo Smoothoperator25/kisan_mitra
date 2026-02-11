@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/firestore_service.dart';
@@ -13,6 +14,11 @@ class AdminLoginScreen extends StatefulWidget {
 }
 
 class _AdminLoginScreenState extends State<AdminLoginScreen> {
+  // Default admin credentials to auto-provision if missing
+  static const _defaultAdminUsername = 'admin';
+  static const _defaultAdminEmail = 'admin@kisanmitra.com';
+  static const _defaultAdminPassword = 'admin123@';
+
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -30,6 +36,94 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     super.dispose();
   }
 
+  Future<Map<String, dynamic>?> _provisionDefaultAdmin() async {
+    final enteredPassword = _passwordController.text.trim();
+    if (enteredPassword != _defaultAdminPassword) {
+      SnackBarHelper.showError(
+        context,
+        'Use the default admin password: $_defaultAdminPassword',
+      );
+      return null;
+    }
+
+    try {
+      User? adminUser;
+
+      // Try creating the admin user; if it already exists, sign in instead.
+      final signUpResult = await _authService.signUpWithEmailPassword(
+        email: _defaultAdminEmail,
+        password: _defaultAdminPassword,
+      );
+
+      if (signUpResult['success'] == true) {
+        adminUser = signUpResult['user'] as User?;
+      } else {
+        final message = (signUpResult['message'] as String?) ?? '';
+        if (message.contains('already')) {
+          final signInResult = await _authService.signInWithEmailPassword(
+            email: _defaultAdminEmail,
+            password: _defaultAdminPassword,
+          );
+          if (signInResult['success'] == true) {
+            adminUser = signInResult['user'] as User?;
+          } else {
+            SnackBarHelper.showError(
+              context,
+              signInResult['message'] ?? 'Unable to sign in default admin.',
+            );
+            return null;
+          }
+        } else {
+          SnackBarHelper.showError(
+            context,
+            message.isNotEmpty
+                ? message
+                : 'Unable to create default admin user.',
+          );
+          return null;
+        }
+      }
+
+      if (adminUser == null) {
+        SnackBarHelper.showError(context, 'Default admin user is unavailable.');
+        return null;
+      }
+
+      final createResult = await _firestoreService.createAdminDocument(
+        uid: adminUser.uid,
+        adminData: {
+          'username': _defaultAdminUsername,
+          'email': _defaultAdminEmail,
+          'role': AppConstants.roleAdmin,
+        },
+      );
+
+      // If the document already exists, we still proceed.
+      final created = createResult['success'] == true ||
+          ((createResult['message'] as String?) ?? '').contains('exists');
+
+      if (created) {
+        return {
+          'uid': adminUser.uid,
+          'data': {
+            'username': _defaultAdminUsername,
+            'email': _defaultAdminEmail,
+            'role': AppConstants.roleAdmin,
+          },
+        };
+      }
+
+      SnackBarHelper.showError(
+        context,
+        createResult['message'] ?? 'Unable to create admin profile.',
+      );
+      return null;
+    } catch (e) {
+      SnackBarHelper.showError(context, 'Default admin setup failed: $e');
+      return null;
+    }
+  }
+
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -39,16 +133,31 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
     try {
       final username = _usernameController.text.trim();
+      final isDefaultAdmin = username.toLowerCase() == _defaultAdminUsername;
+
+      Map<String, dynamic>? adminData;
+      String? adminUid;
+      String? email;
 
       // Step 1: Query Firestore to find admin by username
-      final adminQueryResult = await _firestoreService.getAdminByUsername(
+      var adminQueryResult = await _firestoreService.getAdminByUsername(
         username,
       );
 
-      if (!mounted) return;
+      if (adminQueryResult['success'] == true) {
+        adminData = adminQueryResult['data'] as Map<String, dynamic>;
+        adminUid = adminQueryResult['uid'] as String?;
+        email = adminData['email'] as String?;
+      } else if (isDefaultAdmin) {
+        final provisioned = await _provisionDefaultAdmin();
+        if (provisioned != null) {
+          adminData = provisioned['data'] as Map<String, dynamic>;
+          adminUid = provisioned['uid'] as String?;
+          email = adminData['email'] as String?;
+        }
+      }
 
-      if (adminQueryResult['success'] != true) {
-        // Username not found
+      if (adminData == null || adminUid == null || email == null) {
         SnackBarHelper.showError(
           context,
           adminQueryResult['message'] ?? 'Invalid username',
@@ -56,11 +165,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         setState(() => _isLoading = false);
         return;
       }
-
-      // Step 2: Get email from admin document
-      final adminData = adminQueryResult['data'] as Map<String, dynamic>;
-      final email = adminData['email'] as String;
-      final uid = adminQueryResult['uid'] as String;
 
       // Step 3: Sign in with Firebase Auth using email and password
       final authResult = await _authService.signInWithEmailPassword(
@@ -74,20 +178,16 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         // Verify the user ID matches
         final authUid = authResult['user'].uid;
 
-        if (authUid == uid) {
+        if (authUid == adminUid) {
           // Verify role is admin
           final role = adminData['role'] as String?;
 
           if (role == AppConstants.roleAdmin) {
-            // Navigate to Admin Dashboard
-            if (mounted) {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                AppConstants.adminDashboardRoute,
-                (route) => false,
-              );
-            }
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              AppConstants.adminDashboardRoute,
+              (route) => false,
+            );
           } else {
-            // Wrong role
             await _authService.signOut();
             if (mounted) {
               SnackBarHelper.showError(
@@ -97,7 +197,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
             }
           }
         } else {
-          // UID mismatch (shouldn't happen, but safety check)
           await _authService.signOut();
           if (mounted) {
             SnackBarHelper.showError(
