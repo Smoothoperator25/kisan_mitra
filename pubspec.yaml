@@ -47,8 +47,13 @@ dependencies:
   google_fonts: ^6.2.1
   intl: ^0.20.1
   
-  # Map
-  flutter_map: ^7.0.2
+  # Map & Location
+  google_maps_flutter: ^2.5.0
+  geolocator: ^10.1.0
+  http: ^1.2.0
+  flutter_polyline_points: ^2.0.0
+  # Added for store registration map support
+  flutter_map: ^6.1.0
   latlong2: ^0.9.1
 
 dev_dependencies:

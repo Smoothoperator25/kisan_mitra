@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return request.auth.uid == uid;
+    }
+
+    // Users collection - farmers can read/write their own data
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isOwner(userId);
+    }
+
+    // Stores collection - anyone can read verified stores for search functionality
+    match /stores/{storeId} {
+      allow read: if true; // Public read to allow farmers to search for stores
+      allow create: if isSignedIn();
+      allow update, delete: if isOwner(storeId);
+    }
+
+    // Admins collection - read allowed for authenticated users
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if false; // Admins are created manually, not through the app
+    }
+
+    // Fertilizers collection - public read for search functionality
+    match /fertilizers/{fertilizerId} {
+      allow read: if true; // Public read to allow farmers to search fertilizers
+      allow write: if isSignedIn(); // Authenticated users can manage fertilizers
+    }
+
+    // Store fertilizers collection - public read for search
+    match /store_fertilizers/{id} {
+      allow read: if true; // Public read to show fertilizer availability at stores
+      allow create, update: if isSignedIn();
+      allow delete: if isSignedIn();
+    }
+  }
+}
