@@ -43,5 +43,11 @@ service cloud.firestore {
       allow create, update: if isSignedIn();
       allow delete: if isSignedIn();
     }
+
+    // Safety guidelines collection - public read for advisory screen
+    match /safety_guidelines/{guidelineId} {
+      allow read: if true; // Public read to show safety guidelines
+      allow write: if isSignedIn(); // Authenticated users can manage guidelines
+    }
   }
 }
