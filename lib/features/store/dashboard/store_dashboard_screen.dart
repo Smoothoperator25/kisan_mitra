@@ -4,6 +4,7 @@ import 'store_dashboard_controller.dart';
 import 'store_inventory_model.dart';
 import '../stock/store_stock_screen.dart';
 import '../location/store_location_screen.dart';
+import '../profile/store_profile_screen.dart';
 
 /// Store Dashboard Screen
 /// Main dashboard for store owners with inventory management
@@ -43,8 +44,8 @@ class _StoreDashboardScreenState extends State<StoreDashboardScreen> {
             // Index 2: Location
             const StoreLocationScreen(),
 
-            // Index 3: Profile (Placeholder)
-            _PlaceholderTab(title: 'Profile'),
+            // Index 3: Profile
+            const StoreProfileScreen(),
           ],
         ),
         bottomNavigationBar: _buildBottomNavigation(),
@@ -735,39 +736,6 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                     'SAVE',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Placeholder Tab for Stock, Location, Profile
-class _PlaceholderTab extends StatelessWidget {
-  final String title;
-
-  const _PlaceholderTab({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.construction, size: 64, color: Colors.grey.shade400),
-          const SizedBox(height: 16),
-          Text(
-            '$title Screen',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade600,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Coming Soon',
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
           ),
         ],
       ),
