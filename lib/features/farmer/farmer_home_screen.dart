@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'home/farmer_home_controller.dart';
 import 'fertilizer_search/fertilizer_search_screen.dart';
 import 'advisory/fertilizer_advisory_screen.dart';
 import 'soil_health/soil_health_screen.dart';
 import 'profile/farmer_profile_screen.dart';
+import 'profile/profile_controller.dart';
 
 /// Farmer Dashboard Home Screen
 /// Displays welcome message, action cards, and bottom navigation
@@ -68,7 +70,12 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
       case 3: // Profile
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const FarmerProfileScreen()),
+          MaterialPageRoute(
+            builder: (context) => ChangeNotifierProvider(
+              create: (_) => ProfileController(),
+              child: const FarmerProfileScreen(),
+            ),
+          ),
         ).then((_) => setState(() => _selectedIndex = 0));
         break;
     }
@@ -142,7 +149,10 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const FarmerProfileScreen(),
+                            builder: (context) => ChangeNotifierProvider(
+                              create: (_) => ProfileController(),
+                              child: const FarmerProfileScreen(),
+                            ),
                           ),
                         );
                       },

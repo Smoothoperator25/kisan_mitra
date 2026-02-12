@@ -55,6 +55,11 @@ dependencies:
   # Added for store registration map support
   flutter_map: ^6.1.0
   latlong2: ^0.9.1
+  
+  # Image Handling
+  image_picker: ^1.0.7
+  firebase_storage: ^12.3.6
+  cached_network_image: ^3.3.1
 
 dev_dependencies:
   flutter_test:
