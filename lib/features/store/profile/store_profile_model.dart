@@ -41,11 +41,11 @@ class StoreProfile {
     final data = doc.data() as Map<String, dynamic>;
     return StoreProfile(
       uid: doc.id,
-      storeName: data['storeName'] ?? '',
-      ownerName: data['ownerName'] ?? '',
-      phone: data['phone'] ?? '',
-      email: data['email'] ?? '',
-      address: data['address'] ?? '',
+      storeName: data['storeName']?.toString() ?? '',
+      ownerName: data['ownerName']?.toString() ?? '',
+      phone: data['phone']?.toString() ?? '',
+      email: data['email']?.toString() ?? '',
+      address: data['address']?.toString() ?? '',
       latitude: (data['latitude'] ?? 0.0).toDouble(),
       longitude: (data['longitude'] ?? 0.0).toDouble(),
       totalFertilizers: data['totalFertilizers'] ?? 0,
@@ -54,7 +54,7 @@ class StoreProfile {
       rating: (data['rating'] ?? 0.0).toDouble(),
       totalReviews: data['totalReviews'] ?? 0,
       isVerified: data['isVerified'] ?? false,
-      profileImageUrl: data['profileImageUrl'],
+      profileImageUrl: data['profileImageUrl']?.toString(),
       updatedAt: data['updatedAt'] != null
           ? (data['updatedAt'] as Timestamp).toDate()
           : null,

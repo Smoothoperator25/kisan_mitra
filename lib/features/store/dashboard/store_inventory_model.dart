@@ -20,9 +20,9 @@ class StoreInfo {
   /// Create StoreInfo from Firestore document
   factory StoreInfo.fromFirestore(Map<String, dynamic> data) {
     return StoreInfo(
-      storeName: data['storeName'] as String? ?? '',
-      address: data['address'] as String? ?? '',
-      phone: data['phone'] as String? ?? '',
+      storeName: data['storeName']?.toString() ?? '',
+      address: data['address']?.toString() ?? '',
+      phone: data['phone']?.toString() ?? '',
       rating: (data['rating'] as num?)?.toDouble() ?? 0.0,
       isVerified: data['isVerified'] as bool? ?? false,
     );

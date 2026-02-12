@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'admin_dashboard_controller.dart';
 import 'admin_dashboard_model.dart';
+import '../requests/admin_requests_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -128,7 +129,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         index: _currentTabIndex,
         children: [
           _buildDashboardTab(),
-          _buildPlaceholderTab('Requests'),
+          const AdminRequestsScreen(),
           _buildPlaceholderTab('Data'),
           _buildPlaceholderTab('Settings'),
         ],

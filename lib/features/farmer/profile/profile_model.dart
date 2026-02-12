@@ -33,14 +33,14 @@ class UserProfile {
   factory UserProfile.fromFirestore(String id, Map<String, dynamic> data) {
     return UserProfile(
       id: id,
-      name: data['name'] ?? '',
-      email: data['email'] ?? '',
-      phone: data['phone'] ?? '',
-      role: data['role'] ?? 'farmer',
-      state: data['state'] ?? '',
-      city: data['city'] ?? '',
-      village: data['village'] ?? '',
-      profileImageUrl: data['profileImageUrl'],
+      name: data['name']?.toString() ?? '',
+      email: data['email']?.toString() ?? '',
+      phone: data['phone']?.toString() ?? '',
+      role: data['role']?.toString() ?? 'farmer',
+      state: data['state']?.toString() ?? '',
+      city: data['city']?.toString() ?? '',
+      village: data['village']?.toString() ?? '',
+      profileImageUrl: data['profileImageUrl']?.toString(),
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
     );

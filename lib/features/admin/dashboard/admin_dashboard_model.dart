@@ -46,10 +46,10 @@ class VerificationRequest {
     final data = doc.data() as Map<String, dynamic>;
     return VerificationRequest(
       id: doc.id,
-      storeName: data['storeName'] ?? '',
-      ownerName: data['ownerName'] ?? '',
-      city: data['city'] ?? '',
-      state: data['state'] ?? '',
+      storeName: data['storeName']?.toString() ?? '',
+      ownerName: data['ownerName']?.toString() ?? '',
+      city: data['city']?.toString() ?? '',
+      state: data['state']?.toString() ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
