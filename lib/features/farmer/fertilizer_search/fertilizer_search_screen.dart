@@ -42,27 +42,6 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
       value: _controller,
       child: Scaffold(
         backgroundColor: AppColors.background,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Fertilizer Search',
-                style: AppTextStyles.heading3.copyWith(fontSize: 18),
-              ),
-              const Text(
-                'Find nearby stores for best prices',
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-              ),
-            ],
-          ),
-        ),
         body: Consumer<FertilizerSearchController>(
           builder: (context, controller, child) {
             // Show error if any
@@ -100,6 +79,30 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
 
             return Column(
               children: [
+                // Screen title header at top
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
+                  color: Colors.white,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Fertilizer Search',
+                        style: AppTextStyles.heading3.copyWith(fontSize: 20),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Find nearby stores for best prices',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
                 // Search Field
                 _buildSearchField(controller),
 

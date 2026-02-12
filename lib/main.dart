@@ -8,7 +8,7 @@ import 'features/auth/role_selection_screen.dart';
 import 'features/auth/login_screen.dart';
 import 'features/auth/farmer_login_screen.dart';
 import 'features/auth/farmer_signup_screen.dart';
-import 'features/farmer/farmer_home_screen.dart';
+import 'features/farmer/dashboard/farmer_dashboard_screen.dart';
 import 'features/store/store_home_screen.dart';
 import 'features/admin/admin_dashboard_screen.dart';
 import 'features/admin/auth/admin_login_screen.dart';
@@ -39,9 +39,7 @@ class AppInitializer extends StatelessWidget {
         if (snapshot.connectionState != ConnectionState.done) {
           return const MaterialApp(
             debugShowCheckedModeBanner: false,
-            home: Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
+            home: Scaffold(body: Center(child: CircularProgressIndicator())),
           );
         }
 
@@ -57,23 +55,29 @@ class AppInitializer extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                      const Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red,
+                      ),
                       const SizedBox(height: 16),
                       const Text(
                         'Firebase initialization failed',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        message,
-                        textAlign: TextAlign.center,
-                      ),
+                      Text(message, textAlign: TextAlign.center),
                       const SizedBox(height: 12),
                       ElevatedButton(
                         onPressed: () async {
                           // Retry by rebuilding the widget tree
                           Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (_) => const AppInitializer()),
+                            MaterialPageRoute(
+                              builder: (_) => const AppInitializer(),
+                            ),
                           );
                         },
                         child: const Text('Retry'),
@@ -190,7 +194,8 @@ class MyApp extends StatelessWidget {
         AppConstants.storeRegistrationRoute: (context) =>
             const StoreRegistrationScreen(),
         AppConstants.adminLoginRoute: (context) => const AdminLoginScreen(),
-        AppConstants.farmerHomeRoute: (context) => const FarmerHomeScreen(),
+        AppConstants.farmerHomeRoute: (context) =>
+            const FarmerDashboardScreen(),
         AppConstants.storeHomeRoute: (context) => const StoreHomeScreen(),
         AppConstants.adminDashboardRoute: (context) =>
             const AdminDashboardScreen(),

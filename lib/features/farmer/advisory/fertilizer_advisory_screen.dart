@@ -50,13 +50,60 @@ class _FertilizerAdvisoryScreenState extends State<FertilizerAdvisoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      appBar: _buildAppBar(),
       body: _controller.isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Screen title header at top
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
+                    color: Colors.white,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Fertilizer Advisory',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'Kisan Mitra',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF2E7D32),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.help_outline,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                   _buildPersonalizedGuidanceSection(),
                   const SizedBox(height: 16),
                   _buildCropSelectionSection(),
@@ -78,49 +125,6 @@ class _FertilizerAdvisoryScreenState extends State<FertilizerAdvisoryScreen> {
                 ],
               ),
             ),
-    );
-  }
-
-  /// App Bar
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: Colors.white,
-      elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.black),
-        onPressed: () => Navigator.pop(context),
-      ),
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Fertilizer Advisory',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            'Kisan Mitra',
-            style: TextStyle(color: Colors.grey[600], fontSize: 12),
-          ),
-        ],
-      ),
-      actions: [
-        Container(
-          margin: const EdgeInsets.only(right: 16),
-          width: 40,
-          height: 40,
-          decoration: const BoxDecoration(
-            color: Color(0xFF2E7D32),
-            shape: BoxShape.circle,
-          ),
-          child: const Center(
-            child: Icon(Icons.help_outline, color: Colors.white, size: 20),
-          ),
-        ),
-      ],
     );
   }
 
