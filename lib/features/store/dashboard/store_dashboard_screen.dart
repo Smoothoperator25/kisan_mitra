@@ -254,9 +254,12 @@ class _DashboardTab extends StatelessWidget {
           const Spacer(),
           IconButton(
             onPressed: () {
-              // Navigate to profile
+              // Navigate to profile tab
+              final dashboardState = context.findAncestorStateOfType<_StoreDashboardScreenState>();
+              dashboardState?._onBottomNavTap(3);
             },
             icon: const Icon(Icons.person_outline),
+            tooltip: 'Profile',
           ),
         ],
       ),
@@ -356,7 +359,9 @@ class _DashboardTab extends StatelessWidget {
             label: 'Update Price & Stock',
             color: const Color(0xFF2E7D32),
             onTap: () {
-              // Scroll to inventory section (already visible)
+              // Navigate to Stock tab
+              final dashboardState = context.findAncestorStateOfType<_StoreDashboardScreenState>();
+              dashboardState?._onBottomNavTap(1);
             },
           ),
         ),
@@ -370,12 +375,9 @@ class _DashboardTab extends StatelessWidget {
             label: 'Store Location',
             color: const Color(0xFF1976D2),
             onTap: () {
-              // TODO: Navigate to StoreLocationScreen
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Store Location screen coming soon'),
-                ),
-              );
+              // Navigate to Location tab
+              final dashboardState = context.findAncestorStateOfType<_StoreDashboardScreenState>();
+              dashboardState?._onBottomNavTap(2);
             },
           ),
         ),
