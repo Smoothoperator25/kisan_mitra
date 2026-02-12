@@ -1,6 +1,38 @@
 # Firestore Setup Instructions
 
-## Issue Fixed
+## Current Issues and Fixes
+
+### Issue 1: Admin Dashboard - Missing Composite Index
+**Error:** `[cloud_firestore/failed-precondition] The query requires an index`
+
+**Solution:** Create a composite index for the stores collection query.
+
+#### Steps to Create the Index:
+
+**Option A: Automatic (Recommended)**
+1. When you see the error in your app, it includes a direct link
+2. Click the link in the error message (it starts with `https://console.firebase.google.com/...`)
+3. Firebase Console will open with the index pre-configured
+4. Click **Create Index**
+5. Wait 1-2 minutes for the index to build
+6. Restart your app
+
+**Option B: Manual Creation**
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Select your project: `kisan-mitra-8cc98`
+3. Navigate to **Firestore Database** → **Indexes** tab
+4. Click **Create Index**
+5. Enter the following configuration:
+   - **Collection ID:** `stores`
+   - **Fields to index:**
+     - Field: `isVerified`, Order: `Ascending`
+     - Field: `isRejected`, Order: `Ascending`
+     - Field: `createdAt`, Order: `Descending`
+   - **Query scope:** Collection
+6. Click **Create Index**
+7. Wait for the index to build (usually 1-2 minutes)
+
+### Issue 2: Safety Guidelines Permission Denied (FIXED)
 The error "permission-denied" was caused by missing Firestore rules for the `safety_guidelines` collection.
 
 ## Steps to Deploy the Fix

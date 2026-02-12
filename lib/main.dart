@@ -10,8 +10,13 @@ import 'features/auth/farmer_login_screen.dart';
 import 'features/auth/farmer_signup_screen.dart';
 import 'features/farmer/dashboard/farmer_dashboard_screen.dart';
 import 'features/store/dashboard/store_dashboard_screen.dart';
-import 'features/admin/admin_dashboard_screen.dart';
+import 'features/admin/dashboard/admin_dashboard_screen.dart';
 import 'features/admin/auth/admin_login_screen.dart';
+import 'features/admin/store_details/admin_store_details_screen.dart';
+import 'features/admin/farmers/admin_farmers_list_screen.dart';
+import 'features/admin/stores/admin_stores_list_screen.dart';
+import 'features/admin/activity/admin_activity_log_screen.dart';
+import 'features/admin/reports/admin_reports_screen.dart';
 import 'features/store/auth/store_login_screen.dart';
 import 'features/store/auth/store_registration_screen.dart';
 import 'firebase_options.dart';
@@ -199,6 +204,11 @@ class MyApp extends StatelessWidget {
         AppConstants.storeHomeRoute: (context) => const StoreDashboardScreen(),
         AppConstants.adminDashboardRoute: (context) =>
             const AdminDashboardScreen(),
+        '/admin-store-details': (context) => const AdminStoreDetailsScreen(),
+        '/admin-farmers-list': (context) => const AdminFarmersListScreen(),
+        '/admin-stores-list': (context) => const AdminStoresListScreen(),
+        '/admin-activity-log': (context) => const AdminActivityLogScreen(),
+        '/admin-reports': (context) => const AdminReportsScreen(),
       },
     );
   }

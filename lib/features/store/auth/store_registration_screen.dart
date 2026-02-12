@@ -152,6 +152,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
           },
           'license': _licenseController.text.trim(),
           'isVerified': false,
+          'isRejected': false,
         };
 
         final firestoreResult = await _firestoreService.createStoreDocument(
