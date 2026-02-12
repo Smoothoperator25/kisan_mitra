@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'store_dashboard_controller.dart';
 import 'store_inventory_model.dart';
+import '../stock/store_stock_screen.dart';
 
 /// Store Dashboard Screen
 /// Main dashboard for store owners with inventory management
@@ -35,8 +36,8 @@ class _StoreDashboardScreenState extends State<StoreDashboardScreen> {
             // Index 0: Dashboard
             const _DashboardTab(),
 
-            // Index 1: Stock (Placeholder)
-            _PlaceholderTab(title: 'Stock'),
+            // Index 1: Stock
+            const StoreStockScreen(),
 
             // Index 2: Location (Placeholder)
             _PlaceholderTab(title: 'Location'),
@@ -55,22 +56,26 @@ class _StoreDashboardScreenState extends State<StoreDashboardScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
             offset: const Offset(0, -2),
           ),
         ],
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(
-                icon: Icons.dashboard,
+                icon: Icons.dashboard_outlined,
                 label: 'DASHBOARD',
                 index: 0,
                 isSelected: _selectedIndex == 0,
@@ -82,13 +87,13 @@ class _StoreDashboardScreenState extends State<StoreDashboardScreen> {
                 isSelected: _selectedIndex == 1,
               ),
               _buildNavItem(
-                icon: Icons.location_on,
+                icon: Icons.location_on_outlined,
                 label: 'LOCATION',
                 index: 2,
                 isSelected: _selectedIndex == 2,
               ),
               _buildNavItem(
-                icon: Icons.person,
+                icon: Icons.person_outline,
                 label: 'PROFILE',
                 index: 3,
                 isSelected: _selectedIndex == 3,
@@ -109,8 +114,13 @@ class _StoreDashboardScreenState extends State<StoreDashboardScreen> {
   }) {
     return InkWell(
       onTap: () => _onBottomNavTap(index),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFE8F5E9) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
