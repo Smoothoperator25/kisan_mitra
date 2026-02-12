@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'admin_dashboard_controller.dart';
 import 'admin_dashboard_model.dart';
 import '../requests/admin_requests_screen.dart';
+import '../data/admin_data_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -130,7 +131,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         children: [
           _buildDashboardTab(),
           const AdminRequestsScreen(),
-          _buildPlaceholderTab('Data'),
+          const AdminDataScreen(),
           _buildPlaceholderTab('Settings'),
         ],
       ),
