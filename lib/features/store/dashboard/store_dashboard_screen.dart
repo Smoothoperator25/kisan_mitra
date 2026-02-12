@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'store_dashboard_controller.dart';
 import 'store_inventory_model.dart';
 import '../stock/store_stock_screen.dart';
+import '../location/store_location_screen.dart';
 
 /// Store Dashboard Screen
 /// Main dashboard for store owners with inventory management
@@ -39,8 +40,8 @@ class _StoreDashboardScreenState extends State<StoreDashboardScreen> {
             // Index 1: Stock
             const StoreStockScreen(),
 
-            // Index 2: Location (Placeholder)
-            _PlaceholderTab(title: 'Location'),
+            // Index 2: Location
+            const StoreLocationScreen(),
 
             // Index 3: Profile (Placeholder)
             _PlaceholderTab(title: 'Profile'),
