@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'admin_dashboard_controller.dart';
 import 'admin_dashboard_model.dart';
 import '../requests/admin_requests_screen.dart';
 import '../data/admin_data_screen.dart';
+import '../settings/admin_settings_screen.dart';
+import '../settings/admin_settings_controller.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -17,11 +20,24 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   int _currentTabIndex = 0;
   List<VerificationRequest> _verificationRequests = [];
   bool _isLoadingRequests = true;
+  String? _initError;
 
   @override
   void initState() {
     super.initState();
-    _loadVerificationRequests();
+    _initializeScreen();
+  }
+
+  Future<void> _initializeScreen() async {
+    try {
+      await _loadVerificationRequests();
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _initError = e.toString();
+        });
+      }
+    }
   }
 
   Future<void> _loadVerificationRequests() async {
@@ -124,59 +140,169 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Show error screen if initialization failed
+    if (_initError != null) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFD4F1F4),
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: Colors.red,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Error Loading Dashboard',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _initError!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.red,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _initError = null;
+                        _isLoadingRequests = true;
+                      });
+                      _initializeScreen();
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Retry'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF10B981),
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton.icon(
+                    onPressed: _handleLogout,
+                    icon: const Icon(Icons.logout),
+                    label: const Text('Logout'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFD4F1F4),
-      body: IndexedStack(
-        index: _currentTabIndex,
-        children: [
-          _buildDashboardTab(),
-          const AdminRequestsScreen(),
-          const AdminDataScreen(),
-          _buildPlaceholderTab('Settings'),
-        ],
+      body: SafeArea(
+        child: IndexedStack(
+          index: _currentTabIndex,
+          children: [
+            _buildDashboardTab(),
+            const AdminRequestsScreen(),
+            const AdminDataScreen(),
+            ChangeNotifierProvider(
+              create: (_) => AdminSettingsController(),
+              child: const AdminSettingsScreen(),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: _buildBottomNavigation(),
     );
   }
 
   Widget _buildDashboardTab() {
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 20),
-            _buildStatisticsCards(),
-            const SizedBox(height: 24),
-            _buildVerificationRequestsSection(),
-            const SizedBox(height: 24),
-            _buildDataManagementSection(),
-            const SizedBox(height: 24),
-            _buildSettingsSection(),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
-  }
+    return Builder(
+      builder: (context) {
+        try {
+          return SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 20),
+                  _buildStatisticsCards(),
+                  const SizedBox(height: 24),
+                  _buildVerificationRequestsSection(),
+                  const SizedBox(height: 24),
+                  _buildDataManagementSection(),
+                  const SizedBox(height: 24),
+                  _buildSettingsSection(),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          );
+        } catch (e, stackTrace) {
+          // Log the error
+          debugPrint('Error building dashboard tab: $e');
+          debugPrint('Stack trace: $stackTrace');
 
-  Widget _buildPlaceholderTab(String title) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.construction, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          Text(
-            '$title Screen',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          const Text('Coming soon...'),
-        ],
-      ),
+          // Return error UI
+          return SafeArea(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Dashboard Error',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1E293B),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      e.toString(),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.red,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          // Force rebuild
+                        });
+                      },
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -230,6 +356,39 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return StreamBuilder<DashboardStats>(
       stream: _controller.getStatsStream(),
       builder: (context, snapshot) {
+        // Show error state
+        if (snapshot.hasError) {
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.red.shade50,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.red, size: 32),
+                const SizedBox(height: 8),
+                Text(
+                  'Error loading stats',
+                  style: TextStyle(
+                    color: Colors.red.shade900,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  snapshot.error.toString(),
+                  style: TextStyle(
+                    color: Colors.red.shade700,
+                    fontSize: 12,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          );
+        }
+
         final stats = snapshot.data ?? DashboardStats.empty();
 
         return Column(
@@ -577,7 +736,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

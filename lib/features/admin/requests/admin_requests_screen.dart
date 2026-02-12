@@ -76,6 +76,7 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        automaticallyImplyLeading: false,
         title: const Text(
           'Store Verification Requests',
           style: TextStyle(
@@ -83,10 +84,6 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-          onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
@@ -179,7 +176,10 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
                       : const Color(0xFFE2E8F0),
                   width: 1,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 labelPadding: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),

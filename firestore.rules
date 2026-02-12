@@ -12,7 +12,10 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      // Check if user is the default admin or has a document in admins collection
+      return isSignedIn() &&
+        (request.auth.token.email == 'admin@kisanmitra.com' ||
+         exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
     }
 
     // Users collection - farmers can read/write their own data
@@ -60,6 +63,18 @@ service cloud.firestore {
       allow read: if isAdmin(); // Only admins can read activity logs
       allow create: if isAdmin(); // Only admins can create logs
       allow update, delete: if false; // Logs should never be modified or deleted
+    }
+
+    // App configuration - only admins can read and write
+    match /appConfig/{configId} {
+      allow read: if isAdmin(); // Only admins can read app config
+      allow write: if isAdmin(); // Only admins can update app config
+    }
+
+    // Admin users collection - only admins can read and write
+    match /adminUsers/{adminUserId} {
+      allow read: if isAdmin(); // Only admins can read admin users
+      allow write: if isAdmin(); // Only admins can manage admin users
     }
   }
 }
