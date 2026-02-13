@@ -9,33 +9,134 @@ class AdminDashboardController {
 
   /// Get real-time dashboard statistics
   Stream<DashboardStats> getStatsStream() {
-    return Stream.periodic(const Duration(seconds: 2)).asyncMap((_) async {
-      try {
-        final results = await Future.wait([
-          _firestore.collection('farmers').get(),
-          _firestore.collection('stores').get(),
-          _firestore
-              .collection('stores')
-              .where('isVerified', isEqualTo: false)
-              .where('isRejected', isEqualTo: false)
-              .get(),
-          _firestore
-              .collection('stores')
-              .where('isVerified', isEqualTo: true)
-              .get(),
-        ]);
+    debugPrint('🔄 Starting stats stream...');
 
-        return DashboardStats(
-          totalFarmers: results[0].size,
-          totalStores: results[1].size,
-          pendingVerifications: results[2].size,
-          verifiedStores: results[3].size,
+    // Combine stores snapshot with periodic farmer checks
+    return _firestore.collection('stores').snapshots().asyncExpand((storesSnapshot) async* {
+      try {
+        debugPrint('📊 Stats Update - Stores snapshot received: ${storesSnapshot.size} stores');
+
+        // Get farmers count from users collection with role filter
+        final farmersSnapshot = await _firestore
+            .collection('users')
+            .where('role', isEqualTo: 'farmer')
+            .get();
+        final totalFarmers = farmersSnapshot.size;
+        debugPrint('👨‍🌾 Total Farmers: $totalFarmers');
+
+        // Get total stores from the snapshot
+        final totalStores = storesSnapshot.size;
+        debugPrint('🏪 Total Stores: $totalStores');
+
+        // Count pending verifications (not verified and not rejected)
+        int pendingCount = 0;
+        int verifiedCount = 0;
+        int rejectedCount = 0;
+        int noStatusCount = 0;
+
+        for (var doc in storesSnapshot.docs) {
+          final data = doc.data();
+          final isVerified = data['isVerified'] as bool? ?? false;
+          final isRejected = data['isRejected'] as bool? ?? false;
+
+          if (isVerified) {
+            verifiedCount++;
+          } else if (isRejected) {
+            rejectedCount++;
+          } else {
+            pendingCount++;
+          }
+
+          // Check if fields exist
+          if (!data.containsKey('isVerified') && !data.containsKey('isRejected')) {
+            noStatusCount++;
+            debugPrint('⚠️ Store ${doc.id} missing status fields');
+          }
+        }
+
+        debugPrint('✅ Verified: $verifiedCount');
+        debugPrint('⏳ Pending: $pendingCount');
+        debugPrint('❌ Rejected: $rejectedCount');
+        if (noStatusCount > 0) {
+          debugPrint('⚠️ WARNING: $noStatusCount stores without status fields - Click Fix Database button!');
+        }
+
+        final stats = DashboardStats(
+          totalFarmers: totalFarmers,
+          totalStores: totalStores,
+          pendingVerifications: pendingCount,
+          verifiedStores: verifiedCount,
         );
-      } catch (e) {
-        debugPrint('Error fetching stats: $e');
-        return DashboardStats.empty();
+
+        debugPrint('📈 Emitting stats: F=$totalFarmers, S=$totalStores, P=$pendingCount, V=$verifiedCount');
+        yield stats;
+      } catch (e, stackTrace) {
+        debugPrint('❌ Error in stats stream: $e');
+        debugPrint('Stack trace: $stackTrace');
+        yield DashboardStats.empty();
       }
     });
+  }
+
+  /// Get initial dashboard statistics (one-time fetch)
+  Future<DashboardStats> getInitialStats() async {
+    try {
+      debugPrint('📊 Fetching initial stats...');
+
+      final results = await Future.wait([
+        _firestore.collection('users').where('role', isEqualTo: 'farmer').get(),
+        _firestore.collection('stores').get(),
+      ]);
+
+      final farmersSnapshot = results[0];
+      final storesSnapshot = results[1];
+
+      debugPrint('👨‍🌾 Initial Farmers count: ${farmersSnapshot.size}');
+      debugPrint('🏪 Initial Stores count: ${storesSnapshot.size}');
+
+      // Count pending and verified from stores snapshot
+      int pendingCount = 0;
+      int verifiedCount = 0;
+      int rejectedCount = 0;
+      int noStatusCount = 0;
+
+      for (var doc in storesSnapshot.docs) {
+        final data = doc.data();
+        final isVerified = data['isVerified'] as bool? ?? false;
+        final isRejected = data['isRejected'] as bool? ?? false;
+
+        if (isVerified) {
+          verifiedCount++;
+        } else if (isRejected) {
+          rejectedCount++;
+        } else {
+          pendingCount++;
+        }
+
+        // Check if fields exist
+        if (!data.containsKey('isVerified') && !data.containsKey('isRejected')) {
+          noStatusCount++;
+          debugPrint('⚠️ Store ${doc.id} missing status fields');
+        }
+      }
+
+      debugPrint('✅ Initial Verified: $verifiedCount');
+      debugPrint('⏳ Initial Pending: $pendingCount');
+      debugPrint('❌ Initial Rejected: $rejectedCount');
+      if (noStatusCount > 0) {
+        debugPrint('⚠️ Stores without status fields: $noStatusCount');
+      }
+
+      return DashboardStats(
+        totalFarmers: farmersSnapshot.size,
+        totalStores: storesSnapshot.size,
+        pendingVerifications: pendingCount,
+        verifiedStores: verifiedCount,
+      );
+    } catch (e) {
+      debugPrint('❌ Error fetching initial stats: $e');
+      return DashboardStats.empty();
+    }
   }
 
   /// Get pending verification requests
@@ -132,6 +233,60 @@ class AdminDashboardController {
       await _auth.signOut();
     } catch (e) {
       debugPrint('Error logging out: $e');
+      rethrow;
+    }
+  }
+
+  /// Fix stores that are missing isVerified or isRejected fields
+  /// This should be run once to migrate old data
+  Future<void> fixMissingStoreFields() async {
+    try {
+      debugPrint('🔧 Starting store fields migration...');
+
+      final storesSnapshot = await _firestore.collection('stores').get();
+      final batch = _firestore.batch();
+      int fixedCount = 0;
+
+      for (var doc in storesSnapshot.docs) {
+        final data = doc.data();
+        bool needsUpdate = false;
+        Map<String, dynamic> updates = {};
+
+        // Check if isVerified exists, if not set to false
+        if (!data.containsKey('isVerified')) {
+          updates['isVerified'] = false;
+          needsUpdate = true;
+          debugPrint('Adding isVerified to store: ${doc.id}');
+        }
+
+        // Check if isRejected exists, if not set to false
+        if (!data.containsKey('isRejected')) {
+          updates['isRejected'] = false;
+          needsUpdate = true;
+          debugPrint('Adding isRejected to store: ${doc.id}');
+        }
+
+        // Add createdAt if missing
+        if (!data.containsKey('createdAt')) {
+          updates['createdAt'] = FieldValue.serverTimestamp();
+          needsUpdate = true;
+          debugPrint('Adding createdAt to store: ${doc.id}');
+        }
+
+        if (needsUpdate) {
+          batch.update(doc.reference, updates);
+          fixedCount++;
+        }
+      }
+
+      if (fixedCount > 0) {
+        await batch.commit();
+        debugPrint('✅ Fixed $fixedCount stores');
+      } else {
+        debugPrint('✅ All stores have correct fields');
+      }
+    } catch (e) {
+      debugPrint('❌ Error fixing store fields: $e');
       rethrow;
     }
   }

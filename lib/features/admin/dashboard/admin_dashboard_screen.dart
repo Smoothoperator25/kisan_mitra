@@ -240,6 +240,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 children: [
                   _buildHeader(),
                   const SizedBox(height: 20),
+                  _buildStatisticsHeader(),
+                  const SizedBox(height: 12),
                   _buildStatisticsCards(),
                   const SizedBox(height: 24),
                   _buildVerificationRequestsSection(),
@@ -310,37 +312,59 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget _buildHeader() {
     return Row(
       children: [
-        const Text(
-          'Admin Dashboard',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF1E293B),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: const Color(0xFF6366F1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Row(
+        Flexible(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.verified_user, size: 14, color: Colors.white),
-              SizedBox(width: 4),
-              Text(
-                'SECURE',
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              const Flexible(
+                child: Text(
+                  'Admin Dashboard',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E293B),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF6366F1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.verified_user, size: 14, color: Colors.white),
+                    SizedBox(width: 4),
+                    Text(
+                      'SECURE',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
-        const Spacer(),
+        const SizedBox(width: 8),
+        // Fix Database Button
+        IconButton(
+          icon: const Icon(Icons.build, size: 20),
+          onPressed: _showFixDatabaseDialog,
+          tooltip: 'Fix Database',
+          padding: const EdgeInsets.all(8),
+          constraints: const BoxConstraints(
+            minWidth: 36,
+            minHeight: 36,
+          ),
+        ),
         Container(
           padding: const EdgeInsets.all(8),
           decoration: const BoxDecoration(
@@ -348,6 +372,112 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             shape: BoxShape.circle,
           ),
           child: const Icon(Icons.notifications_outlined, size: 20),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showFixDatabaseDialog() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Fix Database'),
+        content: const Text(
+          'This will add missing isVerified and isRejected fields to all stores. '
+          'This should fix the statistics count issue.\n\n'
+          'Do you want to continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+            ),
+            child: const Text('Fix Database'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      _fixDatabase();
+    }
+  }
+
+  Future<void> _fixDatabase() async {
+    try {
+      // Show loading
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Fixing database...'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+
+      await _controller.fixMissingStoreFields();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Database fixed! Statistics should update now.'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+          ),
+        );
+
+        // Force rebuild to refresh stats
+        setState(() {});
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error fixing database: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Widget _buildStatisticsHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'DASHBOARD STATISTICS',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[600],
+            letterSpacing: 0.5,
+          ),
+        ),
+        Row(
+          children: [
+            TextButton.icon(
+              onPressed: () {
+                debugPrint('🔄 Manual refresh triggered');
+                setState(() {
+                  // This will rebuild the StreamBuilder
+                });
+              },
+              icon: const Icon(Icons.refresh, size: 16),
+              label: const Text(
+                'Refresh',
+                style: TextStyle(fontSize: 12),
+              ),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -385,7 +515,34 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => setState(() {}),
+                  child: const Text('Retry'),
+                ),
               ],
+            ),
+          );
+        }
+
+        // Show loading state while waiting for first data
+        if (!snapshot.hasData && snapshot.connectionState == ConnectionState.waiting) {
+          return Container(
+            padding: const EdgeInsets.all(32),
+            child: const Center(
+              child: Column(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text(
+                    'Loading statistics...',
+                    style: TextStyle(
+                      color: Color(0xFF64748B),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         }
