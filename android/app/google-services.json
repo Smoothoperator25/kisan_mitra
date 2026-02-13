@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "255572322943-vffr6s547fu7m09q1po4f741kc8shkqq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.kisan_mitra",
+            "certificate_hash": "0ddc8becafd6075a53b461aaa4dc9e864a831253"
+          }
+        },
+        {
           "client_id": "255572322943-arbnkcrrpimt9qfk1fcf08c2fvqkunr7.apps.googleusercontent.com",
           "client_type": 3
         }

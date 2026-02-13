@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/firestore_service.dart';
@@ -105,6 +106,125 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
     }
   }
 
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final result = await _authService.signInWithGoogle();
+
+      if (!mounted) return;
+
+      if (result['success'] == true) {
+        final user = result['user'] as User;
+        final isNewUser = result['isNewUser'] as bool;
+
+        if (isNewUser) {
+          // New user - create farmer profile in Firestore
+          final createResult = await _firestoreService.createUserDocument(
+            uid: user.uid,
+            userData: {
+              'name': user.displayName ?? 'Farmer',
+              'email': user.email ?? '',
+              'phone': user.phoneNumber ?? '',
+              'state': '',
+              'city': '',
+              'village': '',
+              'profileImageUrl': user.photoURL,
+            },
+          );
+
+          if (!mounted) return;
+
+          if (createResult['success'] == true) {
+            // Navigate to Farmer Home
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              AppConstants.farmerHomeRoute,
+              (route) => false,
+            );
+          } else {
+            // Failed to create profile, sign out
+            await _authService.signOut();
+            SnackBarHelper.showError(
+              context,
+              'Failed to create profile. Please try again.',
+            );
+          }
+        } else {
+          // Existing user - verify role
+          final firestoreResult = await _firestoreService.getUserRoleAndData(user.uid);
+
+          if (!mounted) return;
+
+          if (firestoreResult['success'] == true) {
+            final role = firestoreResult['role'] as String;
+
+            if (role == AppConstants.roleFarmer) {
+              // Navigate to Farmer Home
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                AppConstants.farmerHomeRoute,
+                (route) => false,
+              );
+            } else {
+              // Wrong role
+              await _authService.signOut();
+              if (mounted) {
+                SnackBarHelper.showError(
+                  context,
+                  'This Google account is registered with a different role.',
+                );
+              }
+            }
+          } else {
+            // User data not found, create it
+            final createResult = await _firestoreService.createUserDocument(
+              uid: user.uid,
+              userData: {
+                'name': user.displayName ?? 'Farmer',
+                'email': user.email ?? '',
+                'phone': user.phoneNumber ?? '',
+                'state': '',
+                'city': '',
+                'village': '',
+                'profileImageUrl': user.photoURL,
+              },
+            );
+
+            if (!mounted) return;
+
+            if (createResult['success'] == true) {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                AppConstants.farmerHomeRoute,
+                (route) => false,
+              );
+            } else {
+              await _authService.signOut();
+              SnackBarHelper.showError(
+                context,
+                'Failed to create profile. Please try again.',
+              );
+            }
+          }
+        }
+      } else {
+        // Google sign-in failed
+        if (mounted) {
+          SnackBarHelper.showError(
+            context,
+            result['message'] ?? 'Google sign-in failed',
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.showError(context, 'An error occurred: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final backgroundColor = _isDarkMode
@@ -120,12 +240,12 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
             key: _formKey,
             child: Column(
               children: [
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
 
                 // Logo
                 Container(
-                  width: 140,
-                  height: 140,
+                  width: 120,
+                  height: 120,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -141,8 +261,8 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                     alignment: Alignment.center,
                     children: [
                       Container(
-                        width: 110,
-                        height: 110,
+                        width: 95,
+                        height: 95,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
@@ -153,7 +273,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                       ),
                       const Icon(
                         Icons.agriculture,
-                        size: 50,
+                        size: 45,
                         color: Color(0xFF2E7D32),
                       ),
                       Positioned(
@@ -175,7 +295,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
                 // App Name
                 Text(
@@ -200,7 +320,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
 
                 // Welcome Back
                 Text(
@@ -225,7 +345,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 20),
 
                 // Email Field
                 TextFormField(
@@ -292,7 +412,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
 
                 // Forgot Password
                 Align(
@@ -301,10 +421,9 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                     onPressed: _isLoading
                         ? null
                         : () {
-                            // TODO: Implement forgot password
-                            SnackBarHelper.showInfo(
+                            Navigator.pushNamed(
                               context,
-                              'Forgot password feature coming soon',
+                              AppConstants.forgotPasswordRoute,
                             );
                           },
                     child: Text(
@@ -318,7 +437,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
                 // Login Button
                 SizedBox(
@@ -353,14 +472,48 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
-                // Sign in with Google (Optional - placeholder)
-                // TextButton.icon(
-                //   onPressed: () {},
-                //   icon: Image.asset('assets/google_icon.png', height: 20),
-                //   label: Text('Sign in with Google'),
-                // ),
+                // Sign in with Google
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: OutlinedButton.icon(
+                    onPressed: _isLoading ? null : _handleGoogleSignIn,
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      side: const BorderSide(
+                        color: Color(0xFFE0E0E0),
+                        width: 1.5,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 1,
+                    ),
+                    icon: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Icon(
+                        Icons.g_mobiledata_rounded,
+                        size: 32,
+                        color: Color(0xFF4285F4),
+                      ),
+                    ),
+                    label: Text(
+                      'Sign in with Google',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF5F7D63),
+                      ),
+                    ),
+                  ),
+                ),
+
                 const SizedBox(height: 24),
 
                 // Create New Account

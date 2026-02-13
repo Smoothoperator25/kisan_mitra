@@ -9,6 +9,7 @@ import 'features/auth/role_selection_screen.dart';
 import 'features/auth/login_screen.dart';
 import 'features/auth/farmer_login_screen.dart';
 import 'features/auth/farmer_signup_screen.dart';
+import 'features/auth/forgot_password_screen.dart';
 import 'features/farmer/dashboard/farmer_dashboard_screen.dart';
 import 'features/store/dashboard/store_dashboard_screen.dart';
 import 'features/admin/dashboard/admin_dashboard_screen.dart';
@@ -204,6 +205,8 @@ class MyApp extends StatelessWidget {
           AppConstants.farmerLoginRoute: (context) => const FarmerLoginScreen(),
           AppConstants.farmerSignupRoute: (context) =>
               const FarmerSignupScreen(),
+          AppConstants.forgotPasswordRoute: (context) =>
+              const ForgotPasswordScreen(),
           AppConstants.storeLoginRoute: (context) => const StoreLoginScreen(),
           AppConstants.storeRegistrationRoute: (context) =>
               const StoreRegistrationScreen(),

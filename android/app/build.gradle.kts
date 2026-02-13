@@ -47,4 +47,7 @@ flutter {
 dependencies {
     // Keep Kotlin stdlib aligned with the Gradle plugin to avoid metadata version mismatch
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.24")
+
+    // Google Play Services for Google Sign-In
+    implementation("com.google.android.gms:play-services-auth:21.0.0")
 }

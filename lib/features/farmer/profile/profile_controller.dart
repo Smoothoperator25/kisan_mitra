@@ -220,7 +220,7 @@ class ProfileController extends ChangeNotifier {
       }
 
       final result = await _authService.sendPasswordResetEmail(
-        _userProfile!.email,
+        email: _userProfile!.email,
       );
 
       if (result['success'] == true) {

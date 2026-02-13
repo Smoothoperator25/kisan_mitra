@@ -21,6 +21,7 @@ class AppConstants {
   static const String loginRoute = '/login';
   static const String farmerLoginRoute = '/farmer-login';
   static const String farmerSignupRoute = '/farmer-signup';
+  static const String forgotPasswordRoute = '/forgot-password';
   static const String storeLoginRoute = '/store-login';
   static const String storeRegistrationRoute = '/store-registration';
   static const String adminLoginRoute = '/admin-login';
