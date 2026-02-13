@@ -120,12 +120,12 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
             key: _formKey,
             child: Column(
               children: [
-                const SizedBox(height: 60),
+                const SizedBox(height: 16),
 
                 // Logo
                 Container(
-                  width: 140,
-                  height: 140,
+                  width: 100,
+                  height: 100,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -141,8 +141,8 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
                     alignment: Alignment.center,
                     children: [
                       Container(
-                        width: 110,
-                        height: 110,
+                        width: 80,
+                        height: 80,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
@@ -153,7 +153,7 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
                       ),
                       const Icon(
                         Icons.store,
-                        size: 50,
+                        size: 38,
                         color: Color(0xFF2E7D32),
                       ),
                       Positioned(
@@ -175,7 +175,7 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 12),
 
                 // App Name
                 Text(
@@ -200,7 +200,7 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 20),
 
                 // Store Login
                 Text(
@@ -225,7 +225,7 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
 
                 // Email ID Label
                 Align(
@@ -267,7 +267,7 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
 
                 // Password Label and Forgot
                 Row(
@@ -285,10 +285,9 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
                       onPressed: _isLoading
                           ? null
                           : () {
-                              // TODO: Implement forgot password
-                              SnackBarHelper.showInfo(
+                              Navigator.pushNamed(
                                 context,
-                                'Forgot password feature coming soon',
+                                AppConstants.forgotPasswordRoute,
                               );
                             },
                       style: TextButton.styleFrom(
@@ -348,7 +347,7 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 20),
 
                 // Login Button
                 SizedBox(
@@ -383,7 +382,7 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
                 // Don't have a store account
                 Row(
@@ -422,7 +421,7 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
                   ],
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
 
                 // Contact Support
                 Row(
