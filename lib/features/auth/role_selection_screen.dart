@@ -26,12 +26,12 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Column(
               children: [
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
 
                 // Logo with shadow
                 Container(
-                  width: 140,
-                  height: 140,
+                  width: 120,
+                  height: 120,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -48,8 +48,8 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                     children: [
                       // Circular border
                       Container(
-                        width: 110,
-                        height: 110,
+                        width: 95,
+                        height: 95,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
@@ -61,7 +61,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                       // Tractor icon
                       const Icon(
                         Icons.agriculture,
-                        size: 50,
+                        size: 45,
                         color: Color(0xFF2E7D32),
                       ),
                       // Location pin
@@ -84,7 +84,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
                 // App Name
                 Text(
@@ -109,7 +109,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
 
                 // Welcome Back
                 Text(
@@ -133,7 +133,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 20),
 
                 // Farmer Card
                 _RoleCard(
@@ -147,7 +147,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                   },
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
                 // Store Owner Card
                 _RoleCard(
@@ -161,7 +161,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                   },
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
                 // Admin Card
                 _RoleCard(
@@ -175,7 +175,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                   },
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
 
                 // Contact Support
                 Row(
