@@ -95,12 +95,12 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
             key: _formKey,
             child: Column(
               children: [
-                const SizedBox(height: 60),
+                const SizedBox(height: 16),
 
                 // Logo
                 Container(
-                  width: 140,
-                  height: 140,
+                  width: 100,
+                  height: 100,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -116,8 +116,8 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     alignment: Alignment.center,
                     children: [
                       Container(
-                        width: 110,
-                        height: 110,
+                        width: 80,
+                        height: 80,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
@@ -128,14 +128,14 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                       ),
                       const Icon(
                         Icons.agriculture,
-                        size: 50,
+                        size: 38,
                         color: Color(0xFF2E7D32),
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 12),
 
                 // App Name
                 Text(
@@ -160,7 +160,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 20),
 
                 // Admin Login
                 Text(
@@ -185,7 +185,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
 
                 // Username Label
                 Align(
@@ -235,7 +235,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
 
                 // Password Label
                 Align(
@@ -294,7 +294,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 20),
 
                 // Login Button
                 SizedBox(
@@ -329,7 +329,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
                 // Contact Support
                 Row(
