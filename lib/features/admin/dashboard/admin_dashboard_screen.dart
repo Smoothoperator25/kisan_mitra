@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../../../core/constants/app_constants.dart';
 import 'admin_dashboard_controller.dart';
 import 'admin_dashboard_model.dart';
 import '../requests/admin_requests_screen.dart';
@@ -126,7 +127,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       try {
         await _controller.logout();
         if (mounted) {
-          Navigator.pushReplacementNamed(context, '/admin-login');
+          Navigator.pushReplacementNamed(context, AppConstants.adminLoginRoute);
         }
       } catch (e) {
         if (mounted) {

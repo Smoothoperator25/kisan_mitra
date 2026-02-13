@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../core/constants/app_constants.dart';
 import 'admin_settings_controller.dart';
 import 'screens/change_password_screen.dart';
 import 'screens/notification_settings_screen.dart';
@@ -505,10 +506,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
       try {
         await controller.logout();
         if (mounted) {
-          // Navigate to login screen and clear back stack
+          // Navigate to admin login screen and clear back stack
           Navigator.of(
             context,
-          ).pushNamedAndRemoveUntil('/login', (route) => false);
+          ).pushNamedAndRemoveUntil(AppConstants.adminLoginRoute, (route) => false);
         }
       } catch (e) {
         if (mounted) {
