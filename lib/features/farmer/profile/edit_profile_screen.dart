@@ -144,12 +144,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _villageController.text = profile?.village ?? '';
 
       setState(() {
-        _selectedState = profile?.state;
-        // Validate that the city exists in the dropdown for the selected state
+        // Validate state - only set if it exists in the states list and is not empty
         if (profile?.state != null &&
+            profile!.state.trim().isNotEmpty &&
+            _states.contains(profile.state)) {
+          _selectedState = profile.state;
+        } else {
+          _selectedState = null;
+        }
+
+        // Validate city - only set if state is valid and city exists in dropdown
+        if (_selectedState != null &&
             profile?.city != null &&
-            _citiesByState.containsKey(profile!.state)) {
-          final cities = _citiesByState[profile.state]!;
+            profile!.city.trim().isNotEmpty &&
+            _citiesByState.containsKey(_selectedState)) {
+          final cities = _citiesByState[_selectedState]!;
           // Only set the city if it exists in the dropdown list
           if (cities.contains(profile.city)) {
             _selectedCity = profile.city;

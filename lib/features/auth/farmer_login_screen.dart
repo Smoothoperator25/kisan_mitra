@@ -240,12 +240,12 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
             key: _formKey,
             child: Column(
               children: [
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
                 // Logo
                 Container(
-                  width: 120,
-                  height: 120,
+                  width: 100,
+                  height: 100,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -261,8 +261,8 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                     alignment: Alignment.center,
                     children: [
                       Container(
-                        width: 95,
-                        height: 95,
+                        width: 80,
+                        height: 80,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
@@ -273,7 +273,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                       ),
                       const Icon(
                         Icons.agriculture,
-                        size: 45,
+                        size: 38,
                         color: Color(0xFF2E7D32),
                       ),
                       Positioned(
@@ -295,7 +295,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
                 // App Name
                 Text(
@@ -320,7 +320,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
                 // Welcome Back
                 Text(
@@ -345,7 +345,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
 
                 // Email Field
                 TextFormField(
@@ -437,7 +437,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
                 // Login Button
                 SizedBox(
@@ -472,49 +472,75 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
+
+                // Divider with "OR"
+                Row(
+                  children: [
+                    const Expanded(child: Divider(color: Color(0xFFB0BDB4))),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'OR',
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: const Color(0xFF5F7D63),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const Expanded(child: Divider(color: Color(0xFFB0BDB4))),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
 
                 // Sign in with Google
                 SizedBox(
                   width: double.infinity,
                   height: 56,
-                  child: OutlinedButton.icon(
+                  child: OutlinedButton(
                     onPressed: _isLoading ? null : _handleGoogleSignIn,
                     style: OutlinedButton.styleFrom(
                       backgroundColor: Colors.white,
                       side: const BorderSide(
-                        color: Color(0xFFE0E0E0),
-                        width: 1.5,
+                        color: Color(0xFFDDDDDD),
+                        width: 1,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      elevation: 1,
+                      elevation: 0,
                     ),
-                    icon: Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Icon(
-                        Icons.g_mobiledata_rounded,
-                        size: 32,
-                        color: Color(0xFF4285F4),
-                      ),
-                    ),
-                    label: Text(
-                      'Sign in with Google',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF5F7D63),
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Google Logo
+                        Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          child: CustomPaint(
+                            painter: GoogleLogoPainter(),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Sign in with Google',
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF3C4043),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
                 // Create New Account
                 TextButton(
@@ -536,7 +562,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
 
                 // Contact Support
                 Row(
@@ -627,3 +653,67 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
     );
   }
 }
+
+/// Custom painter for Google logo
+class GoogleLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..style = PaintingStyle.fill;
+
+    // Blue part
+    paint.color = const Color(0xFF4285F4);
+    final bluePath = Path()
+      ..moveTo(size.width * 0.5, size.height * 0.5)
+      ..lineTo(size.width * 0.5, size.height * 0.2)
+      ..arcToPoint(
+        Offset(size.width * 0.8, size.height * 0.5),
+        radius: Radius.circular(size.width * 0.3),
+        clockwise: true,
+      )
+      ..close();
+    canvas.drawPath(bluePath, paint);
+
+    // Red part
+    paint.color = const Color(0xFFEA4335);
+    final redPath = Path()
+      ..moveTo(size.width * 0.5, size.height * 0.5)
+      ..lineTo(size.width * 0.8, size.height * 0.5)
+      ..arcToPoint(
+        Offset(size.width * 0.5, size.height * 0.8),
+        radius: Radius.circular(size.width * 0.3),
+        clockwise: true,
+      )
+      ..close();
+    canvas.drawPath(redPath, paint);
+
+    // Yellow part
+    paint.color = const Color(0xFFFBBC05);
+    final yellowPath = Path()
+      ..moveTo(size.width * 0.5, size.height * 0.5)
+      ..lineTo(size.width * 0.5, size.height * 0.8)
+      ..arcToPoint(
+        Offset(size.width * 0.2, size.height * 0.5),
+        radius: Radius.circular(size.width * 0.3),
+        clockwise: true,
+      )
+      ..close();
+    canvas.drawPath(yellowPath, paint);
+
+    // Green part
+    paint.color = const Color(0xFF34A853);
+    final greenPath = Path()
+      ..moveTo(size.width * 0.5, size.height * 0.5)
+      ..lineTo(size.width * 0.2, size.height * 0.5)
+      ..arcToPoint(
+        Offset(size.width * 0.5, size.height * 0.2),
+        radius: Radius.circular(size.width * 0.3),
+        clockwise: true,
+      )
+      ..close();
+    canvas.drawPath(greenPath, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
