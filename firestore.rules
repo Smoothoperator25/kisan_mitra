@@ -84,5 +84,23 @@ service cloud.firestore {
       allow update: if isAdmin(); // Only admins can update notifications (mark as read)
       allow delete: if isAdmin(); // Only admins can delete notifications
     }
+
+    // Legal documents (Terms & Privacy) - public read, admin write
+    match /legalDocuments/{docId} {
+      allow read: if true; // Everyone can read terms and privacy policy
+      allow write: if isAdmin(); // Only admins can update legal documents
+    }
+
+    // Roles collection - only admins can read and write
+    match /roles/{roleId} {
+      allow read: if isAdmin(); // Only admins can read roles
+      allow write: if isAdmin(); // Only admins can manage roles
+    }
+
+    // Store users collection - only admins can read and write
+    match /storeUsers/{userId} {
+      allow read: if isAdmin(); // Only admins can read store users
+      allow write: if isAdmin(); // Only admins can manage store users
+    }
   }
 }
