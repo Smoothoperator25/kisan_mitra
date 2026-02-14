@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'admin_data_controller.dart';
 import 'admin_data_model.dart';
 import 'fertilizers/fertilizer_list_screen.dart';
+import '../farmers/admin_farmer_details_screen.dart';
 
 class AdminDataScreen extends StatefulWidget {
   const AdminDataScreen({super.key});
@@ -202,7 +203,7 @@ class _AdminDataScreenState extends State<AdminDataScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -289,14 +290,17 @@ class _AdminDataScreenState extends State<AdminDataScreen> {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
-                onPressed: () {
-                  // Navigate to farmer details
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Farmer details screen coming soon'),
-                      backgroundColor: Color(0xFF6366F1),
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AdminFarmerDetailsScreen(farmer: farmer),
                     ),
                   );
+                  // Refresh list if farmer was updated or deleted
+                  if (result == true && mounted) {
+                    setState(() {});
+                  }
                 },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFF6366F1),
@@ -358,7 +362,7 @@ class _AdminDataScreenState extends State<AdminDataScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
