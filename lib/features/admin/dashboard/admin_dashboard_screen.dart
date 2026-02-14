@@ -8,6 +8,7 @@ import '../requests/admin_requests_screen.dart';
 import '../data/admin_data_screen.dart';
 import '../settings/admin_settings_screen.dart';
 import '../settings/admin_settings_controller.dart';
+import '../notifications/admin_notification_controller.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -18,6 +19,7 @@ class AdminDashboardScreen extends StatefulWidget {
 
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   final AdminDashboardController _controller = AdminDashboardController();
+  final AdminNotificationController _notificationController = AdminNotificationController();
   int _currentTabIndex = 0;
   List<VerificationRequest> _verificationRequests = [];
   bool _isLoadingRequests = true;
@@ -365,13 +367,52 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             minHeight: 36,
           ),
         ),
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.notifications_outlined, size: 20),
+        StreamBuilder<int>(
+          stream: _notificationController.getUnreadCountStream(),
+          builder: (context, snapshot) {
+            final unreadCount = snapshot.data ?? 0;
+            return GestureDetector(
+              onTap: () => Navigator.pushNamed(context, '/admin-notifications'),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const Icon(Icons.notifications_outlined, size: 20),
+                    if (unreadCount > 0)
+                      Positioned(
+                        right: -4,
+                        top: -4,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            unreadCount > 9 ? '9+' : unreadCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ],
     );

@@ -76,5 +76,13 @@ service cloud.firestore {
       allow read: if isAdmin(); // Only admins can read admin users
       allow write: if isAdmin(); // Only admins can manage admin users
     }
+
+    // Admin notifications - only admins can read and write their own notifications
+    match /adminNotifications/{notificationId} {
+      allow read: if isAdmin(); // Only admins can read notifications
+      allow create: if isAdmin(); // Only admins can create notifications
+      allow update: if isAdmin(); // Only admins can update notifications (mark as read)
+      allow delete: if isAdmin(); // Only admins can delete notifications
+    }
   }
 }

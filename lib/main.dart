@@ -18,8 +18,10 @@ import 'features/admin/auth/admin_login_screen.dart';
 import 'features/admin/store_details/admin_store_details_screen.dart';
 import 'features/admin/farmers/admin_farmers_list_screen.dart';
 import 'features/admin/stores/admin_stores_list_screen.dart';
+import 'features/admin/stores/admin_store_verification_details_screen.dart';
 import 'features/admin/activity/admin_activity_log_screen.dart';
 import 'features/admin/reports/admin_reports_screen.dart';
+import 'features/admin/notifications/admin_notifications_screen.dart';
 import 'features/store/auth/store_login_screen.dart';
 import 'features/store/auth/store_registration_screen.dart';
 import 'features/farmer/profile/profile_controller.dart';
@@ -202,6 +204,20 @@ class MyApp extends StatelessWidget {
           ),
         ),
         initialRoute: AppConstants.splashRoute,
+        onGenerateRoute: (settings) {
+          // Handle admin-store-details route with storeId argument
+          if (settings.name == '/admin-store-details') {
+            final storeId = settings.arguments as String?;
+            if (storeId != null) {
+              return MaterialPageRoute(
+                builder: (context) => AdminStoreVerificationDetailsScreen(
+                  storeId: storeId,
+                ),
+              );
+            }
+          }
+          return null;
+        },
         routes: {
           AppConstants.splashRoute: (context) => const SplashScreen(),
           AppConstants.roleSelectionRoute: (context) =>
@@ -222,11 +238,11 @@ class MyApp extends StatelessWidget {
               const StoreDashboardScreen(),
           AppConstants.adminDashboardRoute: (context) =>
               const AdminDashboardScreen(),
-          '/admin-store-details': (context) => const AdminStoreDetailsScreen(),
           '/admin-farmers-list': (context) => const AdminFarmersListScreen(),
           '/admin-stores-list': (context) => const AdminStoresListScreen(),
           '/admin-activity-log': (context) => const AdminActivityLogScreen(),
           '/admin-reports': (context) => const AdminReportsScreen(),
+          '/admin-notifications': (context) => const AdminNotificationsScreen(),
         },
       ),
     );
