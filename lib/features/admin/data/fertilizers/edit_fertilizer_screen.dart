@@ -28,10 +28,20 @@ class _EditFertilizerScreenState extends State<EditFertilizerScreen> {
   late TextEditingController _cropsController;
   late TextEditingController _dosageController;
   late TextEditingController _safetyNotesController;
+  late TextEditingController _descriptionController;
+  late TextEditingController _manufacturerController;
+  late TextEditingController _shelfLifeController;
+  late TextEditingController _storageController;
+  late TextEditingController _benefitsController;
+  late TextEditingController _timingController;
+  late TextEditingController _precautionsController;
+  late TextEditingController _priceController;
 
   // State
   late String _applicationMethod;
   late String _dosageUnit;
+  late String _category;
+  late String _form;
   late String _imageUrl;
   File? _selectedImage;
   bool _isSaving = false;
@@ -54,8 +64,36 @@ class _EditFertilizerScreenState extends State<EditFertilizerScreen> {
     _safetyNotesController = TextEditingController(
       text: widget.fertilizer.safetyNotes,
     );
+    _descriptionController = TextEditingController(
+      text: widget.fertilizer.description,
+    );
+    _manufacturerController = TextEditingController(
+      text: widget.fertilizer.manufacturer,
+    );
+    _shelfLifeController = TextEditingController(
+      text: widget.fertilizer.shelfLife,
+    );
+    _storageController = TextEditingController(
+      text: widget.fertilizer.storageInstructions,
+    );
+    _benefitsController = TextEditingController(
+      text: widget.fertilizer.benefits,
+    );
+    _timingController = TextEditingController(
+      text: widget.fertilizer.applicationTiming,
+    );
+    _precautionsController = TextEditingController(
+      text: widget.fertilizer.precautions,
+    );
+    _priceController = TextEditingController(
+      text: widget.fertilizer.pricePerUnit != null
+          ? widget.fertilizer.pricePerUnit!.toStringAsFixed(2)
+          : '',
+    );
     _applicationMethod = widget.fertilizer.applicationMethod;
     _dosageUnit = widget.fertilizer.dosageUnit;
+    _category = widget.fertilizer.category;
+    _form = widget.fertilizer.form;
     _imageUrl = widget.fertilizer.imageUrl;
   }
 
@@ -66,6 +104,14 @@ class _EditFertilizerScreenState extends State<EditFertilizerScreen> {
     _cropsController.dispose();
     _dosageController.dispose();
     _safetyNotesController.dispose();
+    _descriptionController.dispose();
+    _manufacturerController.dispose();
+    _shelfLifeController.dispose();
+    _storageController.dispose();
+    _benefitsController.dispose();
+    _timingController.dispose();
+    _precautionsController.dispose();
+    _priceController.dispose();
     super.dispose();
   }
 
@@ -102,6 +148,16 @@ class _EditFertilizerScreenState extends State<EditFertilizerScreen> {
         recommendedDosage: double.tryParse(_dosageController.text.trim()) ?? 0,
         dosageUnit: _dosageUnit,
         safetyNotes: _safetyNotesController.text.trim(),
+        description: _descriptionController.text.trim(),
+        manufacturer: _manufacturerController.text.trim(),
+        category: _category,
+        form: _form,
+        shelfLife: _shelfLifeController.text.trim(),
+        storageInstructions: _storageController.text.trim(),
+        benefits: _benefitsController.text.trim(),
+        applicationTiming: _timingController.text.trim(),
+        precautions: _precautionsController.text.trim(),
+        pricePerUnit: double.tryParse(_priceController.text.trim()),
         isArchived: false,
         createdAt: widget.fertilizer.createdAt,
         updatedAt: DateTime.now(),
@@ -410,7 +466,6 @@ class _EditFertilizerScreenState extends State<EditFertilizerScreen> {
           Row(
             children: [
               Expanded(
-                flex: 9,
                 child: _buildTextField(
                   label: 'NPK COMPOSITION',
                   controller: _npkController,
@@ -427,29 +482,29 @@ class _EditFertilizerScreenState extends State<EditFertilizerScreen> {
                   },
                 ),
               ),
-              const SizedBox(width: 2),
+              const SizedBox(width: 12),
               Expanded(
-                flex: 11,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'APPLICATION METHOD',
                       style: TextStyle(
-                        fontSize: 9,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: Colors.grey[600],
-                        letterSpacing: 0.2,
+                        letterSpacing: 0.5,
                       ),
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
                       value: _applicationMethod,
+                      isExpanded: true,
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: const Color(0xFFF8F9FA),
                         contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
+                          horizontal: 12,
                           vertical: 12,
                         ),
                         border: OutlineInputBorder(
@@ -462,7 +517,8 @@ class _EditFertilizerScreenState extends State<EditFertilizerScreen> {
                           value: method,
                           child: Text(
                             method,
-                            style: const TextStyle(fontSize: 13),
+                            style: const TextStyle(fontSize: 14),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         );
                       }).toList(),
@@ -470,6 +526,138 @@ class _EditFertilizerScreenState extends State<EditFertilizerScreen> {
                         if (value != null) {
                           setState(() {
                             _applicationMethod = value;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            label: 'DESCRIPTION',
+            controller: _descriptionController,
+            hint: 'Detailed description of the fertilizer',
+            maxLines: 3,
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildTextField(
+                  label: 'MANUFACTURER/BRAND',
+                  controller: _manufacturerController,
+                  hint: 'e.g., IFFCO, Coromandel',
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildTextField(
+                  label: 'PRICE PER UNIT (₹)',
+                  controller: _priceController,
+                  hint: 'Optional',
+                  keyboardType: TextInputType.number,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'CATEGORY',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[600],
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      value: _category,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color(0xFFF8F9FA),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      items: FertilizerCategory.all.map((category) {
+                        return DropdownMenuItem(
+                          value: category,
+                          child: Text(
+                            category,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() {
+                            _category = value;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'FORM/STATE',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[600],
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      value: _form,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color(0xFFF8F9FA),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      items: FertilizerForm.all.map((form) {
+                        return DropdownMenuItem(
+                          value: form,
+                          child: Text(
+                            form,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() {
+                            _form = value;
                           });
                         }
                       },
@@ -570,6 +758,34 @@ class _EditFertilizerScreenState extends State<EditFertilizerScreen> {
               ),
             ],
           ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            label: 'KEY BENEFITS',
+            controller: _benefitsController,
+            hint:
+                'e.g., Promotes rapid growth, Increases yield, Improves soil health',
+            maxLines: 3,
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildTextField(
+                  label: 'APPLICATION TIMING',
+                  controller: _timingController,
+                  hint: 'e.g., Pre-sowing, Vegetative stage',
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildTextField(
+                  label: 'SHELF LIFE',
+                  controller: _shelfLifeController,
+                  hint: 'e.g., 2 years, 24 months',
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -623,7 +839,7 @@ class _EditFertilizerScreenState extends State<EditFertilizerScreen> {
               ),
               const SizedBox(width: 8),
               const Text(
-                'PRECAUTIONS & SAFETY',
+                'STORAGE & SAFETY',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -635,7 +851,23 @@ class _EditFertilizerScreenState extends State<EditFertilizerScreen> {
           ),
           const SizedBox(height: 16),
           _buildTextField(
-            label: 'PRECISE SAFETY NOTES',
+            label: 'STORAGE INSTRUCTIONS',
+            controller: _storageController,
+            hint:
+                'e.g., Store in cool, dry place. Keep away from direct sunlight.',
+            maxLines: 3,
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            label: 'SAFETY PRECAUTIONS',
+            controller: _precautionsController,
+            hint:
+                'e.g., Keep away from children, Do not mix with other chemicals',
+            maxLines: 3,
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            label: 'DETAILED SAFETY NOTES',
             controller: _safetyNotesController,
             hint:
                 '1. Avoid direct contact with skin and eyes.\n2. Use gloves and protective mask during application.\n3. Wash hands thoroughly after handling.',
