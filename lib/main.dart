@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'core/constants/app_constants.dart';
 import 'core/utils/app_theme.dart';
 import 'features/auth/splash_screen.dart';
@@ -25,8 +26,12 @@ import 'features/farmer/profile/profile_controller.dart';
 import 'features/store/profile/store_profile_controller.dart';
 import 'firebase_options.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Mapbox with access token
+  MapboxOptions.setAccessToken('pk.eyJ1IjoiY29kZWJ5c2F0eWFqaXQiLCJhIjoiY21sa3NnbjllMDAwMjNjcXhzNXA2amEzZSJ9.g5WX1ReVtrtZFShKGxBcBAE');
+
   runApp(const AppInitializer());
 }
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  📍 MAPBOX CONFIGURATION FILE
+
+  Instructions:
+  1. Get your Mapbox access token from: https://account.mapbox.com/
+  2. Replace YOUR_MAPBOX_TOKEN_HERE below with your actual token
+  3. The token should start with: pk.
+
+  Example token: pk.eyJ1IjoieW91cm5hbWUiLCJhIjoiY2xxeHl6MTIzMDAuLi4
+-->
+<resources>
+    <!--
+      Replace YOUR_MAPBOX_TOKEN_HERE with your actual Mapbox access token
+      Get it from: https://account.mapbox.com/access-tokens/
+    -->
+    <string name="mapbox_access_token">pk.eyJ1IjoiY29kZWJ5c2F0eWFqaXQiLCJhIjoiY21sa3NnbjllMDAwMjNjcXhzNXA2amEzZSJ9.g5WX1ReVtrtZFShKGxBcBAE</string>
+</resources>

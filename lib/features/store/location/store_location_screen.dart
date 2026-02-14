@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'store_location_controller.dart';
 
 /// Store Location Screen
-/// Allows store owners to set and update their store location on Google Maps
+/// Allows store owners to set and update their store location on Mapbox Maps
 class StoreLocationScreen extends StatefulWidget {
   const StoreLocationScreen({super.key});
 
@@ -94,7 +94,7 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
           color: const Color(0xFFD5F4E6),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -176,7 +176,7 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
             borderRadius: BorderRadius.circular(24),
           ),
           child: Text(
-            'Drag the marker to set your exact store location',
+            'Tap anywhere on the map to set your store location',
             style: GoogleFonts.poppins(
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -189,41 +189,32 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
     );
   }
 
-  /// Map Section with draggable marker
+  /// Map Section with tap-to-select location
   Widget _buildMapSection(StoreLocationController controller) {
     if (controller.selectedLatitude == null ||
         controller.selectedLongitude == null) {
       return const Center(child: Text('Unable to load map'));
     }
 
-    final LatLng position = LatLng(
-      controller.selectedLatitude!,
-      controller.selectedLongitude!,
-    );
-
-    return GoogleMap(
-      initialCameraPosition: CameraPosition(target: position, zoom: 15),
-      onMapCreated: (GoogleMapController mapController) {
-        controller.setMapController(mapController);
+    return MapWidget(
+      styleUri: MapboxStyles.OUTDOORS,
+      onMapCreated: (MapboxMap mapboxMap) {
+        controller.setMapController(mapboxMap);
       },
-      markers: {
-        Marker(
-          markerId: const MarkerId('store_location'),
-          position: position,
-          draggable: true,
-          onDragEnd: (LatLng newPosition) {
-            controller.onMarkerDragEnd(newPosition);
-          },
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueGreen,
+      cameraOptions: CameraOptions(
+        center: Point(
+          coordinates: Position(
+            controller.selectedLongitude!,
+            controller.selectedLatitude!,
           ),
-          infoWindow: const InfoWindow(title: 'Store location'),
         ),
+        zoom: 15.0,
+      ),
+      onTapListener: (context) {
+        // Update location on map tap
+        final point = context.point;
+        controller.onMapTap(point.coordinates.lat.toDouble(), point.coordinates.lng.toDouble());
       },
-      myLocationEnabled: false,
-      myLocationButtonEnabled: false,
-      zoomControlsEnabled: true,
-      mapToolbarEnabled: false,
     );
   }
 
@@ -241,7 +232,7 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),

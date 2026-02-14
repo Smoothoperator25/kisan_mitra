@@ -2,6 +2,18 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        // Mapbox Maven repository - REQUIRED for Mapbox Maps SDK
+        maven {
+            url = uri("https://api.mapbox.com/downloads/v2/releases/maven")
+            credentials {
+                username = "mapbox"
+                // Use the secret token from strings.xml or set directly
+                password = "sk.eyJ1IjoiY29kZWJ5c2F0eWFqaXQiLCJhIjoiY21sa3RjczM5MDBxbDJqcHR1d25uZHRycSJ9.ZGLy8-L2i3pYx6Fc-hhLww"
+            }
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
     }
 
     // Force Kotlin stdlib 1.9.24 across all modules to avoid metadata version mismatch

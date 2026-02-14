@@ -29,9 +29,9 @@ class AppConstants {
   static const String storeHomeRoute = '/store-home';
   static const String adminDashboardRoute = '/admin-dashboard';
 
-  // Map Configuration
-  static const String googleMapsApiKey =
-      'YOUR_API_KEY_HERE'; // Placeholder - Replace with actual key
+  // Map Configuration (Mapbox)
+  static const String mapboxAccessToken =
+      'YOUR_MAPBOX_ACCESS_TOKEN'; // Replace with your Mapbox token
   static const double nearbyRadiusKm = 5.0;
   static const double defaultLatitude = 0.0;
   static const double defaultLongitude = 0.0;

@@ -67,9 +67,21 @@ class SafetyGuideline {
 
   /// Create from Firestore document data
   factory SafetyGuideline.fromFirestore(Map<String, dynamic> data) {
+    // Handle order field which might be stored as String or int in Firestore
+    int orderValue = 0;
+    if (data['order'] != null) {
+      if (data['order'] is int) {
+        orderValue = data['order'] as int;
+      } else if (data['order'] is String) {
+        orderValue = int.tryParse(data['order'] as String) ?? 0;
+      } else if (data['order'] is num) {
+        orderValue = (data['order'] as num).toInt();
+      }
+    }
+
     return SafetyGuideline(
-      guideline: data['guideline'] as String? ?? '',
-      order: data['order'] as int? ?? 0,
+      guideline: data['guideline']?.toString() ?? '',
+      order: orderValue,
     );
   }
 }

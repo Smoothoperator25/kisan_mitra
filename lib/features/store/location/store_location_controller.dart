@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/firestore_service.dart';
 import 'store_location_service.dart';
 
 /// Controller for Store Location Screen
-/// Handles location state, marker dragging, and Firebase integration
+/// Handles location state, marker dragging, and Firebase integration with Mapbox
 class StoreLocationController extends ChangeNotifier {
   final StoreLocationService _locationService = StoreLocationService();
   final AuthService _authService = AuthService();
   final FirestoreService _firestoreService = FirestoreService();
 
   // Map controller
-  GoogleMapController? _mapController;
+  MapboxMap? _mapController;
+  PointAnnotationManager? _pointAnnotationManager;
 
   // Location state
   double? _selectedLatitude;
@@ -30,7 +31,8 @@ class StoreLocationController extends ChangeNotifier {
   String? _error;
 
   // Getters
-  GoogleMapController? get mapController => _mapController;
+  MapboxMap? get mapController => _mapController;
+  PointAnnotationManager? get pointAnnotationManager => _pointAnnotationManager;
   double? get selectedLatitude => _selectedLatitude;
   double? get selectedLongitude => _selectedLongitude;
   String get resolvedAddress => _resolvedAddress;
@@ -123,14 +125,38 @@ class StoreLocationController extends ChangeNotifier {
     }
   }
 
-  /// Handle marker drag end
-  Future<void> onMarkerDragEnd(LatLng position) async {
-    _selectedLatitude = position.latitude;
-    _selectedLongitude = position.longitude;
-    notifyListeners();
+  /// Handle map tap
+  Future<void> onMapTap(double latitude, double longitude) async {
+    _selectedLatitude = latitude;
+    _selectedLongitude = longitude;
+
+    // Update marker position
+    await _updateMarkerPosition(latitude, longitude);
 
     // Update address
-    await _updateAddress(position.latitude, position.longitude);
+    await _updateAddress(latitude, longitude);
+
+    notifyListeners();
+  }
+
+  /// Update marker position on map
+  Future<void> _updateMarkerPosition(double latitude, double longitude) async {
+    if (_pointAnnotationManager == null) return;
+
+    try {
+      // Clear existing markers
+      await _pointAnnotationManager!.deleteAll();
+
+      // Add new marker
+      final options = PointAnnotationOptions(
+        geometry: Point(coordinates: Position(longitude, latitude)),
+        iconSize: 1.5,
+      );
+
+      await _pointAnnotationManager!.create(options);
+    } catch (e) {
+      print('Error updating marker: $e');
+    }
   }
 
   /// Use current location button handler
@@ -151,10 +177,17 @@ class StoreLocationController extends ChangeNotifier {
 
         // Animate camera to new location
         if (_mapController != null) {
-          await _mapController!.animateCamera(
-            CameraUpdate.newLatLngZoom(LatLng(latitude, longitude), 15),
+          _mapController!.flyTo(
+            CameraOptions(
+              center: Point(coordinates: Position(longitude, latitude)),
+              zoom: 15.0,
+            ),
+            MapAnimationOptions(duration: 1000),
           );
         }
+
+        // Update marker position
+        await _updateMarkerPosition(latitude, longitude);
 
         // Update address
         await _updateAddress(latitude, longitude);
@@ -209,8 +242,16 @@ class StoreLocationController extends ChangeNotifier {
   }
 
   /// Set map controller
-  void setMapController(GoogleMapController controller) {
+  Future<void> setMapController(MapboxMap controller) async {
     _mapController = controller;
+
+    // Initialize point annotation manager for markers
+    _pointAnnotationManager = await controller.annotations.createPointAnnotationManager();
+
+    // Add initial marker if location is set
+    if (_selectedLatitude != null && _selectedLongitude != null) {
+      await _updateMarkerPosition(_selectedLatitude!, _selectedLongitude!);
+    }
   }
 
   /// Clear error
@@ -221,7 +262,8 @@ class StoreLocationController extends ChangeNotifier {
 
   @override
   void dispose() {
-    _mapController?.dispose();
+    _mapController = null;
+    _pointAnnotationManager = null;
     super.dispose();
   }
 }
