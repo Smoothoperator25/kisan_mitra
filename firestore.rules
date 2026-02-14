@@ -18,11 +18,11 @@ service cloud.firestore {
          exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
     }
 
-    // Users collection - farmers can read/write their own data
+    // Users collection - farmers can read/write their own data, admins can manage all users
     match /users/{userId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn();
-      allow update, delete: if isOwner(userId);
+      allow update, delete: if isOwner(userId) || isAdmin(); // Owner or Admin can update/delete
     }
 
     // Stores collection - anyone can read verified stores for search functionality
