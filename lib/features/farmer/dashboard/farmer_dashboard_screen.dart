@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../farmer_home_screen.dart';
 import '../fertilizer_search/fertilizer_search_screen.dart';
-import '../advisory/fertilizer_advisory_screen.dart';
+import '../advisory/presentation/screens/advisory_screen.dart';
 import '../profile/farmer_profile_screen.dart';
 import '../profile/profile_controller.dart';
 
@@ -46,7 +46,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
           const FertilizerSearchScreen(),
 
           // Index 2: Advisory
-          const FertilizerAdvisoryScreen(),
+          const AdvisoryScreen(),
 
           // Index 3: Profile
           ChangeNotifierProvider(
