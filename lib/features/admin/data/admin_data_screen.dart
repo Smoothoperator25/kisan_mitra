@@ -485,26 +485,491 @@ class _AdminDataScreenState extends State<AdminDataScreen> {
   }
 
   Widget _buildReportsTab() {
-    return Center(
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _controller.getReportsData(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return _buildErrorState('Error loading reports');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(color: Color(0xFF10B981)),
+          );
+        }
+
+        final data = snapshot.data ?? {};
+        final farmerCount = data['farmerCount'] ?? 0;
+        final storeCount = data['storeCount'] ?? 0;
+        final verifiedStores = data['verifiedStores'] ?? 0;
+        final pendingStores = data['pendingStores'] ?? 0;
+        final activeFarmers = data['activeFarmers'] ?? 0;
+        final totalCrops = data['totalCrops'] ?? 0;
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            setState(() {});
+          },
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              // Summary Cards
+              _buildReportsSummary(
+                farmerCount,
+                storeCount,
+                verifiedStores,
+                activeFarmers,
+              ),
+              const SizedBox(height: 16),
+
+              // Store Status Distribution
+              _buildStoreStatusCard(verifiedStores, pendingStores, storeCount),
+              const SizedBox(height: 16),
+
+              // Farmer Activity Card
+              _buildFarmerActivityCard(farmerCount, activeFarmers, totalCrops),
+              const SizedBox(height: 16),
+
+              // Quick Actions
+              _buildReportsQuickActions(),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildReportsSummary(
+    int farmers,
+    int stores,
+    int verified,
+    int active,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'OVERVIEW',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF64748B),
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                'Total Farmers',
+                farmers.toString(),
+                Icons.people,
+                const Color(0xFF10B981),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                'Total Stores',
+                stores.toString(),
+                Icons.store,
+                const Color(0xFF6366F1),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                'Verified Stores',
+                verified.toString(),
+                Icons.verified,
+                const Color(0xFF10B981),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                'Active Farmers',
+                active.toString(),
+                Icons.check_circle,
+                const Color(0xFF10B981),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.assessment, size: 80, color: Colors.grey[400]),
-          const SizedBox(height: 16),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: color, size: 20),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
           Text(
-            'Reports',
+            value,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Color(0xFF64748B),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStoreStatusCard(int verified, int pending, int total) {
+    final rejected = total - verified - pending;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.pie_chart, color: const Color(0xFF6366F1), size: 20),
+              const SizedBox(width: 8),
+              const Text(
+                'Store Status Distribution',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _buildProgressRow(
+            'Verified',
+            verified,
+            total,
+            const Color(0xFF10B981),
+          ),
+          const SizedBox(height: 12),
+          _buildProgressRow(
+            'Pending',
+            pending,
+            total,
+            const Color(0xFFF59E0B),
+          ),
+          const SizedBox(height: 12),
+          _buildProgressRow(
+            'Rejected',
+            rejected,
+            total,
+            const Color(0xFFEF4444),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressRow(String label, int count, int total, Color color) {
+    final percentage = total > 0 ? (count / total * 100) : 0.0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF64748B),
+              ),
+            ),
+            Text(
+              '$count (${percentage.toStringAsFixed(1)}%)',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: total > 0 ? count / total : 0,
+            backgroundColor: color.withValues(alpha: 0.1),
+            valueColor: AlwaysStoppedAnimation<Color>(color),
+            minHeight: 8,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFarmerActivityCard(int total, int active, int totalCrops) {
+    final inactive = total - active;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.analytics, color: const Color(0xFF10B981), size: 20),
+              const SizedBox(width: 8),
+              const Text(
+                'Farmer Analytics',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInfoTile(
+                  'Active',
+                  active.toString(),
+                  const Color(0xFF10B981),
+                  Icons.check_circle,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildInfoTile(
+                  'Inactive',
+                  inactive.toString(),
+                  const Color(0xFFF59E0B),
+                  Icons.cancel,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildInfoTile(
+                  'Total Crops',
+                  totalCrops.toString(),
+                  const Color(0xFF6366F1),
+                  Icons.grass,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoTile(String label, String value, Color color, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(height: 8),
+          Text(
+            value,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.grey[700],
+              color: color,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
-            'Coming soon...',
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              color: Color(0xFF64748B),
+            ),
+            textAlign: TextAlign.center,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildReportsQuickActions() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.flash_on, color: const Color(0xFFF59E0B), size: 20),
+              const SizedBox(width: 8),
+              const Text(
+                'Quick Actions',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildActionButton(
+            'View All Farmers',
+            Icons.people,
+            const Color(0xFF10B981),
+            () {
+              setState(() => _selectedTabIndex = 0);
+            },
+          ),
+          const SizedBox(height: 8),
+          _buildActionButton(
+            'View All Stores',
+            Icons.store,
+            const Color(0xFF6366F1),
+            () {
+              setState(() => _selectedTabIndex = 1);
+            },
+          ),
+          const SizedBox(height: 8),
+          _buildActionButton(
+            'View Fertilizers',
+            Icons.science,
+            const Color(0xFFF59E0B),
+            () {
+              setState(() => _selectedTabIndex = 2);
+            },
+          ),
+          const SizedBox(height: 8),
+          _buildActionButton(
+            'View Detailed Reports',
+            Icons.assessment,
+            const Color(0xFFEF4444),
+            () {
+              Navigator.pushNamed(context, '/admin-reports');
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton(
+    String label,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
+          ],
+        ),
       ),
     );
   }

@@ -97,4 +97,57 @@ class AdminDataController {
       throw Exception('Failed to fetch store: $e');
     }
   }
+
+  /// Get comprehensive reports data for analytics
+  Future<Map<String, dynamic>> getReportsData() async {
+    try {
+      // Get farmers count
+      final farmersSnapshot = await _firestore
+          .collection('users')
+          .where('role', isEqualTo: 'farmer')
+          .get();
+      final farmerCount = farmersSnapshot.docs.length;
+
+      // Count active farmers
+      final activeFarmers = farmersSnapshot.docs
+          .where((doc) => doc.data()['isActive'] == true)
+          .length;
+
+      // Count total crops
+      int totalCrops = 0;
+      for (var doc in farmersSnapshot.docs) {
+        final crops = doc.data()['crops'] as List?;
+        if (crops != null) {
+          totalCrops += crops.length;
+        }
+      }
+
+      // Get stores count
+      final storesSnapshot = await _firestore.collection('stores').get();
+      final storeCount = storesSnapshot.docs.length;
+
+      // Count verified stores
+      final verifiedStores = storesSnapshot.docs
+          .where((doc) => doc.data()['isVerified'] == true)
+          .length;
+
+      // Count pending stores
+      final pendingStores = storesSnapshot.docs
+          .where((doc) =>
+              doc.data()['isVerified'] == false &&
+              doc.data()['isRejected'] == false)
+          .length;
+
+      return {
+        'farmerCount': farmerCount,
+        'storeCount': storeCount,
+        'verifiedStores': verifiedStores,
+        'pendingStores': pendingStores,
+        'activeFarmers': activeFarmers,
+        'totalCrops': totalCrops,
+      };
+    } catch (e) {
+      throw Exception('Failed to fetch reports data: $e');
+    }
+  }
 }
