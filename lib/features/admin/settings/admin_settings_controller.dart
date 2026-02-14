@@ -160,9 +160,9 @@ class AdminSettingsController extends ChangeNotifier {
       final user = _auth.currentUser;
       if (user == null) throw Exception('No user logged in');
 
-      await _firestore.collection('adminUsers').doc(user.uid).update({
+      await _firestore.collection('adminUsers').doc(user.uid).set({
         'notificationSettings': settings.toFirestore(),
-      });
+      }, SetOptions(merge: true));
 
       // Log activity
       await logActivity(

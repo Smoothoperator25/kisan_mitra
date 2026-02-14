@@ -35,8 +35,10 @@ class NotificationSettingsScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
+          // If error (e.g. document not found), we'll just use default settings
+          // so the user can see the UI and save new settings to create the doc.
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            debugPrint('Notification settings error: ${snapshot.error}');
           }
 
           final settings =
