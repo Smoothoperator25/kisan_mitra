@@ -17,6 +17,12 @@ class _FertilizerListScreenState extends State<FertilizerListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
+      appBar: AppBar(
+        title: const Text('Manage Fertilizer Master Data'),
+        backgroundColor: const Color(0xFF10B981),
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
       body: StreamBuilder<List<Fertilizer>>(
         stream: _controller.getFertilizersStream(),
         builder: (context, snapshot) {

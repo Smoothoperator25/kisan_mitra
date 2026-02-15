@@ -9,6 +9,7 @@ import 'screens/activity_logs_screen.dart';
 import 'screens/app_configuration_screen.dart';
 import 'screens/terms_privacy_screen.dart';
 import 'screens/user_access_control_screen.dart';
+import '../data/fertilizers/fertilizer_list_screen.dart';
 
 class AdminSettingsScreen extends StatefulWidget {
   const AdminSettingsScreen({super.key});
@@ -353,10 +354,12 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                         iconColor: const Color(0xFF4CAF50),
                         title: 'Manage Fertilizer Master Data',
                         onTap: () {
-                          // Navigate to Data tab in admin dashboard
-                          // Assuming there's a way to switch to Data tab
-                          Navigator.of(context).pop(); // Go back to dashboard
-                          // You may need to add a callback or state management to switch to Data tab
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const FertilizerListScreen(),
+                            ),
+                          );
                         },
                       ),
                       _buildMenuItem(
