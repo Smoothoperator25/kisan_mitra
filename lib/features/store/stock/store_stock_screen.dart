@@ -83,23 +83,6 @@ class _StockScreenContentState extends State<_StockScreenContent> {
           padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
           child: Row(
             children: [
-              // Back Button
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: IconButton(
-                  padding: const EdgeInsets.all(8),
-                  constraints: const BoxConstraints(),
-                  icon: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
-                  onPressed: () {
-                    // Just switch tab, don't pop - bottom nav will handle it
-                    // This back button is mainly for visual consistency with the design
-                  },
-                ),
-              ),
-
               const SizedBox(width: 10),
 
               // Title and Store Name
@@ -213,7 +196,9 @@ class _StockScreenContentState extends State<_StockScreenContent> {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFF2E7D32) : Colors.white,
+                      color: isSelected
+                          ? const Color(0xFF2E7D32)
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: isSelected
@@ -338,7 +323,9 @@ class _StockScreenContentState extends State<_StockScreenContent> {
                       itemBuilder: (context, index) {
                         return _FertilizerCard(
                           // Use composite key with reset version to force rebuild
-                          key: ValueKey('${filteredFertilizers[index].id}_${controller.resetVersion}'),
+                          key: ValueKey(
+                            '${filteredFertilizers[index].id}_${controller.resetVersion}',
+                          ),
                           fertilizer: filteredFertilizers[index],
                         );
                       },
@@ -542,7 +529,6 @@ class _FertilizerCardState extends State<_FertilizerCard> {
     if (oldWidget.fertilizer.price != widget.fertilizer.price ||
         oldWidget.fertilizer.stock != widget.fertilizer.stock ||
         oldWidget.fertilizer.isAvailable != widget.fertilizer.isAvailable) {
-
       // Remove listeners to prevent triggering onChange while updating
       _priceController.removeListener(_onFieldChanged);
       _stockController.removeListener(_onFieldChanged);
@@ -652,7 +638,8 @@ class _FertilizerCardState extends State<_FertilizerCard> {
   @override
   Widget build(BuildContext context) {
     // Determine stock status
-    final currentStock = int.tryParse(_stockController.text) ?? widget.fertilizer.stock;
+    final currentStock =
+        int.tryParse(_stockController.text) ?? widget.fertilizer.stock;
     final isInStock = currentStock > 0 && _isAvailable;
     final isLowStock = currentStock > 0 && currentStock <= 10;
 
@@ -684,10 +671,7 @@ class _FertilizerCardState extends State<_FertilizerCard> {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  const Color(0xFFE8F5E9),
-                  Colors.white,
-                ],
+                colors: [const Color(0xFFE8F5E9), Colors.white],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -704,27 +688,22 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFF4CAF50),
-                        Color(0xFF2E7D32),
-                      ],
+                      colors: [Color(0xFF4CAF50), Color(0xFF2E7D32)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF2E7D32).withAlpha((0.3 * 255).toInt()),
+                        color: const Color(
+                          0xFF2E7D32,
+                        ).withAlpha((0.3 * 255).toInt()),
                         blurRadius: 6,
                         offset: const Offset(0, 2),
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.eco,
-                    size: 24,
-                    color: Colors.white,
-                  ),
+                  child: const Icon(Icons.eco, size: 24, color: Colors.white),
                 ),
 
                 const SizedBox(width: 12),
@@ -804,8 +783,14 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                           gradient: LinearGradient(
                             colors: isInStock
                                 ? (isLowStock
-                                    ? [Colors.orange.shade400, Colors.orange.shade600]
-                                    : [const Color(0xFF66BB6A), const Color(0xFF2E7D32)])
+                                      ? [
+                                          Colors.orange.shade400,
+                                          Colors.orange.shade600,
+                                        ]
+                                      : [
+                                          const Color(0xFF66BB6A),
+                                          const Color(0xFF2E7D32),
+                                        ])
                                 : [Colors.red.shade400, Colors.red.shade600],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
@@ -813,12 +798,13 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                           borderRadius: BorderRadius.circular(6),
                           boxShadow: [
                             BoxShadow(
-                              color: (isInStock
-                                      ? (isLowStock
-                                          ? Colors.orange.shade300
-                                          : const Color(0xFF2E7D32))
-                                      : Colors.red.shade300)
-                                  .withAlpha((0.4 * 255).toInt()),
+                              color:
+                                  (isInStock
+                                          ? (isLowStock
+                                                ? Colors.orange.shade300
+                                                : const Color(0xFF2E7D32))
+                                          : Colors.red.shade300)
+                                      .withAlpha((0.4 * 255).toInt()),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -829,7 +815,9 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                           children: [
                             Icon(
                               isInStock
-                                  ? (isLowStock ? Icons.warning_rounded : Icons.check_circle_rounded)
+                                  ? (isLowStock
+                                        ? Icons.warning_rounded
+                                        : Icons.check_circle_rounded)
                                   : Icons.cancel_rounded,
                               size: 12,
                               color: Colors.white,
@@ -896,7 +884,10 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                   children: [
                     const Text(
                       'Available for Sale',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     Transform.scale(
                       scale: 0.85,
@@ -930,7 +921,8 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                             MaterialPageRoute(
                               builder: (context) => FertilizerDetailsScreen(
                                 fertilizerId: widget.fertilizer.fertilizerId,
-                                fertilizerName: widget.fertilizer.fertilizerName,
+                                fertilizerName:
+                                    widget.fertilizer.fertilizerName,
                               ),
                             ),
                           );
@@ -979,7 +971,9 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                               ? null
                               : [
                                   BoxShadow(
-                                    color: const Color(0xFF2E7D32).withAlpha((0.4 * 255).toInt()),
+                                    color: const Color(
+                                      0xFF2E7D32,
+                                    ).withAlpha((0.4 * 255).toInt()),
                                     blurRadius: 6,
                                     offset: const Offset(0, 3),
                                   ),
@@ -988,7 +982,9 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                         child: ElevatedButton.icon(
                           onPressed: _isSaving ? null : _handleSave,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _isSaving ? Colors.grey.shade300 : Colors.transparent,
+                            backgroundColor: _isSaving
+                                ? Colors.grey.shade300
+                                : Colors.transparent,
                             foregroundColor: Colors.white,
                             shadowColor: Colors.transparent,
                             padding: const EdgeInsets.symmetric(vertical: 11),
@@ -1003,7 +999,9 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                                   height: 15,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2.5,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
                                   ),
                                 )
                               : const Icon(Icons.save_rounded, size: 16),
@@ -1013,7 +1011,9 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.5,
-                              color: _isSaving ? Colors.grey.shade600 : Colors.white,
+                              color: _isSaving
+                                  ? Colors.grey.shade600
+                                  : Colors.white,
                             ),
                           ),
                         ),
@@ -1082,24 +1082,15 @@ class _FertilizerCardState extends State<_FertilizerCard> {
               fillColor: Colors.grey.shade50,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(9),
-                borderSide: BorderSide(
-                  color: Colors.grey.shade300,
-                  width: 1.5,
-                ),
+                borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(9),
-                borderSide: BorderSide(
-                  color: Colors.grey.shade300,
-                  width: 1.5,
-                ),
+                borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(9),
-                borderSide: BorderSide(
-                  color: color,
-                  width: 2.5,
-                ),
+                borderSide: BorderSide(color: color, width: 2.5),
               ),
             ),
             style: const TextStyle(
@@ -1132,11 +1123,7 @@ class _FertilizerCardState extends State<_FertilizerCard> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 11,
-            color: color,
-          ),
+          Icon(icon, size: 11, color: color),
           const SizedBox(width: 4),
           Text(
             label,

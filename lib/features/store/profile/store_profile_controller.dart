@@ -206,6 +206,55 @@ class StoreProfileController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Update store statistics
+  Future<void> updateStoreStatistics() async {
+    try {
+      if (currentStoreUid.isEmpty) return;
+
+      // Get total fertilizers listed
+      final fertilizersSnapshot = await _firestore
+          .collection('store_fertilizers')
+          .where('storeId', isEqualTo: currentStoreUid)
+          .get();
+
+      final totalFertilizers = fertilizersSnapshot.docs.length;
+
+      // Calculate active stock (sum of stock where isAvailable = true)
+      int totalStock = 0;
+      for (var doc in fertilizersSnapshot.docs) {
+        final data = doc.data();
+        final isAvailable = data['isAvailable'] ?? false;
+        if (isAvailable) {
+          final stock = data['stock'] ?? 0;
+          totalStock += stock as int;
+        }
+      }
+
+      // Update store document with new statistics
+      await _firestore.collection('stores').doc(currentStoreUid).update({
+        'totalFertilizers': totalFertilizers,
+        'totalStock': totalStock,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      print('Error updating statistics: $e');
+      // Don't throw error, just log it
+    }
+  }
+
+  // Increment farmer views
+  Future<void> incrementFarmerViews() async {
+    try {
+      if (currentStoreUid.isEmpty) return;
+
+      await _firestore.collection('stores').doc(currentStoreUid).update({
+        'totalViews': FieldValue.increment(1),
+      });
+    } catch (e) {
+      print('Error incrementing views: $e');
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();

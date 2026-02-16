@@ -4,6 +4,9 @@ import '../../../core/constants/app_constants.dart';
 import 'store_profile_controller.dart';
 import 'store_profile_model.dart';
 import 'edit_store_profile_screen.dart';
+import 'change_password_screen.dart';
+import 'store_help_support_screen.dart';
+import 'store_terms_policies_screen.dart';
 
 class StoreProfileScreen extends StatelessWidget {
   const StoreProfileScreen({Key? key}) : super(key: key);
@@ -17,8 +20,26 @@ class StoreProfileScreen extends StatelessWidget {
   }
 }
 
-class _StoreProfileContent extends StatelessWidget {
+class _StoreProfileContent extends StatefulWidget {
   const _StoreProfileContent({Key? key}) : super(key: key);
+
+  @override
+  State<_StoreProfileContent> createState() => _StoreProfileContentState();
+}
+
+class _StoreProfileContentState extends State<_StoreProfileContent> {
+  @override
+  void initState() {
+    super.initState();
+    // Auto-update statistics when screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final controller = Provider.of<StoreProfileController>(
+        context,
+        listen: false,
+      );
+      controller.updateStoreStatistics();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,27 +83,54 @@ class _StoreProfileContent extends StatelessWidget {
                           color: Color(0xFF2D3748),
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(
-                          Icons.edit_outlined,
-                          color: Colors.grey[700],
-                          size: 24,
-                        ),
-                        onPressed: () async {
-                          // Get the controller from context before navigation
-                          final storeController = context.read<StoreProfileController>();
-
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChangeNotifierProvider.value(
-                                value: storeController,
-                                child: const EditStoreProfileScreen(),
-                              ),
+                      Row(
+                        children: [
+                          // Refresh stats button
+                          IconButton(
+                            icon: Icon(
+                              Icons.refresh,
+                              color: Colors.grey[700],
+                              size: 24,
                             ),
-                          );
-                        },
-                        tooltip: 'Edit Profile',
+                            onPressed: () async {
+                              await controller.updateStoreStatistics();
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Statistics updated!'),
+                                    backgroundColor: Color(0xFF27AE60),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            },
+                            tooltip: 'Refresh Statistics',
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.edit_outlined,
+                              color: Colors.grey[700],
+                              size: 24,
+                            ),
+                            onPressed: () async {
+                              // Get the controller from context before navigation
+                              final storeController = context
+                                  .read<StoreProfileController>();
+
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      ChangeNotifierProvider.value(
+                                        value: storeController,
+                                        child: const EditStoreProfileScreen(),
+                                      ),
+                                ),
+                              );
+                            },
+                            tooltip: 'Edit Profile',
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -93,9 +141,10 @@ class _StoreProfileContent extends StatelessWidget {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
+                        const SizedBox(height: 8),
                         // Profile Header Section
                         _buildProfileHeader(profile),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 16),
 
                         // Statistics Cards
                         _buildStatisticsCards(profile),
@@ -126,7 +175,7 @@ class _StoreProfileContent extends StatelessWidget {
 
   Widget _buildProfileHeader(StoreProfile profile) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Column(
         children: [
           // Profile Icon with Verified Badge
@@ -141,7 +190,7 @@ class _StoreProfileContent extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -186,7 +235,7 @@ class _StoreProfileContent extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
           // Store Name
           Text(
@@ -197,7 +246,7 @@ class _StoreProfileContent extends StatelessWidget {
               color: Color(0xFF2D3748),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
 
           // Rating
           Row(
@@ -229,20 +278,21 @@ class _StoreProfileContent extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: _buildStatCard(
               profile.totalFertilizers.toString(),
-              'FERTILIZERS LISTED',
+              'FERTILIZERS\nLISTED',
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
-            child: _buildStatCard(profile.formattedStock, 'ACTIVE STOCK'),
+            child: _buildStatCard(profile.formattedStock, 'ACTIVE\nSTOCK'),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
-            child: _buildStatCard(profile.formattedViews, 'FARMER VIEWS'),
+            child: _buildStatCard(profile.formattedViews, 'FARMER\nVIEWS'),
           ),
         ],
       ),
@@ -251,37 +301,49 @@ class _StoreProfileContent extends StatelessWidget {
 
   Widget _buildStatCard(String value, String label) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      height: 85,
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2D3748),
+          Flexible(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2D3748),
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 10,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
-              letterSpacing: 0.5,
+          Flexible(
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 8.5,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.2,
+                height: 1.1,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -397,7 +459,12 @@ class _StoreProfileContent extends StatelessWidget {
             icon: Icons.lock_outline,
             title: 'Change Password',
             onTap: () {
-              _showComingSoonDialog(context, 'Change Password');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ChangePasswordScreen(),
+                ),
+              );
             },
           ),
           const Divider(height: 1),
@@ -406,7 +473,12 @@ class _StoreProfileContent extends StatelessWidget {
             icon: Icons.help_outline,
             title: 'Help & Support',
             onTap: () {
-              _showComingSoonDialog(context, 'Help & Support');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const StoreHelpSupportScreen(),
+                ),
+              );
             },
           ),
           const Divider(height: 1),
@@ -415,7 +487,12 @@ class _StoreProfileContent extends StatelessWidget {
             icon: Icons.description_outlined,
             title: 'Terms & Policies',
             onTap: () {
-              _showComingSoonDialog(context, 'Terms & Policies');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const StoreTermsPoliciesScreen(),
+                ),
+              );
             },
           ),
         ],
@@ -523,23 +600,6 @@ class _StoreProfileContent extends StatelessWidget {
               ),
             ),
             child: const Text('Logout'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showComingSoonDialog(BuildContext context, String feature) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(feature),
-        content: const Text('This feature is under development.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
           ),
         ],
       ),

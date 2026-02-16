@@ -102,21 +102,6 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
         ),
         child: Row(
           children: [
-            // Back Button
-            InkWell(
-              onTap: () {
-                // Navigation handled by bottom nav, this is just visual
-              },
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                child: const Icon(
-                  Icons.arrow_back,
-                  color: Colors.black,
-                  size: 24,
-                ),
-              ),
-            ),
-
             const SizedBox(width: 8),
 
             // Title
