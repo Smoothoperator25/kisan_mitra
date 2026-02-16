@@ -4,11 +4,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/constants/app_constants.dart';
 import 'profile_controller.dart';
 import 'edit_profile_screen.dart';
+import 'language_screen.dart';
+import 'notifications_screen.dart';
+import 'help_support_screen.dart';
+import 'about_app_screen.dart';
+import 'change_password_screen.dart';
 
 /// Farmer Profile Screen
 /// Displays farmer profile with statistics and settings
 class FarmerProfileScreen extends StatefulWidget {
-  const FarmerProfileScreen({super.key});
+  final Function(int)? onNavigateToTab;
+
+  const FarmerProfileScreen({super.key, this.onNavigateToTab});
 
   @override
   State<FarmerProfileScreen> createState() => _FarmerProfileScreenState();
@@ -27,7 +34,7 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE8F5F1), // Light mint green
+      backgroundColor: const Color(0xFFF5F9F6), // Very light mint/white
       body: Consumer<ProfileController>(
         builder: (context, controller, child) {
           // Show loading indicator
@@ -75,52 +82,113 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Profile Header Section
+                  // Profile Header Section with Gradient
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 24,
-                      horizontal: 16,
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF1B5E20), // Dark Green
+                          Color(0xFF43A047), // Medium Green
+                        ],
+                      ),
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(36),
+                        bottomRight: Radius.circular(36),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
                     ),
-                    decoration: const BoxDecoration(color: Color(0xFFE8F5F1)),
                     child: Column(
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            // Refresh Button (Left)
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: IconButton(
+                                icon: const Icon(
+                                  Icons.refresh,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                onPressed: () {
+                                  controller.initialize();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Refreshing profile...'),
+                                      duration: Duration(seconds: 1),
+                                      backgroundColor: Color(0xFF2D6A4F),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+
                             const Text(
                               'My Profile',
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 22,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF1B4332),
+                                color: Colors.white,
+                                letterSpacing: 0.5,
                               ),
                             ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.edit,
-                                color: Color(0xFF2D6A4F),
+
+                            // Edit Button (Right)
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              onPressed: () => _navigateToEditProfile(context),
+                              child: IconButton(
+                                icon: const Icon(
+                                  Icons.edit_outlined,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                onPressed: () =>
+                                    _navigateToEditProfile(context),
+                              ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 24),
 
-                        // Profile Image
+                        // Profile Image with ring
                         GestureDetector(
                           onTap: () => _uploadProfileImage(context, controller),
                           child: Stack(
+                            alignment: Alignment.center,
                             children: [
                               Container(
-                                width: 100,
-                                height: 100,
+                                width: 110,
+                                height: 110,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: const Color(0xFF2D6A4F),
-                                    width: 3,
+                                    color: Colors.white,
+                                    width: 4,
                                   ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.2),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 5),
+                                    ),
+                                  ],
                                 ),
                                 child: ClipOval(
                                   child: profile?.profileImageUrl != null
@@ -128,18 +196,26 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                                           imageUrl: profile!.profileImageUrl!,
                                           fit: BoxFit.cover,
                                           placeholder: (context, url) =>
-                                              const CircularProgressIndicator(),
+                                              const CircularProgressIndicator(
+                                                color: Colors.white,
+                                              ),
                                           errorWidget: (context, url, error) =>
-                                              const Icon(
-                                                Icons.person,
-                                                size: 50,
-                                                color: Colors.grey,
+                                              Container(
+                                                color: Colors.grey[300],
+                                                child: const Icon(
+                                                  Icons.person,
+                                                  size: 60,
+                                                  color: Colors.grey,
+                                                ),
                                               ),
                                         )
-                                      : const Icon(
-                                          Icons.person,
-                                          size: 50,
-                                          color: Colors.grey,
+                                      : Container(
+                                          color: Colors.grey[300],
+                                          child: const Icon(
+                                            Icons.person,
+                                            size: 60,
+                                            color: Colors.grey,
+                                          ),
                                         ),
                                 ),
                               ),
@@ -147,31 +223,35 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                                 bottom: 0,
                                 right: 0,
                                 child: Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFF2D6A4F),
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF2E7D32),
                                     shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
                                   ),
                                   child: const Icon(
                                     Icons.camera_alt,
                                     color: Colors.white,
-                                    size: 18,
+                                    size: 16,
                                   ),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
 
                         // User Name
                         Text(
                           profile?.name ?? 'Loading...',
                           style: const TextStyle(
-                            fontSize: 20,
+                            fontSize: 26,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1B4332),
+                            color: Colors.white,
+                            letterSpacing: -0.5,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -179,270 +259,299 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                         // Email
                         Text(
                           profile?.email ?? '',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
-                            color: Color(0xFF52796F),
+                            color: Colors.white.withOpacity(0.9),
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 16),
 
-                        // Location
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.location_on,
-                              size: 16,
-                              color: Color(0xFF52796F),
+                        // Location Chip
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.4),
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${profile?.village ?? ''}, ${profile?.city ?? ''}, ${profile?.state ?? ''}',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Color(0xFF52796F),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.location_on,
+                                size: 16,
+                                color: Colors.white,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 6),
+                              Text(
+                                '${profile?.village ?? ''}, ${profile?.city ?? ''}, ${profile?.state ?? ''}',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
 
                   // Statistics Cards
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildStatCard(
-                          '${activity?.searchCount ?? 24}',
-                          'Fertilizers\nsearched',
+                  Transform.translate(
+                    offset: const Offset(0, -30),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: _buildStatCard(
+                                '${activity?.searchCount ?? 0}',
+                                'Searched',
+                                icon: Icons.search,
+                                color: const Color(
+                                  0xFFEFFBF3,
+                                ), // Very light mint
+                                accentColor: const Color(0xFF2E7D32),
+                                onTap: () => widget.onNavigateToTab?.call(1),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildStatCard(
+                                '${activity?.advisoryCount ?? 0}',
+                                'Advisory',
+                                icon: Icons.psychology_alt,
+                                color: const Color(0xFFE8F5E9),
+                                accentColor: const Color(0xFF1B5E20),
+                                onTap: () => widget.onNavigateToTab?.call(2),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildStatCard(
+                                '${activity?.visitedStoresCount ?? 0}',
+                                'Visits',
+                                icon: Icons.storefront,
+                                color: const Color(0xFFF1F8E9),
+                                accentColor: const Color(0xFF33691E),
+                                onTap: () {
+                                  widget.onNavigateToTab?.call(1);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'See nearby stores in Search tab',
+                                      ),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                        _buildStatCard(
-                          '${activity?.advisoryCount ?? 12}',
-                          'Advisory used',
-                        ),
-                        _buildStatCard(
-                          '${activity?.visitedStoresCount ?? 8}',
-                          'Stores visited',
-                        ),
-                      ],
+                      ),
                     ),
                   ),
 
-                  // White background section
-                  Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(24),
-                        topRight: Radius.circular(24),
-                      ),
-                    ),
+                  // Content Section
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 8),
 
-                        // APP SETTINGS Section
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            'APP SETTINGS',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF95A5A6),
-                              letterSpacing: 1.2,
+                        // Settings Group
+                        _buildSettingsGroup(
+                          title: "APP SETTINGS",
+                          children: [
+                            _buildSettingsItem(
+                              icon: Icons.language,
+                              title: 'Language',
+                              trailing: 'English',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const LanguageScreen(),
+                                  ),
+                                );
+                              },
+                              isFirst: true,
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-
-                        _buildSettingsItem(
-                          icon: Icons.language,
-                          iconColor: const Color(0xFF2D6A4F),
-                          title: 'Language Preference',
-                          trailing: 'English',
-                          onTap: () {},
-                        ),
-                        _buildSettingsItem(
-                          icon: Icons.notifications_outlined,
-                          iconColor: const Color(0xFF2D6A4F),
-                          title: 'Notification Settings',
-                          onTap: () {},
-                        ),
-                        _buildSettingsItem(
-                          icon: Icons.help_outline,
-                          iconColor: const Color(0xFF2D6A4F),
-                          title: 'Help & Support',
-                          onTap: () {},
-                        ),
-                        _buildSettingsItem(
-                          icon: Icons.info_outline,
-                          iconColor: const Color(0xFF2D6A4F),
-                          title: 'About App',
-                          onTap: () {},
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        // PERSONAL DETAILS Section
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            'PERSONAL DETAILS',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF95A5A6),
-                              letterSpacing: 1.2,
+                            const Divider(height: 1, indent: 56),
+                            _buildSettingsItem(
+                              icon: Icons.notifications_none_rounded,
+                              title: 'Notifications',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const NotificationsScreen(),
+                                  ),
+                                );
+                              },
                             ),
-                          ),
+                            const Divider(height: 1, indent: 56),
+                            _buildSettingsItem(
+                              icon: Icons.help_outline_rounded,
+                              title: 'Help & Support',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const HelpSupportScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                            const Divider(height: 1, indent: 56),
+                            _buildSettingsItem(
+                              icon: Icons.info_outline_rounded,
+                              title: 'About App',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const AboutAppScreen(),
+                                  ),
+                                );
+                              },
+                              isLast: true,
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 12),
-
-                        _buildDetailItem('FULL NAME', profile?.name ?? ''),
-                        _buildDetailItem('EMAIL ID', profile?.email ?? ''),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'STATE',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Color(0xFF95A5A6),
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      profile?.state ?? '',
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                        color: Color(0xFF2C3E50),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 20),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'CITY',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Color(0xFF95A5A6),
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      profile?.city ?? '',
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                        color: Color(0xFF2C3E50),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        _buildDetailItem('VILLAGE', profile?.village ?? ''),
 
                         const SizedBox(height: 24),
 
-                        // Change Password Button
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: OutlinedButton(
-                            onPressed: () =>
-                                _changePassword(context, controller),
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0xFF2D6A4F)),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
+                        // Personal Details Group
+                        _buildSettingsGroup(
+                          title: "PERSONAL DETAILS",
+                          children: [
+                            _buildDetailRow(
+                              Icons.person_outline,
+                              "Full Name",
+                              profile?.name ?? "",
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(
-                                  Icons.lock_outline,
-                                  color: Color(0xFF2D6A4F),
-                                  size: 20,
+                            const Divider(height: 1, indent: 56),
+                            _buildDetailRow(
+                              Icons.email_outlined,
+                              "Email",
+                              profile?.email ?? "",
+                            ),
+                            const Divider(height: 1, indent: 56),
+                            _buildDetailRow(
+                              Icons.location_city,
+                              "State",
+                              profile?.state ?? "",
+                            ),
+                            const Divider(height: 1, indent: 56),
+                            _buildDetailRow(
+                              Icons.map_outlined,
+                              "Village",
+                              profile?.village ?? "",
+                              isLast: true,
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        // Action Buttons
+                        Column(
+                          children: [
+                            // Change Password Button
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () =>
+                                    _changePassword(context, controller),
+                                icon: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: const Icon(
+                                    Icons.lock_reset,
+                                    size: 18,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Change Password',
+                                label: const Text(
+                                  "Change Password",
                                   style: TextStyle(
-                                    color: Color(0xFF2D6A4F),
-                                    fontSize: 15,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        // Logout Button
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: ElevatedButton(
-                            onPressed: () => _logout(context, controller),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFFEBEE),
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(
-                                  Icons.logout,
-                                  color: Color(0xFFE53935),
-                                  size: 20,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF1976D2),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 2,
                                 ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Logout',
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            // Logout Button
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: () => _logout(context, controller),
+                                icon: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFEBEE),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: const Icon(
+                                    Icons.logout_rounded,
+                                    size: 18,
+                                    color: Color(0xFFC62828),
+                                  ),
+                                ),
+                                label: const Text(
+                                  "Logout",
                                   style: TextStyle(
-                                    color: Color(0xFFE53935),
-                                    fontSize: 15,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                              ],
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: const Color(0xFFC62828),
+                                  side: const BorderSide(
+                                    color: Color(0xFFC62828),
+                                    width: 2,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
 
-                        const SizedBox(
-                          height: 100,
-                        ), // Bottom padding for nav bar
+                        const SizedBox(height: 48),
                       ],
                     ),
                   ),
@@ -455,108 +564,197 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
     );
   }
 
-  // Build statistics card
-  Widget _buildStatCard(String count, String label) {
-    return Container(
-      width: 100,
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Text(
-            count,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1B4332),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 11,
-              color: Color(0xFF52796F),
-              height: 1.3,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Build settings item
-  Widget _buildSettingsItem({
+  // Modern Stat Card
+  Widget _buildStatCard(
+    String count,
+    String label, {
+    VoidCallback? onTap,
     required IconData icon,
-    required Color iconColor,
-    required String title,
-    String? trailing,
-    required VoidCallback onTap,
+    required Color color,
+    required Color accentColor,
   }) {
     return InkWell(
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        child: Row(
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: accentColor.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
           children: [
-            Icon(icon, color: iconColor, size: 24),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF2C3E50),
-                ),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: accentColor, size: 22),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              count,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: accentColor,
               ),
             ),
-            if (trailing != null)
-              Text(
-                trailing,
-                style: const TextStyle(fontSize: 14, color: Color(0xFF95A5A6)),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: accentColor.withOpacity(0.8),
               ),
-            const SizedBox(width: 8),
-            const Icon(Icons.chevron_right, color: Color(0xFF95A5A6), size: 20),
+            ),
           ],
         ),
       ),
     );
   }
 
-  // Build detail item
-  Widget _buildDetailItem(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
+  Widget _buildSettingsGroup({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            title,
             style: const TextStyle(
-              fontSize: 11,
-              color: Color(0xFF95A5A6),
-              letterSpacing: 0.5,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+              letterSpacing: 1.2,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF2C3E50),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(children: children),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSettingsItem({
+    required IconData icon,
+    required String title,
+    String? trailing,
+    required VoidCallback onTap,
+    bool isFirst = false,
+    bool isLast = false,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.vertical(
+        top: isFirst ? const Radius.circular(16) : Radius.zero,
+        bottom: isLast ? const Radius.circular(16) : Radius.zero,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F8E9), // Light green bg
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, size: 20, color: const Color(0xFF33691E)),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF263238),
+                ),
+              ),
+            ),
+            if (trailing != null)
+              Text(
+                trailing,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey,
+                ),
+              ),
+            if (trailing == null)
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 20,
+                color: Colors.grey,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(
+    IconData icon,
+    String label,
+    String value, {
+    bool isLast = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE3F2FD), // Light blue bg
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 20, color: const Color(0xFF1565C0)),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF263238),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -609,21 +807,17 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
   void _changePassword(
     BuildContext context,
     ProfileController controller,
-  ) async {
-    final success = await controller.sendPasswordResetEmail();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            success
-                ? 'Password reset email sent! Check your inbox.'
-                : controller.errorMessage ?? 'Failed to send reset email',
-          ),
-          backgroundColor: success ? Colors.green : Colors.red,
-          duration: const Duration(seconds: 4),
+  ) {
+    // Navigate to Change Password screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChangeNotifierProvider.value(
+          value: controller,
+          child: const ChangePasswordScreen(),
         ),
-      );
-    }
+      ),
+    );
   }
 
   // Logout
@@ -632,24 +826,105 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFEBEE),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.logout_rounded,
+                color: Color(0xFFC62828),
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Logout',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: const Padding(
+          padding: EdgeInsets.only(top: 8),
+          child: Text(
+            'Are you sure you want to logout from your account?',
+            style: TextStyle(fontSize: 15),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.grey.shade700,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 12,
+              ),
+            ),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Logout', style: TextStyle(color: Colors.red)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFC62828),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 12,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Logout',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
           ),
         ],
       ),
     );
 
     if (confirmed == true && mounted) {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: Card(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(
+                    color: Color(0xFF2E7D32),
+                  ),
+                  SizedBox(height: 16),
+                  Text('Logging out...'),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
       await controller.signOut();
+
       if (mounted) {
+        Navigator.pop(context); // Close loading dialog
         Navigator.pushNamedAndRemoveUntil(
           context,
           AppConstants.farmerLoginRoute,

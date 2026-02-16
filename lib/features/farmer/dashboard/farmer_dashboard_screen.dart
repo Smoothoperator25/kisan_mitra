@@ -36,24 +36,25 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: [
-          // Index 0: Home
-          FarmerHomeScreen(onNavigateToTab: _onNavigateToTab),
+      body: ChangeNotifierProvider(
+        create: (_) => ProfileController()..initialize(),
+        child: IndexedStack(
+          index: _selectedIndex,
+          children: [
+            // Index 0: Home
+            FarmerHomeScreen(onNavigateToTab: _onNavigateToTab),
 
-          // Index 1: Fertilizer Search
-          const FertilizerSearchScreen(),
+            // Index 1: Fertilizer Search
+            const FertilizerSearchScreen(),
 
-          // Index 2: Advisory
-          const AdvisoryScreen(),
+            // Index 2: Advisory
+            const AdvisoryScreen(),
 
-          // Index 3: Profile
-          ChangeNotifierProvider(
-            create: (_) => ProfileController(),
-            child: const FarmerProfileScreen(),
-          ),
-        ],
+            // Index 3: Profile
+            // ProfileController is now provided above, so we just use the screen
+            FarmerProfileScreen(onNavigateToTab: _onNavigateToTab),
+          ],
+        ),
       ),
       bottomNavigationBar: _buildBottomNavigation(),
     );

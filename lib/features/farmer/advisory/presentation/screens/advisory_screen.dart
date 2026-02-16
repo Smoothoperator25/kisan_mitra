@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../data/models/crop_model.dart';
 import '../../data/models/advisory_model.dart';
 import '../controllers/advisory_controller.dart';
+import '../../../profile/profile_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class AdvisoryScreen extends StatelessWidget {
@@ -49,7 +50,7 @@ class AdvisoryScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     _buildCropIssuesSection(controller),
                     const SizedBox(height: 32),
-                    _buildCalculateButton(controller),
+                    _buildCalculateButton(context, controller),
                   ],
                   if (controller.isCalculating)
                     const Padding(
@@ -406,7 +407,10 @@ class AdvisoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCalculateButton(AdvisoryController controller) {
+  Widget _buildCalculateButton(
+    BuildContext context,
+    AdvisoryController controller,
+  ) {
     return SizedBox(
       width: double.infinity,
       height: 54,
@@ -420,7 +424,13 @@ class AdvisoryScreen extends StatelessWidget {
         ),
         onPressed: controller.isCalculating
             ? null
-            : controller.calculateAdvisory,
+            : () async {
+                await controller.calculateAdvisory();
+                if (context.mounted && controller.advisoryResult != null) {
+                  // Increment advisory used count
+                  context.read<ProfileController>().incrementAdvisoryCount();
+                }
+              },
         child: const Text(
           "Calculate Advice",
           style: TextStyle(

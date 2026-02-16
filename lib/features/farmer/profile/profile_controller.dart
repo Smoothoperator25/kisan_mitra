@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -61,33 +62,54 @@ class ProfileController extends ChangeNotifier {
     }
   }
 
-  /// Fetch user activity statistics
+  // Stream subscription for realtime updates
+  StreamSubscription<DocumentSnapshot>? _activitySubscription;
+
+  @override
+  void dispose() {
+    _activitySubscription?.cancel();
+    super.dispose();
+  }
+
+  /// Initialize - fetch profile and start listening to activity stream
+  Future<void> initialize() async {
+    await fetchUserProfile();
+    _initActivityStream();
+  }
+
+  /// Start listening to user activity changes
+  void _initActivityStream() {
+    final String? userId = _authService.currentUserId;
+    if (userId == null) return;
+
+    _activitySubscription?.cancel();
+    _activitySubscription = _db
+        .collection(AppConstants.usersCollection)
+        .doc(userId)
+        .collection('activity')
+        .doc('stats')
+        .snapshots()
+        .listen(
+          (snapshot) {
+            print('DEBUG: Activity stream update received'); // DEBUG LOG
+            if (snapshot.exists && snapshot.data() != null) {
+              _userActivity = UserActivity.fromFirestore(snapshot.data()!);
+              print('DEBUG: New Search Count: ${_userActivity?.searchCount}');
+            } else {
+              _userActivity = UserActivity(); // Default empty
+            }
+            notifyListeners();
+          },
+          onError: (error) {
+            print('Error in activity stream: $error');
+          },
+        );
+  }
+
+  /// Fetch user activity statistics (One-time fetch - fallback)
   Future<void> fetchUserActivity() async {
-    try {
-      final String? userId = _authService.currentUserId;
-      if (userId == null) return;
-
-      // Fetch activity subcollection document
-      final activityDoc = await _db
-          .collection(AppConstants.usersCollection)
-          .doc(userId)
-          .collection('activity')
-          .doc('stats')
-          .get();
-
-      if (activityDoc.exists && activityDoc.data() != null) {
-        _userActivity = UserActivity.fromFirestore(activityDoc.data()!);
-      } else {
-        // Initialize with default values if doesn't exist
-        _userActivity = UserActivity();
-      }
-
-      notifyListeners();
-    } catch (e) {
-      // Silently fail - statistics are not critical
-      _userActivity = UserActivity();
-      notifyListeners();
-    }
+    // This is now largely redundant due to the stream, but kept for manual refresh if needed
+    // logic same as before or just rely on stream
   }
 
   /// Update user profile in Firestore
@@ -239,12 +261,46 @@ class ProfileController extends ChangeNotifier {
     }
   }
 
+  /// Change user password
+  Future<bool> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      _setLoading(true);
+      _errorMessage = null;
+
+      final result = await _authService.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+
+      if (result['success'] == true) {
+        return true;
+      } else {
+        _errorMessage = result['message'] ?? 'Failed to change password';
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _errorMessage = 'Error changing password: $e';
+      notifyListeners();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   /// Sign out user
   Future<void> signOut() async {
     try {
       await _authService.signOut();
       _userProfile = null;
       _userActivity = null;
+      // Cancel stream
+      _activitySubscription?.cancel();
+      _activitySubscription = null;
+
       notifyListeners();
     } catch (e) {
       _errorMessage = 'Error signing out: $e';
@@ -264,9 +320,69 @@ class ProfileController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Initialize - fetch both profile and activity
-  Future<void> initialize() async {
-    await fetchUserProfile();
-    await fetchUserActivity();
+  /// Increment advisory used count
+  Future<void> incrementAdvisoryCount() async {
+    print('DEBUG: incrementAdvisoryCount called');
+    try {
+      final String? userId = _authService.currentUserId;
+      if (userId == null) return;
+
+      // Update Firestore ONLY - Stream will handle local update
+      await _db
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .collection('activity')
+          .doc('stats')
+          .set({
+            'advisoryCount': FieldValue.increment(1),
+          }, SetOptions(merge: true));
+
+      print('DEBUG: Advisory Firestore update sent');
+    } catch (e) {
+      print('Error incrementing advisory count: $e');
+    }
+  }
+
+  /// Increment store visited count
+  Future<void> incrementStoreVisitCount() async {
+    try {
+      final String? userId = _authService.currentUserId;
+      if (userId == null) return;
+
+      await _db
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .collection('activity')
+          .doc('stats')
+          .set({
+            'visitedStoresCount': FieldValue.increment(1),
+          }, SetOptions(merge: true));
+
+      print('DEBUG: Store visit update sent');
+    } catch (e) {
+      print('Error incrementing store visit count: $e');
+    }
+  }
+
+  /// Increment search count
+  Future<void> incrementSearchCount() async {
+    print('DEBUG: incrementSearchCount called');
+    try {
+      final String? userId = _authService.currentUserId;
+      if (userId == null) return;
+
+      await _db
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .collection('activity')
+          .doc('stats')
+          .set({
+            'searchCount': FieldValue.increment(1),
+          }, SetOptions(merge: true));
+
+      print('DEBUG: Search count update sent');
+    } catch (e) {
+      print('Error incrementing search count: $e');
+    }
   }
 }

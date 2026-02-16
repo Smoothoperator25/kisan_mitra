@@ -182,6 +182,36 @@ class AuthService {
     }
   }
 
+  // Change password
+  Future<Map<String, dynamic>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null || user.email == null) {
+        return {'success': false, 'message': 'No user logged in'};
+      }
+
+      // Re-authenticate user with current password
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+
+      // Update password
+      await user.updatePassword(newPassword);
+
+      return {'success': true, 'message': 'Password changed successfully'};
+    } on FirebaseAuthException catch (e) {
+      return {'success': false, 'message': _getAuthErrorMessage(e.code)};
+    } catch (e) {
+      return {'success': false, 'message': 'Failed to change password'};
+    }
+  }
+
   // Get user-friendly error messages
   String _getAuthErrorMessage(String code) {
     switch (code) {

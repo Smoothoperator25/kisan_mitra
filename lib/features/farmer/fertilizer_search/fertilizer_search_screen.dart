@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import '../profile/profile_controller.dart';
 import 'fertilizer_search_controller.dart';
 import 'fertilizer_search_model.dart';
 import '../../../core/utils/app_theme.dart';
@@ -225,8 +226,13 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                           vertical: 14,
                         ),
                       ),
-                      onSubmitted: (value) =>
-                          controller.searchFertilizer(value),
+                      onSubmitted: (value) {
+                        print('DEBUG: Search submitted via keyboard: $value');
+                        context
+                            .read<ProfileController>()
+                            .incrementSearchCount();
+                        controller.searchFertilizer(value);
+                      },
                     ),
                   ),
 
@@ -666,6 +672,11 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                           const SizedBox(height: 8),
                                           InkWell(
                                             onTap: () {
+                                              // Increment store visit count
+                                              context
+                                                  .read<ProfileController>()
+                                                  .incrementStoreVisitCount();
+
                                               controller.navigateToStore(
                                                 result.store,
                                               );
