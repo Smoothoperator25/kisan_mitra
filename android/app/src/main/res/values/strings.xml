@@ -14,5 +14,5 @@
       Replace YOUR_MAPBOX_TOKEN_HERE with your actual Mapbox access token
       Get it from: https://account.mapbox.com/access-tokens/
     -->
-    <string name="mapbox_access_token">pk.eyJ1IjoiY29kZWJ5c2F0eWFqaXQiLCJhIjoiY21sa3NnbjllMDAwMjNjcXhzNXA2amEzZSJ9.g5WX1ReVtrtZFShKGxBcBAE</string>
+    <string name="mapbox_access_token">pk.eyJ1IjoiY29kZWJ5c2F0eWFqaXQiLCJhIjoiY21sa3NnbjllMDAwMjNjcXhzNXA2amEzZSJ9.g5WX1ReVtrtZFShKGxBcBA</string>
 </resources>

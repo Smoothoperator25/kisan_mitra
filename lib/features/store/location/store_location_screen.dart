@@ -197,6 +197,7 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
     }
 
     return MapWidget(
+      textureView: true,
       styleUri: MapboxStyles.OUTDOORS,
       onMapCreated: (MapboxMap mapboxMap) {
         controller.setMapController(mapboxMap);
@@ -213,7 +214,10 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
       onTapListener: (context) {
         // Update location on map tap
         final point = context.point;
-        controller.onMapTap(point.coordinates.lat.toDouble(), point.coordinates.lng.toDouble());
+        controller.onMapTap(
+          point.coordinates.lat.toDouble(),
+          point.coordinates.lng.toDouble(),
+        );
       },
     );
   }

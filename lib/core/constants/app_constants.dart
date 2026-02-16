@@ -31,7 +31,7 @@ class AppConstants {
 
   // Map Configuration (Mapbox)
   static const String mapboxAccessToken =
-      'YOUR_MAPBOX_ACCESS_TOKEN'; // Replace with your Mapbox token
+      'pk.eyJ1IjoiY29kZWJ5c2F0eWFqaXQiLCJhIjoiY21sa3NnbjllMDAwMjNjcXhzNXA2amEzZSJ9.g5WX1ReVtrtZFShKGxBcBA';
   static const double nearbyRadiusKm = 5.0;
   static const double defaultLatitude = 0.0;
   static const double defaultLongitude = 0.0;
