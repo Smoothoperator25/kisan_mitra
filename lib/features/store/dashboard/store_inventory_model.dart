@@ -54,6 +54,10 @@ class StoreFertilizer {
   // Additional fields fetched from fertilizers collection
   String? fertilizerName;
   String? bagWeight;
+  String? npkComposition;
+  String? manufacturer;
+  String? category;
+  String? form;
 
   StoreFertilizer({
     required this.id,
@@ -65,6 +69,10 @@ class StoreFertilizer {
     this.lastUpdated,
     this.fertilizerName,
     this.bagWeight,
+    this.npkComposition,
+    this.manufacturer,
+    this.category,
+    this.form,
   });
 
   /// Create StoreFertilizer from Firestore document
@@ -106,6 +114,10 @@ class StoreFertilizer {
     DateTime? lastUpdated,
     String? fertilizerName,
     String? bagWeight,
+    String? npkComposition,
+    String? manufacturer,
+    String? category,
+    String? form,
   }) {
     return StoreFertilizer(
       id: id ?? this.id,
@@ -117,6 +129,10 @@ class StoreFertilizer {
       lastUpdated: lastUpdated ?? this.lastUpdated,
       fertilizerName: fertilizerName ?? this.fertilizerName,
       bagWeight: bagWeight ?? this.bagWeight,
+      npkComposition: npkComposition ?? this.npkComposition,
+      manufacturer: manufacturer ?? this.manufacturer,
+      category: category ?? this.category,
+      form: form ?? this.form,
     );
   }
 }
@@ -127,11 +143,19 @@ class FertilizerDetails {
   final String id;
   final String name;
   final String bagWeight;
+  final String npkComposition;
+  final String manufacturer;
+  final String category;
+  final String form;
 
   FertilizerDetails({
     required this.id,
     required this.name,
     required this.bagWeight,
+    required this.npkComposition,
+    required this.manufacturer,
+    required this.category,
+    required this.form,
   });
 
   /// Create FertilizerDetails from Firestore document
@@ -142,7 +166,11 @@ class FertilizerDetails {
     return FertilizerDetails(
       id: docId,
       name: data['name'] as String? ?? '',
-      bagWeight: data['bagWeight'] as String? ?? '',
+      bagWeight: data['npkComposition'] as String? ?? '',
+      npkComposition: data['npkComposition'] as String? ?? '',
+      manufacturer: data['manufacturer'] as String? ?? '',
+      category: data['category'] as String? ?? 'Inorganic',
+      form: data['form'] as String? ?? 'Granular',
     );
   }
 }

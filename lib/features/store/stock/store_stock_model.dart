@@ -13,6 +13,12 @@ class StockFertilizer {
   final bool isAvailable;
   final DateTime? lastUpdated;
 
+  // Additional fields for enhanced display
+  final String? npkComposition;
+  final String? form;
+  final String? category;
+  final String? manufacturer;
+
   // Track if this item has been modified locally
   bool isModified;
 
@@ -26,6 +32,10 @@ class StockFertilizer {
     required this.stock,
     required this.isAvailable,
     this.lastUpdated,
+    this.npkComposition,
+    this.form,
+    this.category,
+    this.manufacturer,
     this.isModified = false,
   });
 
@@ -44,6 +54,10 @@ class StockFertilizer {
       stock: (data['stock'] as num?)?.toInt() ?? 0,
       isAvailable: data['isAvailable'] as bool? ?? true,
       lastUpdated: (data['lastUpdated'] as Timestamp?)?.toDate(),
+      npkComposition: data['npkComposition'] as String?,
+      form: data['form'] as String?,
+      category: data['category'] as String?,
+      manufacturer: data['manufacturer'] as String?,
       isModified: false,
     );
   }
@@ -73,6 +87,10 @@ class StockFertilizer {
     int? stock,
     bool? isAvailable,
     DateTime? lastUpdated,
+    String? npkComposition,
+    String? form,
+    String? category,
+    String? manufacturer,
     bool? isModified,
   }) {
     return StockFertilizer(
@@ -85,6 +103,10 @@ class StockFertilizer {
       stock: stock ?? this.stock,
       isAvailable: isAvailable ?? this.isAvailable,
       lastUpdated: lastUpdated ?? this.lastUpdated,
+      npkComposition: npkComposition ?? this.npkComposition,
+      form: form ?? this.form,
+      category: category ?? this.category,
+      manufacturer: manufacturer ?? this.manufacturer,
       isModified: isModified ?? this.isModified,
     );
   }

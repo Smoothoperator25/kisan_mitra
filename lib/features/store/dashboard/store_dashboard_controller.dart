@@ -74,6 +74,72 @@ class StoreDashboardController extends ChangeNotifier {
     }
   }
 
+  /// Sync fertilizers from admin's fertilizers collection to store inventory
+  /// Automatically adds all available fertilizers if store has none
+  Future<void> syncFertilizersToInventory() async {
+    try {
+      final String? uid = _authService.currentUserId;
+
+      if (uid == null) return;
+
+      // Check if store already has fertilizers
+      final existingSnapshot = await _db
+          .collection(AppConstants.storeFertilizersCollection)
+          .where('storeId', isEqualTo: uid)
+          .limit(1)
+          .get();
+
+      // Only sync if inventory is empty
+      if (existingSnapshot.docs.isNotEmpty) {
+        debugPrint('Store already has fertilizers, skipping sync');
+        return;
+      }
+
+      debugPrint('Store inventory is empty, syncing fertilizers...');
+
+      // Fetch all available fertilizers from admin's collection
+      final fertilizersSnapshot = await _db
+          .collection(AppConstants.fertilizersCollection)
+          .where('isArchived', isEqualTo: false)
+          .get();
+
+      if (fertilizersSnapshot.docs.isEmpty) {
+        debugPrint('No fertilizers available to sync');
+        return;
+      }
+
+      // Add each fertilizer to store inventory with default values
+      final batch = _db.batch();
+      int count = 0;
+
+      for (var doc in fertilizersSnapshot.docs) {
+        final fertilizerData = doc.data();
+        final fertilizerRef = _db
+            .collection(AppConstants.storeFertilizersCollection)
+            .doc(); // Auto-generate ID
+
+        batch.set(fertilizerRef, {
+          'storeId': uid,
+          'fertilizerId': doc.id,
+          'fertilizerName': fertilizerData['name'] ?? '',
+          'bagWeight': fertilizerData['npkComposition'] ?? '',
+          'price': 0.0, // Store must set their own price
+          'stock': 0, // Store must set their own stock
+          'isAvailable': false, // Not available until price/stock is set
+          'lastUpdated': FieldValue.serverTimestamp(),
+        });
+
+        count++;
+      }
+
+      // Commit batch write
+      await batch.commit();
+      debugPrint('Successfully synced $count fertilizers to store inventory');
+    } catch (e) {
+      debugPrint('Error syncing fertilizers: $e');
+    }
+  }
+
   /// Get stream of store fertilizers for real-time updates
   Stream<List<StoreFertilizer>> getStoreFertilizersStream() {
     final String? uid = _authService.currentUserId;
@@ -81,6 +147,9 @@ class StoreDashboardController extends ChangeNotifier {
     if (uid == null) {
       return Stream.value([]);
     }
+
+    // Auto-sync fertilizers if inventory is empty (fire and forget)
+    syncFertilizersToInventory();
 
     return _db
         .collection(AppConstants.storeFertilizersCollection)
@@ -104,6 +173,10 @@ class StoreDashboardController extends ChangeNotifier {
                 fertilizer.copyWith(
                   fertilizerName: details.name,
                   bagWeight: details.bagWeight,
+                  npkComposition: details.npkComposition,
+                  manufacturer: details.manufacturer,
+                  category: details.category,
+                  form: details.form,
                 ),
               );
             }
@@ -152,8 +225,8 @@ class StoreDashboardController extends ChangeNotifier {
   }) async {
     try {
       // Validation
-      if (price <= 0) {
-        return {'success': false, 'message': 'Price must be a positive number'};
+      if (price < 0) {
+        return {'success': false, 'message': 'Price cannot be negative'};
       }
 
       if (stock < 0) {

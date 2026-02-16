@@ -3,12 +3,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'fertilizer_model.dart';
+import '../../../../core/services/fertilizer_sync_service.dart';
 
 /// Controller for managing fertilizer data
 class FertilizerController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final ImagePicker _imagePicker = ImagePicker();
+  final FertilizerSyncService _syncService = FertilizerSyncService();
 
   static const String _collection = 'fertilizers';
 
@@ -147,6 +149,19 @@ class FertilizerController {
 
       // Save to Firestore
       await docRef.set(newFertilizer.toMap());
+
+      // Sync fertilizer to all verified stores
+      try {
+        await _syncService.addFertilizerToAllStores(
+          fertilizerId: docRef.id,
+          fertilizerName: newFertilizer.name,
+          npkComposition: newFertilizer.npkComposition,
+        );
+        print('Fertilizer synced to all stores');
+      } catch (syncError) {
+        print('Error syncing fertilizer to stores: $syncError');
+        // Don't throw error, fertilizer is already created
+      }
     } catch (e) {
       throw Exception('Failed to create fertilizer: $e');
     }
@@ -191,10 +206,15 @@ class FertilizerController {
   /// Archive fertilizer (soft delete)
   Future<void> archiveFertilizer(String id) async {
     try {
+      // First archive in admin collection
       await _firestore.collection(_collection).doc(id).update({
         'isArchived': true,
         'updatedAt': FieldValue.serverTimestamp(),
       });
+
+      // Then remove from all store inventories
+      // This is a hard delete from stores to prevent them from selling archived items
+      await _syncService.removeFertilizerFromAllStores(id);
     } catch (e) {
       throw Exception('Failed to archive fertilizer: $e');
     }
@@ -203,10 +223,22 @@ class FertilizerController {
   /// Unarchive fertilizer
   Future<void> unarchiveFertilizer(String id) async {
     try {
+      // First unarchive in admin collection
       await _firestore.collection(_collection).doc(id).update({
         'isArchived': false,
         'updatedAt': FieldValue.serverTimestamp(),
       });
+
+      // Then add back to all store inventories
+      // We need to fetch details first
+      final fertilizer = await getFertilizerById(id);
+      if (fertilizer != null) {
+        await _syncService.addFertilizerToAllStores(
+          fertilizerId: fertilizer.id,
+          fertilizerName: fertilizer.name,
+          npkComposition: fertilizer.npkComposition,
+        );
+      }
     } catch (e) {
       throw Exception('Failed to unarchive fertilizer: $e');
     }

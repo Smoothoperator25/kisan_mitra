@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'store_dashboard_controller.dart';
 import 'store_inventory_model.dart';
 import '../stock/store_stock_screen.dart';
+import '../stock/fertilizer_details_screen.dart';
 import '../location/store_location_screen.dart';
 import '../profile/store_profile_screen.dart';
 
@@ -64,7 +65,7 @@ class _StoreDashboardScreenState extends State<StoreDashboardScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, -2),
           ),
@@ -276,7 +277,7 @@ class _DashboardTab extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -462,7 +463,7 @@ class _ActionCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -565,145 +566,346 @@ class _FertilizerCardState extends State<_FertilizerCard> {
 
   @override
   Widget build(BuildContext context) {
+    // Determine stock status
+    final currentStock = int.tryParse(_stockController.text) ?? widget.fertilizer.stock;
+    final isInStock = currentStock > 0 && widget.fertilizer.isAvailable;
+    final isLowStock = currentStock > 0 && currentStock <= 10;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isInStock
+              ? (isLowStock ? Colors.orange.shade100 : const Color(0xFFE8F5E9))
+              : Colors.red.shade100,
+          width: 2,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+            spreadRadius: 0,
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Fertilizer Icon
+          // Header Section with Gradient
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFE8F5E9),
-              borderRadius: BorderRadius.circular(8),
+              gradient: LinearGradient(
+                colors: [
+                  const Color(0xFFE8F5E9),
+                  Colors.white,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(14),
+                topRight: Radius.circular(14),
+              ),
             ),
-            child: const Icon(
-              Icons.science_outlined,
-              size: 24,
-              color: Color(0xFF2E7D32),
-            ),
-          ),
-
-          const SizedBox(width: 16),
-
-          // Fertilizer Info and Inputs
-          Expanded(
-            child: Column(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Fertilizer Name
-                Text(
-                  widget.fertilizer.fertilizerName ?? 'Loading...',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                // Fertilizer Icon with better styling
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFF4CAF50),
+                        Color(0xFF2E7D32),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF2E7D32).withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.eco,
+                    size: 28,
+                    color: Colors.white,
                   ),
                 ),
 
-                const SizedBox(height: 4),
+                const SizedBox(width: 14),
 
-                // Bag Weight
-                Text(
-                  widget.fertilizer.bagWeight ?? '',
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                // Fertilizer Info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Fertilizer Name with better styling
+                      Text(
+                        widget.fertilizer.fertilizerName ?? 'Loading...',
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF1B5E20),
+                          letterSpacing: 0.3,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // Additional Details Row: NPK, Form, Category, Manufacturer
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
+                        children: [
+                          // NPK Badge
+                          if (widget.fertilizer.npkComposition != null &&
+                              widget.fertilizer.npkComposition!.isNotEmpty)
+                            _buildInfoChip(
+                              icon: Icons.analytics_outlined,
+                              label: widget.fertilizer.npkComposition!,
+                              color: const Color(0xFF0288D1),
+                            ),
+
+                          // Form Badge (Granular, Liquid, Powder, etc.)
+                          if (widget.fertilizer.form != null &&
+                              widget.fertilizer.form!.isNotEmpty)
+                            _buildInfoChip(
+                              icon: Icons.grain_outlined,
+                              label: widget.fertilizer.form!,
+                              color: const Color(0xFF1976D2),
+                            ),
+
+                          // Category Badge
+                          if (widget.fertilizer.category != null &&
+                              widget.fertilizer.category!.isNotEmpty)
+                            _buildInfoChip(
+                              icon: Icons.category_outlined,
+                              label: widget.fertilizer.category!,
+                              color: const Color(0xFF7B1FA2),
+                            ),
+
+                          // Manufacturer Badge
+                          if (widget.fertilizer.manufacturer != null &&
+                              widget.fertilizer.manufacturer!.isNotEmpty)
+                            _buildInfoChip(
+                              icon: Icons.business_outlined,
+                              label: widget.fertilizer.manufacturer!,
+                              color: const Color(0xFFE65100),
+                            ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      // Stock Status Badge with animation-ready design
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: isInStock
+                                ? (isLowStock
+                                    ? [Colors.orange.shade400, Colors.orange.shade600]
+                                    : [const Color(0xFF1FB327), const Color(0xFF2E7D32)])
+                                : [Colors.red.shade400, Colors.red.shade600],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: (isInStock
+                                      ? (isLowStock
+                                          ? Colors.orange.shade300
+                                          : const Color(0xFF2E7D32))
+                                      : Colors.red.shade300)
+                                  .withValues(alpha: 0.4),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isInStock
+                                  ? (isLowStock ? Icons.warning_rounded : Icons.check_circle_rounded)
+                                  : Icons.cancel_rounded,
+                              size: 14,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              isInStock
+                                  ? (isLowStock ? 'LOW STOCK' : 'IN STOCK')
+                                  : 'OUT OF STOCK',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+              ],
+            ),
+          ),
 
-                const SizedBox(height: 12),
-
-                // Price and Stock Inputs
+          // Content Section
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                // Price and Stock Inputs Row with enhanced design
                 Row(
                   children: [
                     // Price Input
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'PRICE (₹)',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          TextField(
-                            controller: _priceController,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 8,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(4),
-                                borderSide: const BorderSide(
-                                  color: Colors.grey,
-                                  width: 1,
-                                ),
-                              ),
-                            ),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
+                      child: _buildInputField(
+                        controller: _priceController,
+                        label: 'PRICE',
+                        icon: Icons.currency_rupee_rounded,
+                        color: const Color(0xFF1976D2),
                       ),
                     ),
 
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 14),
 
                     // Stock Input
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'STOCK (BAGS)',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          TextField(
-                            controller: _stockController,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 8,
+                      child: _buildInputField(
+                        controller: _stockController,
+                        label: 'STOCK (BAGS)',
+                        icon: Icons.inventory_2_rounded,
+                        color: const Color(0xFF388E3C),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // Action Buttons Row with better spacing
+                Row(
+                  children: [
+                    // View Details Button
+                    Expanded(
+                      flex: 5,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FertilizerDetailsScreen(
+                                fertilizerId: widget.fertilizer.fertilizerId,
+                                fertilizerName: widget.fertilizer.fertilizerName ?? 'Fertilizer',
                               ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(4),
-                                borderSide: const BorderSide(
-                                  color: Colors.grey,
-                                  width: 1,
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.info_outline_rounded, size: 18),
+                        label: const Text(
+                          'DETAILS',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF2E7D32),
+                          side: const BorderSide(
+                            color: Color(0xFF2E7D32),
+                            width: 2,
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 10),
+
+                    // Save Button with gradient
+                    Expanded(
+                      flex: 5,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: _isSaving
+                              ? null
+                              : const LinearGradient(
+                                  colors: [
+                                    Color(0xFF4CAF50),
+                                    Color(0xFF2E7D32),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
-                              ),
-                            ),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: _isSaving
+                              ? null
+                              : [
+                                  BoxShadow(
+                                    color: const Color(0xFF2E7D32).withValues(alpha: 0.4),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                        ),
+                        child: ElevatedButton.icon(
+                          onPressed: _isSaving ? null : _handleSave,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _isSaving ? Colors.grey.shade300 : Colors.transparent,
+                            foregroundColor: Colors.white,
+                            shadowColor: Colors.transparent,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                        ],
+                          icon: _isSaving
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                              : const Icon(Icons.save_rounded, size: 18),
+                          label: Text(
+                            _isSaving ? 'SAVING...' : 'SAVE',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
+                              color: _isSaving ? Colors.grey.shade600 : Colors.white,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -711,33 +913,127 @@ class _FertilizerCardState extends State<_FertilizerCard> {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
 
-          const SizedBox(width: 12),
-
-          // Save Button
-          ElevatedButton(
-            onPressed: _isSaving ? null : _handleSave,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2E7D32),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+  // Helper method to build consistent input fields
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Label with icon
+        Row(
+          children: [
+            Icon(icon, size: 14, color: color),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: color,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
               ),
             ),
-            child: _isSaving
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : const Text(
-                    'SAVE',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        // Input field with enhanced styling
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
+              filled: true,
+              fillColor: Colors.grey.shade50,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: Colors.grey.shade300,
+                  width: 1.5,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: Colors.grey.shade300,
+                  width: 1.5,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: color,
+                  width: 2.5,
+                ),
+              ),
+            ),
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Helper method to build info chips
+  Widget _buildInfoChip({
+    required IconData icon,
+    required String label,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: color.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 12,
+            color: color,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: color,
+              letterSpacing: 0.3,
+            ),
           ),
         ],
       ),
