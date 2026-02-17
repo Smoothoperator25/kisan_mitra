@@ -59,6 +59,21 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
 
     // User Location (Blue Pulse effect simulation with larger semi-transparent circle)
     if (_controller.currentPosition != null) {
+      // Fly to user location
+      _mapboxMap?.flyTo(
+        CameraOptions(
+          center: Point(
+            coordinates: Position(
+              _controller.currentPosition!.longitude,
+              _controller.currentPosition!.latitude,
+            ),
+          ),
+          zoom: 16.0, // Zoom in closer
+          padding: MbxEdgeInsets(top: 0, left: 0, bottom: 0, right: 0),
+        ),
+        MapAnimationOptions(duration: 1000, startDelay: 0),
+      );
+
       await _circleAnnotationManager?.create(
         CircleAnnotationOptions(
           geometry: Point(
@@ -68,7 +83,7 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
             ),
           ),
           circleColor: Colors.blue.withOpacity(0.3).value,
-          circleRadius: 12.0,
+          circleRadius: 20.0, // Increased radius
         ),
       );
 
@@ -81,8 +96,8 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
             ),
           ),
           circleColor: Colors.blue.value,
-          circleRadius: 6.0,
-          circleStrokeWidth: 2.0,
+          circleRadius: 10.0, // Increased radius
+          circleStrokeWidth: 3.0, // Thicker stroke
           circleStrokeColor: Colors.white.value,
         ),
       );
@@ -453,7 +468,7 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                       12.9716, // Bangalore latitude as fallback
                                 ),
                               ),
-                              zoom: 14.0, // Higher zoom for better visibility
+                              zoom: 16.0, // Higher zoom for better visibility
                             ),
                           ),
                           // "Within 5KM" Lozenge

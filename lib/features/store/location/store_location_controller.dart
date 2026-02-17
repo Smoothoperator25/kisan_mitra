@@ -14,7 +14,7 @@ class StoreLocationController extends ChangeNotifier {
 
   // Map controller
   MapboxMap? _mapController;
-  PointAnnotationManager? _pointAnnotationManager;
+  CircleAnnotationManager? _circleAnnotationManager;
 
   // Location state
   double? _selectedLatitude;
@@ -32,7 +32,8 @@ class StoreLocationController extends ChangeNotifier {
 
   // Getters
   MapboxMap? get mapController => _mapController;
-  PointAnnotationManager? get pointAnnotationManager => _pointAnnotationManager;
+  CircleAnnotationManager? get circleAnnotationManager =>
+      _circleAnnotationManager;
   double? get selectedLatitude => _selectedLatitude;
   double? get selectedLongitude => _selectedLongitude;
   String get resolvedAddress => _resolvedAddress;
@@ -141,19 +142,31 @@ class StoreLocationController extends ChangeNotifier {
 
   /// Update marker position on map
   Future<void> _updateMarkerPosition(double latitude, double longitude) async {
-    if (_pointAnnotationManager == null) return;
+    if (_circleAnnotationManager == null) return;
 
     try {
       // Clear existing markers
-      await _pointAnnotationManager!.deleteAll();
+      await _circleAnnotationManager!.deleteAll();
 
-      // Add new marker
-      final options = PointAnnotationOptions(
-        geometry: Point(coordinates: Position(longitude, latitude)),
-        iconSize: 1.5,
+      // Add Pulse Effect
+      await _circleAnnotationManager!.create(
+        CircleAnnotationOptions(
+          geometry: Point(coordinates: Position(longitude, latitude)),
+          circleColor: Colors.red.withOpacity(0.3).value,
+          circleRadius: 20.0,
+        ),
       );
 
-      await _pointAnnotationManager!.create(options);
+      // Add Main Marker
+      await _circleAnnotationManager!.create(
+        CircleAnnotationOptions(
+          geometry: Point(coordinates: Position(longitude, latitude)),
+          circleColor: Colors.red.value,
+          circleRadius: 10.0,
+          circleStrokeWidth: 3.0,
+          circleStrokeColor: Colors.white.value,
+        ),
+      );
     } catch (e) {
       print('Error updating marker: $e');
     }
@@ -175,12 +188,12 @@ class StoreLocationController extends ChangeNotifier {
         _selectedLatitude = latitude;
         _selectedLongitude = longitude;
 
-        // Animate camera to new location
+        // Animate camera to new location with closer zoom
         if (_mapController != null) {
           _mapController!.flyTo(
             CameraOptions(
               center: Point(coordinates: Position(longitude, latitude)),
-              zoom: 15.0,
+              zoom: 16.0, // Zoom closer
             ),
             MapAnimationOptions(duration: 1000),
           );
@@ -245,12 +258,26 @@ class StoreLocationController extends ChangeNotifier {
   Future<void> setMapController(MapboxMap controller) async {
     _mapController = controller;
 
-    // Initialize point annotation manager for markers
-    _pointAnnotationManager = await controller.annotations.createPointAnnotationManager();
+    // Initialize circle annotation manager for markers
+    _circleAnnotationManager = await controller.annotations
+        .createCircleAnnotationManager();
 
     // Add initial marker if location is set
     if (_selectedLatitude != null && _selectedLongitude != null) {
+      // Small delay to ensure manager is ready
+      await Future.delayed(const Duration(milliseconds: 200));
       await _updateMarkerPosition(_selectedLatitude!, _selectedLongitude!);
+
+      // Also fly to location on init
+      controller.flyTo(
+        CameraOptions(
+          center: Point(
+            coordinates: Position(_selectedLongitude!, _selectedLatitude!),
+          ),
+          zoom: 16.0,
+        ),
+        MapAnimationOptions(duration: 1000),
+      );
     }
   }
 
@@ -263,7 +290,7 @@ class StoreLocationController extends ChangeNotifier {
   @override
   void dispose() {
     _mapController = null;
-    _pointAnnotationManager = null;
+    _circleAnnotationManager = null;
     super.dispose();
   }
 }

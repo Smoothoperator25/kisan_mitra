@@ -1,5 +1,7 @@
 import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../../../core/constants/app_constants.dart';
 
 /// Service for handling location and geocoding operations
 /// Used by Store Location Screen to manage GPS and address resolution
@@ -57,45 +59,45 @@ class StoreLocationService {
     required double longitude,
   }) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        latitude,
-        longitude,
-      );
+      final String accessToken = AppConstants.mapboxAccessToken;
+      // Request POIs and addresses, limit to 5 results to find the best match
+      final String url =
+          'https://api.mapbox.com/geocoding/v5/mapbox.places/$longitude,$latitude.json?access_token=$accessToken&limit=5&types=poi,address';
 
-      if (placemarks.isEmpty) {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List features = data['features'];
+
+        if (features.isNotEmpty) {
+          // 1. Try to find a POI (Point of Interest) first
+          var bestFeature = features.firstWhere(
+            (f) => (f['id'] as String).startsWith('poi.'),
+            orElse: () => null,
+          );
+
+          // 2. If no POI, fallback to the first result (usually address)
+          bestFeature ??= features.first;
+
+          final placeName = bestFeature['place_name'] as String;
+          return {
+            'success': true,
+            'address': placeName,
+            'features': bestFeature,
+          };
+        } else {
+          return {
+            'success': false,
+            'message': 'No address found for this location',
+          };
+        }
+      } else {
         return {
           'success': false,
-          'message': 'No address found for this location',
+          'message': 'Failed to fetch address: ${response.statusCode}',
         };
       }
-
-      Placemark place = placemarks[0];
-
-      // Build full address string
-      List<String> addressParts = [];
-
-      if (place.street != null && place.street!.isNotEmpty) {
-        addressParts.add(place.street!);
-      }
-      if (place.subLocality != null && place.subLocality!.isNotEmpty) {
-        addressParts.add(place.subLocality!);
-      }
-      if (place.locality != null && place.locality!.isNotEmpty) {
-        addressParts.add(place.locality!);
-      }
-      if (place.administrativeArea != null &&
-          place.administrativeArea!.isNotEmpty) {
-        addressParts.add(place.administrativeArea!);
-      }
-      if (place.postalCode != null && place.postalCode!.isNotEmpty) {
-        addressParts.add(place.postalCode!);
-      }
-
-      String fullAddress = addressParts.isNotEmpty
-          ? addressParts.join(', ')
-          : 'Address not available';
-
-      return {'success': true, 'address': fullAddress, 'placemark': place};
     } catch (e) {
       return {'success': false, 'message': 'Failed to get address: $e'};
     }
