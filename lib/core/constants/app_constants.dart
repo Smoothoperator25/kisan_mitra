@@ -8,6 +8,7 @@ class AppConstants {
   static const String storesCollection = 'stores';
   static const String adminsCollection = 'admins';
   static const String fertilizersCollection = 'fertilizers';
+  static const String fertilizerMasterCollection = 'fertilizers';
   static const String storeFertilizersCollection = 'store_fertilizers';
 
   // User Roles

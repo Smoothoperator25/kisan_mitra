@@ -23,6 +23,13 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
 
   late final FertilizerSearchController _controller;
 
+  // For overlay
+  final LayerLink _layerLink = LayerLink();
+  OverlayEntry? _overlayEntry;
+
+  // Track last shown error to prevent duplicate SnackBars
+  String? _lastShownError;
+
   @override
   void initState() {
     super.initState();
@@ -30,13 +37,83 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _controller.initialize();
     });
+
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
+    _removeOverlay();
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     _controller.dispose();
     super.dispose();
+  }
+
+  void _onSearchChanged() {
+    if (_searchController.text.isNotEmpty) {
+      _controller.filterSuggestions(_searchController.text);
+      if (_controller.suggestions.isNotEmpty) {
+        _showOverlay();
+      } else {
+        _removeOverlay();
+      }
+    } else {
+      _removeOverlay();
+    }
+  }
+
+  void _showOverlay() {
+    if (_overlayEntry != null) return;
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        width: MediaQuery.of(context).size.width - 32, // Match padding
+        child: CompositedTransformFollower(
+          link: _layerLink,
+          showWhenUnlinked: false,
+          offset: const Offset(0.0, 50.0), // Height of text field + padding
+          child: Material(
+            elevation: 4.0,
+            borderRadius: BorderRadius.circular(8),
+            child: ChangeNotifierProvider.value(
+              value: _controller,
+              child: Consumer<FertilizerSearchController>(
+                builder: (context, controller, child) {
+                  return ListView.builder(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    itemCount: controller.suggestions.length,
+                    itemBuilder: (context, index) {
+                      final suggestion = controller.suggestions[index];
+                      return ListTile(
+                        title: Text(suggestion.name),
+                        onTap: () {
+                          _searchController.text = suggestion.name;
+                          _removeOverlay();
+                          FocusScope.of(context).unfocus();
+                          context
+                              .read<ProfileController>()
+                              .incrementSearchCount();
+                          controller.searchFertilizer(suggestion.name);
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
   }
 
   void _onMapCreated(MapboxMap mapboxMap) {
@@ -165,15 +242,60 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                 _updateRoute();
               }
 
-              if (controller.error != null && controller.error!.isNotEmpty) {
+              // Show error only if it's new and different from last shown
+              if (controller.error != null &&
+                  controller.error!.isNotEmpty &&
+                  controller.error != _lastShownError) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _lastShownError = controller.error;
+                  String errorMessage = controller.error!;
+                  String actionMessage = '';
+
+                  // Check if it's a permission error
+                  if (errorMessage.contains('permission-denied') ||
+                      errorMessage.contains('permission denied')) {
+                    errorMessage = 'Database permission error detected';
+                    actionMessage =
+                        'Please ensure Firestore rules are deployed. Contact support if issue persists.';
+                  }
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(controller.error!),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            errorMessage,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          if (actionMessage.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              actionMessage,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        ],
+                      ),
                       backgroundColor: Colors.red,
+                      duration: const Duration(seconds: 4),
+                      action: SnackBarAction(
+                        label: 'Retry',
+                        textColor: Colors.white,
+                        onPressed: () {
+                          _lastShownError = null; // Reset to allow new error
+                          controller.initialize();
+                        },
+                      ),
                     ),
                   );
                 });
+              }
+
+              // Clear last shown error when error is null
+              if (controller.error == null || controller.error!.isEmpty) {
+                _lastShownError = null;
               }
 
               return Column(
@@ -212,42 +334,46 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                   ),
 
                   // Search Field
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Urea',
-                        hintStyle: const TextStyle(
-                          color: AppColors.textSecondary,
-                        ),
-                        prefixIcon: const Icon(
-                          Icons.search,
-                          color: AppColors.textSecondary,
-                        ),
-                        filled: true,
-                        fillColor: AppColors.background,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            30,
-                          ), // Rounded pill shape
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 14,
-                        ),
+                  CompositedTransformTarget(
+                    link: _layerLink,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
                       ),
-                      onSubmitted: (value) {
-                        print('DEBUG: Search submitted via keyboard: $value');
-                        context
-                            .read<ProfileController>()
-                            .incrementSearchCount();
-                        controller.searchFertilizer(value);
-                      },
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Urea',
+                          hintStyle: const TextStyle(
+                            color: AppColors.textSecondary,
+                          ),
+                          prefixIcon: const Icon(
+                            Icons.search,
+                            color: AppColors.textSecondary,
+                          ),
+                          filled: true,
+                          fillColor: AppColors.background,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              30,
+                            ), // Rounded pill shape
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 14,
+                          ),
+                        ),
+                        onSubmitted: (value) {
+                          _removeOverlay();
+                          print('DEBUG: Search submitted via keyboard: $value');
+                          context
+                              .read<ProfileController>()
+                              .incrementSearchCount();
+                          controller.searchFertilizer(value);
+                        },
+                      ),
                     ),
                   ),
 
@@ -281,10 +407,24 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                   color: const Color(0xFFE8F5E9), // Light Green
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: const Icon(
-                                  Icons.science_outlined,
-                                  color: AppColors.primary,
-                                ), // Flask icon
+                                child:
+                                    controller
+                                        .selectedFertilizer!
+                                        .imageUrl
+                                        .isNotEmpty
+                                    ? Image.network(
+                                        controller.selectedFertilizer!.imageUrl,
+                                        width: 24,
+                                        height: 24,
+                                        errorBuilder: (c, e, s) => const Icon(
+                                          Icons.science_outlined,
+                                          color: AppColors.primary,
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.science_outlined,
+                                        color: AppColors.primary,
+                                      ), // Flask icon
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -298,9 +438,10 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    const Text(
-                                      'NITROGEN FERTILIZER', // Static or dynamic if available
-                                      style: TextStyle(
+                                    Text(
+                                      controller.selectedFertilizer!.category
+                                          .toUpperCase(),
+                                      style: const TextStyle(
                                         fontSize: 10,
                                         color: AppColors.textSecondary,
                                         fontWeight: FontWeight.w600,
@@ -343,83 +484,33 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
+                                      // No suitableCrops in simplified Fertilizer model as per requirements?
+                                      // Assuming I should remove or use placeholder/description if available.
+                                      // Requirements said "Fertilizer Master: name, category, NPK, description, image, isActive".
+                                      // So I'll show description instead.
                                       const Text(
-                                        'Suitable Crops',
+                                        'Description',
                                         style: TextStyle(
                                           fontSize: 10,
                                           color: AppColors.textSecondary,
                                         ),
                                       ),
                                       const SizedBox(height: 4),
-                                      Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.grass,
-                                            size: 14,
-                                            color: AppColors.success,
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Expanded(
-                                            child: Text(
-                                              controller
+                                      Text(
+                                        controller
+                                                .selectedFertilizer!
+                                                .description
+                                                .isNotEmpty
+                                            ? controller
                                                   .selectedFertilizer!
-                                                  .suitableCrops,
-                                              style: const TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.background,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        'Dosage',
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color: AppColors.textSecondary,
+                                                  .description
+                                            : 'No description available',
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
                                         ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.water_drop_outlined,
-                                            size: 14,
-                                            color: Colors.blue,
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Expanded(
-                                            child: Text(
-                                              controller
-                                                  .selectedFertilizer!
-                                                  .recommendedDosage,
-                                              style: const TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ],
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ],
                                   ),
@@ -563,8 +654,11 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
                                       color: isBest
-                                          ? const Color(0xFFE0F7FA)
+                                          ? const Color(
+                                              0xFFFFAB00,
+                                            ) // Gold for best
                                           : Colors.grey.shade100,
+                                      width: isBest ? 2.0 : 1.0,
                                     ),
                                     boxShadow: [
                                       BoxShadow(
@@ -581,25 +675,83 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              result.store.storeName,
-                                              style: const TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  result.store.storeName,
+                                                  style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                if (result
+                                                    .store
+                                                    .isVerified) ...[
+                                                  const SizedBox(width: 4),
+                                                  const Icon(
+                                                    Icons.verified,
+                                                    color: Colors.blue,
+                                                    size: 14,
+                                                  ),
+                                                ],
+                                                if (isBest) ...[
+                                                  const SizedBox(width: 8),
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 6,
+                                                          vertical: 2,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: const Color(
+                                                        0xFFFFAB00,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            4,
+                                                          ),
+                                                    ),
+                                                    child: const Text(
+                                                      'BEST SHOP',
+                                                      style: TextStyle(
+                                                        fontSize: 8,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ],
                                             ),
+
                                             const SizedBox(height: 4),
                                             Row(
                                               children: [
                                                 const Icon(
-                                                  Icons.access_time,
+                                                  Icons.star,
+                                                  size: 12,
+                                                  color: Colors.amber,
+                                                ),
+                                                const SizedBox(width: 2),
+                                                Text(
+                                                  '${result.store.rating} (${result.store.totalReviews})',
+                                                  style: const TextStyle(
+                                                    fontSize: 11,
+                                                    color:
+                                                        AppColors.textSecondary,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                const Icon(
+                                                  Icons.location_on,
                                                   size: 12,
                                                   color:
                                                       AppColors.textSecondary,
                                                 ),
-                                                const SizedBox(width: 4),
+                                                const SizedBox(width: 2),
                                                 Text(
-                                                  '${result.distance.toStringAsFixed(1)} km • ${_calculateTime(result.distance)} mins',
+                                                  '${result.distance.toStringAsFixed(1)} km',
                                                   style: const TextStyle(
                                                     fontSize: 11,
                                                     color:
@@ -616,8 +768,7 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                                     vertical: 4,
                                                   ),
                                               decoration: BoxDecoration(
-                                                color:
-                                                    result.details.isAvailable
+                                                color: result.inStock
                                                     ? AppColors.success
                                                           .withOpacity(0.1)
                                                     : Colors.red.withOpacity(
@@ -633,10 +784,7 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                                     width: 6,
                                                     height: 6,
                                                     decoration: BoxDecoration(
-                                                      color:
-                                                          result
-                                                              .details
-                                                              .isAvailable
+                                                      color: result.inStock
                                                           ? AppColors.success
                                                           : Colors.red,
                                                       shape: BoxShape.circle,
@@ -644,17 +792,14 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                                   ),
                                                   const SizedBox(width: 4),
                                                   Text(
-                                                    result.details.isAvailable
+                                                    result.inStock
                                                         ? 'IN STOCK'
                                                         : 'OUT STOCK',
                                                     style: TextStyle(
                                                       fontSize: 10,
                                                       fontWeight:
                                                           FontWeight.bold,
-                                                      color:
-                                                          result
-                                                              .details
-                                                              .isAvailable
+                                                      color: result.inStock
                                                           ? AppColors.success
                                                           : Colors.red,
                                                     ),
@@ -670,7 +815,7 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                             CrossAxisAlignment.end,
                                         children: [
                                           Text(
-                                            '₹${result.details.price.toStringAsFixed(2)}',
+                                            '₹${result.price.toStringAsFixed(2)}',
                                             style: const TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold,
@@ -678,7 +823,7 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                             ),
                                           ),
                                           const Text(
-                                            'per bag',
+                                            'per unit',
                                             style: TextStyle(
                                               fontSize: 10,
                                               color: AppColors.textSecondary,
@@ -748,10 +893,5 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
         ),
       ),
     );
-  }
-
-  String _calculateTime(double distance) {
-    // Approx 30km/h
-    return (distance / 30 * 60).toStringAsFixed(0);
   }
 }

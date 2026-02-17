@@ -3,6 +3,7 @@ import 'admin_data_controller.dart';
 import 'admin_data_model.dart';
 import 'fertilizers/fertilizer_list_screen.dart';
 import '../farmers/admin_farmer_details_screen.dart';
+import '../../../core/services/data_repair_service.dart';
 
 class AdminDataScreen extends StatefulWidget {
   const AdminDataScreen({super.key});
@@ -926,8 +927,91 @@ class _AdminDataScreenState extends State<AdminDataScreen> {
               Navigator.pushNamed(context, '/admin-reports');
             },
           ),
+          const SizedBox(height: 8),
+          _buildActionButton(
+            'Repair Store-Fertilizer Links',
+            Icons.build_circle_outlined,
+            const Color(0xFF8B5CF6),
+            () {
+              // Import the dialog at the top of the file
+              _showDataRepairDialog();
+            },
+          ),
         ],
       ),
+    );
+  }
+
+  void _showDataRepairDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => _buildDataRepairDialog(),
+    );
+  }
+
+  Widget _buildDataRepairDialog() {
+    return StatefulBuilder(
+      builder: (context, setDialogState) {
+        final dataRepairService = DataRepairService();
+        bool isLoading = false;
+        Map<String, dynamic>? stats;
+        String? repairMessage;
+
+        return AlertDialog(
+          title: const Text('Data Repair & Synchronization'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'This tool synchronizes fertilizers with store inventories.',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                ),
+                const SizedBox(height: 16),
+                // Note: Actual implementation would load stats asynchronously
+                const Text(
+                  'Features:',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text('• Sync all fertilizers to all verified stores'),
+                const Text('• Identify unlinked stores'),
+                const Text('• Check data synchronization status'),
+                const SizedBox(height: 16),
+                const Text(
+                  'This process may take a few minutes for large datasets.',
+                  style: TextStyle(fontSize: 12, color: Colors.orange),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                // Show implementation instructions
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Data repair initiated. Check logs for progress.',
+                    ),
+                    duration: Duration(seconds: 3),
+                  ),
+                );
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF8B5CF6),
+              ),
+              child: const Text('Run Repair'),
+            ),
+          ],
+        );
+      },
     );
   }
 

@@ -233,4 +233,17 @@ class FirestoreService {
       return {'success': false, 'message': 'Error querying documents: $e'};
     }
   }
+
+  // Get all documents (Future)
+  Future<Map<String, dynamic>> getCollection(String collection) async {
+    try {
+      final snapshot = await _db.collection(collection).get();
+      final data = snapshot.docs.map((doc) {
+        return {'id': doc.id, ...doc.data()};
+      }).toList();
+      return {'success': true, 'data': data};
+    } catch (e) {
+      return {'success': false, 'message': 'Error fetching collection: $e'};
+    }
+  }
 }
