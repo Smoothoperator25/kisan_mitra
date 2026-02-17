@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'package:kisan_mitra/core/constants/app_constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 
 class MapboxService {
   // Mapbox Access Token - From your account
-  static const String _accessToken = 'pk.eyJ1IjoiY29kZWJ5c2F0eWFqaXQiLCJhIjoiY21sa3NnbjllMDAwMjNjcXhzNXA2amEzZSJ9.g5WX1ReVtrtZFShKGxBcBAE';
+  static const String _accessToken = AppConstants.mapboxAccessToken;
 
   // Directions API
   Future<List<LatLng>> getRoute(LatLng origin, LatLng destination) async {

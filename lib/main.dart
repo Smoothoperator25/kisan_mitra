@@ -32,7 +32,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Mapbox with access token
-  MapboxOptions.setAccessToken('pk.eyJ1IjoiY29kZWJ5c2F0eWFqaXQiLCJhIjoiY21sa3NnbjllMDAwMjNjcXhzNXA2amEzZSJ9.g5WX1ReVtrtZFShKGxBcBAE');
+  MapboxOptions.setAccessToken(AppConstants.mapboxAccessToken);
 
   runApp(const AppInitializer());
 }
@@ -210,9 +210,8 @@ class MyApp extends StatelessWidget {
             final storeId = settings.arguments as String?;
             if (storeId != null) {
               return MaterialPageRoute(
-                builder: (context) => AdminStoreVerificationDetailsScreen(
-                  storeId: storeId,
-                ),
+                builder: (context) =>
+                    AdminStoreVerificationDetailsScreen(storeId: storeId),
               );
             }
           }
