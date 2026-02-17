@@ -68,8 +68,22 @@ class StoreLocationController extends ChangeNotifier {
         _storeName = data?['storeName'] as String? ?? 'Store';
 
         // Check if location exists
-        final latitude = data?['latitude'] as double?;
-        final longitude = data?['longitude'] as double?;
+        // Check if location exists (Support both nested map and root fields)
+        double? latitude;
+        double? longitude;
+
+        // Try reading from nested 'location' map first (New standard from registration)
+        if (data?['location'] is Map) {
+          final loc = data!['location'] as Map<String, dynamic>;
+          latitude = (loc['latitude'] as num?)?.toDouble();
+          longitude = (loc['longitude'] as num?)?.toDouble();
+        }
+
+        // Fallback to root fields (Old standard)
+        if (latitude == null || longitude == null) {
+          latitude = (data?['latitude'] as num?)?.toDouble();
+          longitude = (data?['longitude'] as num?)?.toDouble();
+        }
 
         if (latitude != null && longitude != null) {
           // Use saved location
@@ -238,8 +252,14 @@ class StoreLocationController extends ChangeNotifier {
         collection: 'stores',
         docId: uid,
         data: {
+          // Save to root fields (Backward compatibility)
           'latitude': _selectedLatitude,
           'longitude': _selectedLongitude,
+          // Save to nested location map (New standard)
+          'location': {
+            'latitude': _selectedLatitude,
+            'longitude': _selectedLongitude,
+          },
           'address': _resolvedAddress,
           'locationUpdatedAt': Timestamp.now(),
         },
