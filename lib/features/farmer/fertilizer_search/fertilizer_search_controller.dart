@@ -364,9 +364,9 @@ class FertilizerSearchController extends ChangeNotifier {
 
       print('DEBUG: Store ${store.storeName} distance: $distance km');
 
-      // Filter 4: Radius
-      // Increased to 100KM to be more inclusive
-      if (distance <= 100.0) {
+      // Filter 4: Radius - 5KM radius as per requirement
+      const double searchRadius = 5.0;
+      if (distance <= searchRadius) {
         tempResults.add(
           StoreSearchResult(
             store: store,
@@ -379,7 +379,7 @@ class FertilizerSearchController extends ChangeNotifier {
       } else {
         droppedDistance++;
         print(
-          'DEBUG: Dropped store ${store.storeName} (id: ${store.id}) - Too Far ($distance km > 100km)',
+          'DEBUG: Dropped store ${store.storeName} (id: ${store.id}) - Too Far ($distance km > ${searchRadius}km)',
         );
       }
     }
@@ -404,7 +404,7 @@ class FertilizerSearchController extends ChangeNotifier {
 
       // Only set error message if no stores were found
       _error =
-          'No stores found within 100km radius.\n'
+          'No stores found within 5km radius.\n'
           'Please check your location and try again.';
     }
   }

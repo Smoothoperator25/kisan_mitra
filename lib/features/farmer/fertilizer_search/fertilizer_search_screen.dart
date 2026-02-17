@@ -612,10 +612,9 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                     ),
                   ),
 
-                  // Stores List Section
+                  // Stores List Section - Flexible height to allow more map space
                   if (controller.stores.isNotEmpty)
-                    Container(
-                      height: 240, // Fixed height for list area
+                    Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -634,17 +633,18 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                               ),
                             ),
                           ),
-                          Expanded(
-                            child: ListView.builder(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              itemCount: controller.stores.length,
-                              itemBuilder: (context, index) {
-                                final result = controller.stores[index];
-                                final isBest =
-                                    controller.bestShop?.store.id ==
-                                    result.store.id;
+                          ListView.builder(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                            ),
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: controller.stores.length,
+                            itemBuilder: (context, index) {
+                              final result = controller.stores[index];
+                              final isBest =
+                                  controller.bestShop?.store.id ==
+                                  result.store.id;
 
                                 return Container(
                                   margin: const EdgeInsets.only(bottom: 12),
@@ -882,7 +882,6 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                 );
                               },
                             ),
-                          ),
                         ],
                       ),
                     ),
