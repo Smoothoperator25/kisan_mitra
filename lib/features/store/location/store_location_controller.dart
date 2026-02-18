@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'dart:ui' as ui;
+import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/firestore_service.dart';
@@ -15,6 +17,7 @@ class StoreLocationController extends ChangeNotifier {
   // Map controller
   MapboxMap? _mapController;
   CircleAnnotationManager? _circleAnnotationManager;
+  PointAnnotationManager? _pointAnnotationManager;
 
   // Location state
   double? _selectedLatitude;
@@ -34,6 +37,7 @@ class StoreLocationController extends ChangeNotifier {
   MapboxMap? get mapController => _mapController;
   CircleAnnotationManager? get circleAnnotationManager =>
       _circleAnnotationManager;
+  PointAnnotationManager? get pointAnnotationManager => _pointAnnotationManager;
   double? get selectedLatitude => _selectedLatitude;
   double? get selectedLongitude => _selectedLongitude;
   String get resolvedAddress => _resolvedAddress;
@@ -161,26 +165,31 @@ class StoreLocationController extends ChangeNotifier {
     try {
       // Clear existing markers
       await _circleAnnotationManager!.deleteAll();
+      if (_pointAnnotationManager != null) {
+        await _pointAnnotationManager!.deleteAll();
+      }
 
-      // Add Pulse Effect
-      await _circleAnnotationManager!.create(
-        CircleAnnotationOptions(
-          geometry: Point(coordinates: Position(longitude, latitude)),
-          circleColor: Colors.red.withOpacity(0.3).value,
-          circleRadius: 20.0,
-        ),
-      );
-
-      // Add Main Marker
-      await _circleAnnotationManager!.create(
-        CircleAnnotationOptions(
-          geometry: Point(coordinates: Position(longitude, latitude)),
-          circleColor: Colors.red.value,
-          circleRadius: 10.0,
-          circleStrokeWidth: 3.0,
-          circleStrokeColor: Colors.white.value,
-        ),
-      );
+      // Add Main Marker (Custom Pin)
+      if (_pointAnnotationManager != null) {
+        await _pointAnnotationManager!.create(
+          PointAnnotationOptions(
+            geometry: Point(coordinates: Position(longitude, latitude)),
+            iconImage: "user_location_marker",
+            iconSize: 0.8,
+            iconAnchor: IconAnchor.BOTTOM,
+            iconOffset: [0.0, -5.0],
+          ),
+        );
+      } else {
+        // Fallback to circles if point manager not ready (shouldn't happen)
+        await _circleAnnotationManager!.create(
+          CircleAnnotationOptions(
+            geometry: Point(coordinates: Position(longitude, latitude)),
+            circleColor: Colors.red.withOpacity(0.3).value,
+            circleRadius: 20.0,
+          ),
+        );
+      }
     } catch (e) {
       print('Error updating marker: $e');
     }
@@ -278,9 +287,31 @@ class StoreLocationController extends ChangeNotifier {
   Future<void> setMapController(MapboxMap controller) async {
     _mapController = controller;
 
-    // Initialize circle annotation manager for markers
+    // Initialize circle annotation manager for markers (keeping for fallback/pulse if needed)
     _circleAnnotationManager = await controller.annotations
         .createCircleAnnotationManager();
+
+    // Initialize point annotation manager
+    _pointAnnotationManager = await controller.annotations
+        .createPointAnnotationManager();
+
+    // Add User Location Marker Image
+    try {
+      final userMarker = await _buildUserLocationMarkerImage(
+        const Color(0xFF2196F3),
+      );
+      await controller.style.addStyleImage(
+        "user_location_marker",
+        2.0,
+        MbxImage(width: 100, height: 120, data: userMarker),
+        false,
+        [],
+        [],
+        null,
+      );
+    } catch (e) {
+      debugPrint("Error adding style image: $e");
+    }
 
     // Add initial marker if location is set
     if (_selectedLatitude != null && _selectedLongitude != null) {
@@ -311,6 +342,77 @@ class StoreLocationController extends ChangeNotifier {
   void dispose() {
     _mapController = null;
     _circleAnnotationManager = null;
+    _pointAnnotationManager = null;
     super.dispose();
+  }
+
+  Future<Uint8List> _buildUserLocationMarkerImage(Color color) async {
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    const size = ui.Size(100, 120);
+
+    // 1. Draw Pin Body
+    final paint = Paint()..color = color;
+    final path = Path();
+    path.moveTo(size.width / 2, size.height); // Bottom tip
+
+    // Right curve
+    path.cubicTo(
+      size.width / 2,
+      size.height * 0.7,
+      size.width * 0.95,
+      size.height * 0.6,
+      size.width * 0.95,
+      45,
+    );
+
+    // Top Arc
+    path.arcToPoint(
+      Offset(size.width * 0.05, 45),
+      radius: const Radius.circular(45),
+      clockwise: false,
+    );
+
+    // Left curve
+    path.cubicTo(
+      size.width * 0.05,
+      size.height * 0.6,
+      size.width / 2,
+      size.height * 0.7,
+      size.width / 2,
+      size.height,
+    );
+
+    path.close();
+    canvas.drawPath(path, paint);
+
+    // 2. Draw White Inner Circle
+    final circlePaint = Paint()..color = Colors.white;
+    canvas.drawCircle(const Offset(50, 45), 30, circlePaint);
+
+    // 3. Draw User Icon (Person)
+    final iconIcon = Icons.person; // User icon
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
+    textPainter.text = TextSpan(
+      text: String.fromCharCode(iconIcon.codePoint),
+      style: TextStyle(
+        fontSize: 40,
+        fontFamily: iconIcon.fontFamily,
+        color: color,
+      ),
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        size.width / 2 - textPainter.width / 2,
+        45 - textPainter.height / 2,
+      ),
+    );
+
+    final picture = recorder.endRecording();
+    final img = await picture.toImage(size.width.toInt(), size.height.toInt());
+    final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+    return byteData!.buffer.asUint8List();
   }
 }

@@ -154,10 +154,7 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
     _mapboxMap?.flyTo(
       CameraOptions(
         center: Point(
-          coordinates: Position(
-            bounds['centerLng']!,
-            bounds['centerLat']!,
-          ),
+          coordinates: Position(bounds['centerLng']!, bounds['centerLat']!),
         ),
         zoom: zoom,
         padding: MbxEdgeInsets(
@@ -213,6 +210,20 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
         "best_store_marker",
         2.0,
         MbxImage(width: 100, height: 120, data: bestMarker),
+        false,
+        [],
+        [],
+        null,
+      );
+
+      // User Location Marker (Blue)
+      final userMarker = await _buildUserLocationMarkerImage(
+        const Color(0xFF2196F3),
+      );
+      await _mapboxMap?.style.addStyleImage(
+        "user_location_marker",
+        2.0,
+        MbxImage(width: 100, height: 120, data: userMarker),
         false,
         [],
         [],
@@ -301,62 +312,127 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
     return byteData!.buffer.asUint8List();
   }
 
+  Future<Uint8List> _buildUserLocationMarkerImage(Color color) async {
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    const size = ui.Size(100, 120);
+
+    // 1. Draw Pin Body
+    final paint = Paint()..color = color;
+    final path = Path();
+    path.moveTo(size.width / 2, size.height); // Bottom tip
+
+    // Right curve
+    path.cubicTo(
+      size.width / 2,
+      size.height * 0.7,
+      size.width * 0.95,
+      size.height * 0.6,
+      size.width * 0.95,
+      45,
+    );
+
+    // Top Arc
+    path.arcToPoint(
+      Offset(size.width * 0.05, 45),
+      radius: const Radius.circular(45),
+      clockwise: false,
+    );
+
+    // Left curve
+    path.cubicTo(
+      size.width * 0.05,
+      size.height * 0.6,
+      size.width / 2,
+      size.height * 0.7,
+      size.width / 2,
+      size.height,
+    );
+
+    path.close();
+    canvas.drawPath(path, paint);
+
+    // 2. Draw White Inner Circle
+    final circlePaint = Paint()..color = Colors.white;
+    canvas.drawCircle(const Offset(50, 45), 30, circlePaint);
+
+    // 3. Draw User Icon (Person)
+    final iconIcon = Icons.person; // User icon
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
+    textPainter.text = TextSpan(
+      text: String.fromCharCode(iconIcon.codePoint),
+      style: TextStyle(
+        fontSize: 40, // Slightly larger than store icon
+        fontFamily: iconIcon.fontFamily,
+        color: color, // Match pin color (Blue)
+      ),
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        size.width / 2 - textPainter.width / 2,
+        45 - textPainter.height / 2,
+      ),
+    );
+
+    final picture = recorder.endRecording();
+    final img = await picture.toImage(size.width.toInt(), size.height.toInt());
+    final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+    return byteData!.buffer.asUint8List();
+  }
+
   Future<void> _updateMapMarkers() async {
     if (_circleAnnotationManager == null) return;
 
     await _circleAnnotationManager?.deleteAll();
 
     if (_controller.currentPosition != null) {
-      // Only fly to user location on initial setup, not on every update
-      if (!_initialCameraSet) {
-        _mapboxMap?.flyTo(
-          CameraOptions(
-            center: Point(
+      // Logic moved to _pointAnnotationManager block below
+      // Removed CircleAnnotations for user location
+    }
+
+    // Stores & User Location
+    if (_pointAnnotationManager != null && _markerImageReady) {
+      await _pointAnnotationManager?.deleteAll();
+
+      // User Location
+      if (_controller.currentPosition != null) {
+        // Only fly to user location on initial setup, not on every update
+        if (!_initialCameraSet) {
+          _mapboxMap?.flyTo(
+            CameraOptions(
+              center: Point(
+                coordinates: Position(
+                  _controller.currentPosition!.longitude,
+                  _controller.currentPosition!.latitude,
+                ),
+              ),
+              zoom: 13.0, // Zoom level to show ~5km radius area
+              padding: MbxEdgeInsets(top: 0, left: 0, bottom: 0, right: 0),
+            ),
+            MapAnimationOptions(duration: 1000, startDelay: 0),
+          );
+          _initialCameraSet = true;
+        }
+
+        await _pointAnnotationManager?.create(
+          PointAnnotationOptions(
+            geometry: Point(
               coordinates: Position(
                 _controller.currentPosition!.longitude,
                 _controller.currentPosition!.latitude,
               ),
             ),
-            zoom: 13.0, // Zoom level to show ~5km radius area
-            padding: MbxEdgeInsets(top: 0, left: 0, bottom: 0, right: 0),
+            iconImage: "user_location_marker",
+            iconSize: 0.8,
+            iconAnchor: IconAnchor.BOTTOM,
+            iconOffset: [0.0, -5.0],
           ),
-          MapAnimationOptions(duration: 1000, startDelay: 0),
         );
-        _initialCameraSet = true;
       }
 
-      await _circleAnnotationManager?.create(
-        CircleAnnotationOptions(
-          geometry: Point(
-            coordinates: Position(
-              _controller.currentPosition!.longitude,
-              _controller.currentPosition!.latitude,
-            ),
-          ),
-          circleColor: Colors.blue.withOpacity(0.3).value,
-          circleRadius: 20.0, // Increased radius
-        ),
-      );
-
-      await _circleAnnotationManager?.create(
-        CircleAnnotationOptions(
-          geometry: Point(
-            coordinates: Position(
-              _controller.currentPosition!.longitude,
-              _controller.currentPosition!.latitude,
-            ),
-          ),
-          circleColor: Colors.blue.value,
-          circleRadius: 10.0, // Increased radius
-          circleStrokeWidth: 3.0, // Thicker stroke
-          circleStrokeColor: Colors.white.value,
-        ),
-      );
-    }
-
-    // Stores
-    if (_pointAnnotationManager != null && _markerImageReady) {
-      await _pointAnnotationManager?.deleteAll();
+      // Stores
       for (var result in _controller.stores) {
         final isBest = _controller.bestShop?.store.id == result.store.id;
 
@@ -563,534 +639,629 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                         children: [
                           // Fertilizer Info Card
                           if (controller.selectedFertilizer != null)
-                    Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.grey.shade100),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFE8F5E9), // Light Green
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child:
-                                    controller
-                                        .selectedFertilizer!
-                                        .imageUrl
-                                        .isNotEmpty
-                                    ? Image.network(
-                                        controller.selectedFertilizer!.imageUrl,
-                                        width: 24,
-                                        height: 24,
-                                        errorBuilder: (c, e, s) => const Icon(
-                                          Icons.science_outlined,
-                                          color: AppColors.primary,
-                                        ),
-                                      )
-                                    : const Icon(
-                                        Icons.science_outlined,
-                                        color: AppColors.primary,
-                                      ), // Flask icon
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      controller.selectedFertilizer!.name,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      controller.selectedFertilizer!.category
-                                          .toUpperCase(),
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        color: AppColors.textSecondary,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.blue.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  'NPK: ${controller.selectedFertilizer!.npkComposition}',
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.grey.shade100),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.03),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
                                   ),
-                                ),
+                                ],
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.background,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                              child: Column(
+                                children: [
+                                  Row(
                                     children: [
-                                      // No suitableCrops in simplified Fertilizer model as per requirements?
-                                      // Assuming I should remove or use placeholder/description if available.
-                                      // Requirements said "Fertilizer Master: name, category, NPK, description, image, isActive".
-                                      // So I'll show description instead.
-                                      const Text(
-                                        'Description',
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color: AppColors.textSecondary,
+                                      Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: const Color(
+                                            0xFFE8F5E9,
+                                          ), // Light Green
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child:
+                                            controller
+                                                .selectedFertilizer!
+                                                .imageUrl
+                                                .isNotEmpty
+                                            ? Image.network(
+                                                controller
+                                                    .selectedFertilizer!
+                                                    .imageUrl,
+                                                width: 24,
+                                                height: 24,
+                                                errorBuilder: (c, e, s) =>
+                                                    const Icon(
+                                                      Icons.science_outlined,
+                                                      color: AppColors.primary,
+                                                    ),
+                                              )
+                                            : const Icon(
+                                                Icons.science_outlined,
+                                                color: AppColors.primary,
+                                              ), // Flask icon
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              controller
+                                                  .selectedFertilizer!
+                                                  .name,
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              controller
+                                                  .selectedFertilizer!
+                                                  .category
+                                                  .toUpperCase(),
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                color: AppColors.textSecondary,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        controller
-                                                .selectedFertilizer!
-                                                .description
-                                                .isNotEmpty
-                                            ? controller
-                                                  .selectedFertilizer!
-                                                  .description
-                                            : 'No description available',
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 4,
                                         ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'NPK: ${controller.selectedFertilizer!.npkComposition}',
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                  // Map - Fixed height for scrollable layout
-                  Listener(
-                    onPointerDown: (_) {
-                      setState(() {
-                        _isInteractingWithMap = true;
-                      });
-                    },
-                    onPointerUp: (_) {
-                      setState(() {
-                        _isInteractingWithMap = false;
-                      });
-                    },
-                    onPointerCancel: (_) {
-                      setState(() {
-                        _isInteractingWithMap = false;
-                      });
-                    },
-                    child: Container(
-                      height: controller.stores.isNotEmpty ? 400 : 500,
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: Stack(
-                        children: [
-                          MapWidget(
-                            mapOptions: MapOptions(
-                              pixelRatio: MediaQuery.of(
-                                context,
-                              ).devicePixelRatio,
-                            ),
-                            styleUri: MapboxStyles.OUTDOORS,
-                            onMapCreated: _onMapCreated,
-                            cameraOptions: CameraOptions(
-                              center: Point(
-                                coordinates: Position(
-                                  controller.currentPosition?.longitude ??
-                                      77.5946, // Delhi longitude as fallback
-                                  controller.currentPosition?.latitude ??
-                                      12.9716, // Bangalore latitude as fallback
-                                ),
-                              ),
-                              zoom: 13.0, // Zoom level to show ~5km radius
-                            ),
-                          ),
-                        // "Within 5KM" Lozenge
-                        Positioned(
-                          bottom: 16,
-                          right: 16,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 4,
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.success,
-                                    shape: BoxShape.circle,
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Container(
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.background,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              // No suitableCrops in simplified Fertilizer model as per requirements?
+                                              // Assuming I should remove or use placeholder/description if available.
+                                              // Requirements said "Fertilizer Master: name, category, NPK, description, image, isActive".
+                                              // So I'll show description instead.
+                                              const Text(
+                                                'Description',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  color:
+                                                      AppColors.textSecondary,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                controller
+                                                        .selectedFertilizer!
+                                                        .description
+                                                        .isNotEmpty
+                                                    ? controller
+                                                          .selectedFertilizer!
+                                                          .description
+                                                    : 'No description available',
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                const SizedBox(width: 6),
-                                const Text(
-                                  'WITHIN 5KM',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        if (controller.isLoading)
-                          const Center(child: CircularProgressIndicator()),
-                      ],
-                    ),
-                  ),
-                ),
-
-                  // Stores List Section
-                  if (controller.stores.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8, bottom: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 4,
-                            ),
-                            child: Text(
-                              'Nearby Stores (${controller.stores.length})',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
+                                ],
                               ),
                             ),
-                          ),
-                          ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: controller.stores.length,
-                            itemBuilder: (context, index) {
-                              final result = controller.stores[index];
-                              final isBest =
-                                  controller.bestShop?.store.id ==
-                                  result.store.id;
 
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: isBest
-                                        ? const Color(
-                                            0xFFFFAB00,
-                                          ) // Gold for best
-                                        : Colors.grey.shade100,
-                                    width: isBest ? 2.0 : 1.0,
+                          // Map - Fixed height for scrollable layout
+                          Listener(
+                            onPointerDown: (_) {
+                              setState(() {
+                                _isInteractingWithMap = true;
+                              });
+                            },
+                            onPointerUp: (_) {
+                              setState(() {
+                                _isInteractingWithMap = false;
+                              });
+                            },
+                            onPointerCancel: (_) {
+                              setState(() {
+                                _isInteractingWithMap = false;
+                              });
+                            },
+                            child: Container(
+                              height: controller.stores.isNotEmpty ? 400 : 500,
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
                                   ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.03),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
+                                ],
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: Stack(
+                                children: [
+                                  MapWidget(
+                                    mapOptions: MapOptions(
+                                      pixelRatio: MediaQuery.of(
+                                        context,
+                                      ).devicePixelRatio,
                                     ),
-                                  ],
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                    styleUri: MapboxStyles.OUTDOORS,
+                                    onMapCreated: _onMapCreated,
+                                    cameraOptions: CameraOptions(
+                                      center: Point(
+                                        coordinates: Position(
+                                          controller
+                                                  .currentPosition
+                                                  ?.longitude ??
+                                              77.5946, // Delhi longitude as fallback
+                                          controller
+                                                  .currentPosition
+                                                  ?.latitude ??
+                                              12.9716, // Bangalore latitude as fallback
+                                        ),
+                                      ),
+                                      zoom:
+                                          13.0, // Zoom level to show ~5km radius
+                                    ),
+                                  ),
+                                  // "Within 5KM" Lozenge
+                                  Positioned(
+                                    bottom: 16,
+                                    right: 16,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(20),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(
+                                              0.1,
+                                            ),
+                                            blurRadius: 4,
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Row(
-                                            children: [
-                                              Text(
-                                                result.store.storeName,
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              if (result.store.isVerified) ...[
-                                                const SizedBox(width: 4),
-                                                const Icon(
-                                                  Icons.verified,
-                                                  color: Colors.blue,
-                                                  size: 14,
-                                                ),
-                                              ],
-                                              if (isBest) ...[
-                                                const SizedBox(width: 8),
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 6,
-                                                        vertical: 2,
-                                                      ),
-                                                  decoration: BoxDecoration(
-                                                    color: const Color(
-                                                      0xFFFFAB00,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          4,
-                                                        ),
-                                                  ),
-                                                  child: const Text(
-                                                    'BEST SHOP',
-                                                    style: TextStyle(
-                                                      fontSize: 8,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ],
-                                          ),
-
-                                          const SizedBox(height: 4),
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                Icons.star,
-                                                size: 12,
-                                                color: Colors.amber,
-                                              ),
-                                              const SizedBox(width: 2),
-                                              Text(
-                                                '${result.store.rating} (${result.store.totalReviews})',
-                                                style: const TextStyle(
-                                                  fontSize: 11,
-                                                  color:
-                                                      AppColors.textSecondary,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              const Icon(
-                                                Icons.location_on,
-                                                size: 12,
-                                                color: AppColors.textSecondary,
-                                              ),
-                                              const SizedBox(width: 2),
-                                              Text(
-                                                '${result.distance.toStringAsFixed(1)} km',
-                                                style: const TextStyle(
-                                                  fontSize: 11,
-                                                  color:
-                                                      AppColors.textSecondary,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 8),
                                           Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 4,
+                                            width: 8,
+                                            height: 8,
+                                            decoration: const BoxDecoration(
+                                              color: AppColors.success,
+                                              shape: BoxShape.circle,
                                             ),
-                                            decoration: BoxDecoration(
-                                              color: result.inStock
-                                                  ? AppColors.success
-                                                        .withOpacity(0.1)
-                                                  : Colors.red.withOpacity(0.1),
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Container(
-                                                  width: 6,
-                                                  height: 6,
-                                                  decoration: BoxDecoration(
-                                                    color: result.inStock
-                                                        ? AppColors.success
-                                                        : Colors.red,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  result.inStock
-                                                      ? 'IN STOCK'
-                                                      : 'OUT STOCK',
-                                                  style: TextStyle(
-                                                    fontSize: 10,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: result.inStock
-                                                        ? AppColors.success
-                                                        : Colors.red,
-                                                  ),
-                                                ),
-                                              ],
+                                          ),
+                                          const SizedBox(width: 6),
+                                          const Text(
+                                            'WITHIN 5KM',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.textPrimary,
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          '₹${result.price.toStringAsFixed(2)}',
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColors.textPrimary,
-                                          ),
+                                  ),
+                                  if (controller.isLoading)
+                                    const Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Stores List Section
+                          if (controller.stores.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 8,
+                                bottom: 16,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 4,
+                                    ),
+                                    child: Text(
+                                      'Nearby Stores (${controller.stores.length})',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                  ListView.builder(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: controller.stores.length,
+                                    itemBuilder: (context, index) {
+                                      final result = controller.stores[index];
+                                      final isBest =
+                                          controller.bestShop?.store.id ==
+                                          result.store.id;
+
+                                      return Container(
+                                        margin: const EdgeInsets.only(
+                                          bottom: 12,
                                         ),
-                                        const Text(
-                                          'per unit',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: AppColors.textSecondary,
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            16,
                                           ),
+                                          border: Border.all(
+                                            color: isBest
+                                                ? const Color(
+                                                    0xFFFFAB00,
+                                                  ) // Gold for best
+                                                : Colors.grey.shade100,
+                                            width: isBest ? 2.0 : 1.0,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(
+                                                0.03,
+                                              ),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
                                         ),
-                                        const SizedBox(height: 8),
-                                        InkWell(
-                                          onTap: () async {
-                                            // Increment store visit count
-                                            context
-                                                .read<ProfileController>()
-                                                .incrementStoreVisitCount();
-
-                                            // Load navigation route
-                                            await controller.navigateToStore(
-                                              result.store,
-                                            );
-
-                                            // Wait a bit for route to be drawn, then fit camera
-                                            if (controller.routePolyline.isNotEmpty) {
-                                              // Small delay to ensure route is rendered
-                                              await Future.delayed(const Duration(milliseconds: 300));
-                                              _fitRouteBounds();
-
-                                              // Show success message
-                                              if (mounted) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text('Route calculated successfully'),
-                                                    duration: Duration(seconds: 2),
-                                                    backgroundColor: AppColors.success,
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        result.store.storeName,
+                                                        style: const TextStyle(
+                                                          fontSize: 15,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      if (result
+                                                          .store
+                                                          .isVerified) ...[
+                                                        const SizedBox(
+                                                          width: 4,
+                                                        ),
+                                                        const Icon(
+                                                          Icons.verified,
+                                                          color: Colors.blue,
+                                                          size: 14,
+                                                        ),
+                                                      ],
+                                                      if (isBest) ...[
+                                                        const SizedBox(
+                                                          width: 8,
+                                                        ),
+                                                        Container(
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 6,
+                                                                vertical: 2,
+                                                              ),
+                                                          decoration: BoxDecoration(
+                                                            color: const Color(
+                                                              0xFFFFAB00,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  4,
+                                                                ),
+                                                          ),
+                                                          child: const Text(
+                                                            'BEST SHOP',
+                                                            style: TextStyle(
+                                                              fontSize: 8,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ],
                                                   ),
-                                                );
-                                              }
-                                            }
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 6,
+
+                                                  const SizedBox(height: 4),
+                                                  Row(
+                                                    children: [
+                                                      const Icon(
+                                                        Icons.star,
+                                                        size: 12,
+                                                        color: Colors.amber,
+                                                      ),
+                                                      const SizedBox(width: 2),
+                                                      Text(
+                                                        '${result.store.rating} (${result.store.totalReviews})',
+                                                        style: const TextStyle(
+                                                          fontSize: 11,
+                                                          color: AppColors
+                                                              .textSecondary,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 8),
+                                                      const Icon(
+                                                        Icons.location_on,
+                                                        size: 12,
+                                                        color: AppColors
+                                                            .textSecondary,
+                                                      ),
+                                                      const SizedBox(width: 2),
+                                                      Text(
+                                                        '${result.distance.toStringAsFixed(1)} km',
+                                                        style: const TextStyle(
+                                                          fontSize: 11,
+                                                          color: AppColors
+                                                              .textSecondary,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 4,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: result.inStock
+                                                          ? AppColors.success
+                                                                .withOpacity(
+                                                                  0.1,
+                                                                )
+                                                          : Colors.red
+                                                                .withOpacity(
+                                                                  0.1,
+                                                                ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            4,
+                                                          ),
+                                                    ),
+                                                    child: Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Container(
+                                                          width: 6,
+                                                          height: 6,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                                color:
+                                                                    result
+                                                                        .inStock
+                                                                    ? AppColors
+                                                                          .success
+                                                                    : Colors
+                                                                          .red,
+                                                                shape: BoxShape
+                                                                    .circle,
+                                                              ),
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 4,
+                                                        ),
+                                                        Text(
+                                                          result.inStock
+                                                              ? 'IN STOCK'
+                                                              : 'OUT STOCK',
+                                                          style: TextStyle(
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color:
+                                                                result.inStock
+                                                                ? AppColors
+                                                                      .success
+                                                                : Colors.red,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                            decoration: BoxDecoration(
-                                              color: AppColors.background,
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            child: const Row(
-                                              mainAxisSize: MainAxisSize.min,
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
                                               children: [
-                                                Icon(
-                                                  Icons.navigation_outlined,
-                                                  size: 12,
-                                                  color: AppColors.textPrimary,
-                                                ),
-                                                SizedBox(width: 4),
                                                 Text(
-                                                  'Navigate',
+                                                  '₹${result.price.toStringAsFixed(2)}',
+                                                  style: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color:
+                                                        AppColors.textPrimary,
+                                                  ),
+                                                ),
+                                                const Text(
+                                                  'per unit',
                                                   style: TextStyle(
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 10,
+                                                    color:
+                                                        AppColors.textSecondary,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 8),
+                                                InkWell(
+                                                  onTap: () async {
+                                                    // Increment store visit count
+                                                    context
+                                                        .read<
+                                                          ProfileController
+                                                        >()
+                                                        .incrementStoreVisitCount();
+
+                                                    // Load navigation route
+                                                    await controller
+                                                        .navigateToStore(
+                                                          result.store,
+                                                        );
+
+                                                    // Wait a bit for route to be drawn, then fit camera
+                                                    if (controller
+                                                        .routePolyline
+                                                        .isNotEmpty) {
+                                                      // Small delay to ensure route is rendered
+                                                      await Future.delayed(
+                                                        const Duration(
+                                                          milliseconds: 300,
+                                                        ),
+                                                      );
+                                                      _fitRouteBounds();
+
+                                                      // Show success message
+                                                      if (mounted) {
+                                                        ScaffoldMessenger.of(
+                                                          context,
+                                                        ).showSnackBar(
+                                                          const SnackBar(
+                                                            content: Text(
+                                                              'Route calculated successfully',
+                                                            ),
+                                                            duration: Duration(
+                                                              seconds: 2,
+                                                            ),
+                                                            backgroundColor:
+                                                                AppColors
+                                                                    .success,
+                                                          ),
+                                                        );
+                                                      }
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 12,
+                                                          vertical: 6,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          AppColors.background,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
+                                                    ),
+                                                    child: const Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Icon(
+                                                          Icons
+                                                              .navigation_outlined,
+                                                          size: 12,
+                                                          color: AppColors
+                                                              .textPrimary,
+                                                        ),
+                                                        SizedBox(width: 4),
+                                                        Text(
+                                                          'Navigate',
+                                                          style: TextStyle(
+                                                            fontSize: 11,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               ],
                                             ),
-                                          ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
                         ],
                       ),
                     ),
