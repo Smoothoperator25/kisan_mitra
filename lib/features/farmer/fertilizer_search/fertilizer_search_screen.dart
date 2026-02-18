@@ -18,6 +18,7 @@ class FertilizerSearchScreen extends StatefulWidget {
 
 class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   MapboxMap? _mapboxMap;
   PointAnnotationManager? _pointAnnotationManager;
   PolylineAnnotationManager? _polylineAnnotationManager;
@@ -31,6 +32,9 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
 
   // Track last shown error to prevent duplicate SnackBars
   String? _lastShownError;
+
+  // Track if user is interacting with map
+  bool _isInteractingWithMap = false;
 
   @override
   void initState() {
@@ -48,6 +52,7 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
     _removeOverlay();
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _scrollController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -496,8 +501,17 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                     ),
                   ),
 
-                  // Fertilizer Info Card
-                  if (controller.selectedFertilizer != null)
+                  // Scrollable Content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      physics: _isInteractingWithMap
+                          ? const NeverScrollableScrollPhysics()
+                          : const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        children: [
+                          // Fertilizer Info Card
+                          if (controller.selectedFertilizer != null)
                     Container(
                       margin: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -641,9 +655,25 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                       ),
                     ),
 
-                  // Map
-                  Expanded(
+                  // Map - Fixed height for scrollable layout
+                  Listener(
+                    onPointerDown: (_) {
+                      setState(() {
+                        _isInteractingWithMap = true;
+                      });
+                    },
+                    onPointerUp: (_) {
+                      setState(() {
+                        _isInteractingWithMap = false;
+                      });
+                    },
+                    onPointerCancel: (_) {
+                      setState(() {
+                        _isInteractingWithMap = false;
+                      });
+                    },
                     child: Container(
+                      height: controller.stores.isNotEmpty ? 400 : 500,
                       margin: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 8,
@@ -681,60 +711,60 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                               zoom: 16.0, // Higher zoom for better visibility
                             ),
                           ),
-                          // "Within 5KM" Lozenge
-                          Positioned(
-                            bottom: 16,
-                            right: 16,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 4,
+                        // "Within 5KM" Lozenge
+                        Positioned(
+                          bottom: 16,
+                          right: 16,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 4,
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.success,
+                                    shape: BoxShape.circle,
                                   ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.success,
-                                      shape: BoxShape.circle,
-                                    ),
+                                ),
+                                const SizedBox(width: 6),
+                                const Text(
+                                  'WITHIN 5KM',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
                                   ),
-                                  const SizedBox(width: 6),
-                                  const Text(
-                                    'WITHIN 5KM',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.textPrimary,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
-                          if (controller.isLoading)
-                            const Center(child: CircularProgressIndicator()),
-                        ],
-                      ),
+                        ),
+                        if (controller.isLoading)
+                          const Center(child: CircularProgressIndicator()),
+                      ],
                     ),
                   ),
+                ),
 
-                  // Stores List Section - Flexible height to allow more map space
+                  // Stores List Section
                   if (controller.stores.isNotEmpty)
                     Padding(
-                      padding: const EdgeInsets.only(top: 8),
+                      padding: const EdgeInsets.only(top: 8, bottom: 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -992,6 +1022,10 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                         ],
                       ),
                     ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               );
             },
