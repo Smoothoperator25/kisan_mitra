@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'dart:ui' as ui;
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../profile/profile_controller.dart';
 import 'fertilizer_search_controller.dart';
@@ -124,9 +126,126 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
     _mapboxMap?.annotations.createCircleAnnotationManager().then((manager) {
       _circleAnnotationManager = manager;
     });
+    _mapboxMap?.annotations.createPointAnnotationManager().then((manager) {
+      _pointAnnotationManager = manager;
+    });
     _mapboxMap?.annotations.createPolylineAnnotationManager().then((manager) {
       _polylineAnnotationManager = manager;
     });
+
+    _addMarkerImage();
+  }
+
+  bool _markerImageReady = false;
+
+  Future<void> _addMarkerImage() async {
+    try {
+      if (_mapboxMap == null) return;
+
+      // Regular Store Marker (Green)
+      final regularMarker = await _buildMarkerImage(const Color(0xFF43A047));
+      await _mapboxMap?.style.addStyleImage(
+        "regular_store_marker",
+        2.0,
+        MbxImage(width: 100, height: 120, data: regularMarker),
+        false,
+        [],
+        [],
+        null,
+      );
+
+      // Best Store Marker (Gold)
+      final bestMarker = await _buildMarkerImage(const Color(0xFFFFAB00));
+      await _mapboxMap?.style.addStyleImage(
+        "best_store_marker",
+        2.0,
+        MbxImage(width: 100, height: 120, data: bestMarker),
+        false,
+        [],
+        [],
+        null,
+      );
+
+      _markerImageReady = true;
+      _updateMapMarkers(); // Update markers once images are ready
+    } catch (e) {
+      debugPrint("Error adding marker images: $e");
+    }
+  }
+
+  Future<Uint8List> _buildMarkerImage(Color color) async {
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    const size = ui.Size(100, 120);
+
+    // 1. Draw Pin Body
+    final paint = Paint()..color = color;
+    final path = Path();
+    path.moveTo(size.width / 2, size.height); // Bottom tip (50, 120)
+
+    // Right curve to shoulder
+    path.cubicTo(
+      size.width / 2,
+      size.height * 0.7, // Control point 1
+      size.width * 0.95,
+      size.height * 0.6, // Control point 2
+      size.width * 0.95,
+      45, // End point (Right shoulder at 95, 45)
+    );
+
+    // Top Arc
+    path.arcToPoint(
+      Offset(size.width * 0.05, 45), // Left shoulder at (5, 45)
+      radius: const Radius.circular(
+        45,
+      ), // Radius 45 fits within 100 width with 5px padding
+      clockwise: false,
+    );
+
+    // Left curve back to tip
+    path.cubicTo(
+      size.width * 0.05,
+      size.height * 0.6, // Control point 1
+      size.width / 2,
+      size.height * 0.7, // Control point 2
+      size.width / 2,
+      size.height, // End point (Tip)
+    );
+
+    path.close();
+    canvas.drawPath(path, paint);
+
+    // 2. Draw White Inner Circle
+    final circlePaint = Paint()..color = Colors.white;
+    canvas.drawCircle(
+      const Offset(50, 45), // Center matches the top arc center
+      30, // Radius
+      circlePaint,
+    );
+
+    // 3. Draw Store Icon
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
+    textPainter.text = TextSpan(
+      text: String.fromCharCode(Icons.store.codePoint),
+      style: TextStyle(
+        fontSize: 36,
+        fontFamily: Icons.store.fontFamily,
+        color: color, // Icon color matches pin color
+      ),
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        size.width / 2 - textPainter.width / 2,
+        45 - textPainter.height / 2,
+      ),
+    );
+
+    final picture = recorder.endRecording();
+    final img = await picture.toImage(size.width.toInt(), size.height.toInt());
+    final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+    return byteData!.buffer.asUint8List();
   }
 
   Future<void> _updateMapMarkers() async {
@@ -134,7 +253,6 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
 
     await _circleAnnotationManager?.deleteAll();
 
-    // User Location (Blue Pulse effect simulation with larger semi-transparent circle)
     if (_controller.currentPosition != null) {
       // Fly to user location
       _mapboxMap?.flyTo(
@@ -181,25 +299,26 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
     }
 
     // Stores
-    for (var result in _controller.stores) {
-      final isBest = _controller.bestShop?.store.id == result.store.id;
-      // Best shop: Amber/Gold, Others: Green
-      final color = isBest ? const Color(0xFFFFAB00) : const Color(0xFF43A047);
+    if (_pointAnnotationManager != null && _markerImageReady) {
+      await _pointAnnotationManager?.deleteAll();
+      for (var result in _controller.stores) {
+        final isBest = _controller.bestShop?.store.id == result.store.id;
 
-      await _circleAnnotationManager?.create(
-        CircleAnnotationOptions(
-          geometry: Point(
-            coordinates: Position(
-              result.store.longitude,
-              result.store.latitude,
+        await _pointAnnotationManager?.create(
+          PointAnnotationOptions(
+            geometry: Point(
+              coordinates: Position(
+                result.store.longitude,
+                result.store.latitude,
+              ),
             ),
+            iconImage: isBest ? "best_store_marker" : "regular_store_marker",
+            iconSize: isBest ? 0.7 : 0.6, // Best store is larger
+            iconAnchor: IconAnchor.BOTTOM,
+            iconOffset: [0.0, -5.0], // Slightly raise so tip is on point
           ),
-          circleColor: color.value,
-          circleRadius: isBest ? 10.0 : 8.0,
-          circleStrokeWidth: 2.0,
-          circleStrokeColor: Colors.white.value,
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -634,9 +753,7 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                             ),
                           ),
                           ListView.builder(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: controller.stores.length,
@@ -646,242 +763,232 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                   controller.bestShop?.store.id ==
                                   result.store.id;
 
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: isBest
-                                          ? const Color(
-                                              0xFFFFAB00,
-                                            ) // Gold for best
-                                          : Colors.grey.shade100,
-                                      width: isBest ? 2.0 : 1.0,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.03),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: isBest
+                                        ? const Color(
+                                            0xFFFFAB00,
+                                          ) // Gold for best
+                                        : Colors.grey.shade100,
+                                    width: isBest ? 2.0 : 1.0,
                                   ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  result.store.storeName,
-                                                  style: const TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.03),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                result.store.storeName,
+                                                style: const TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
-                                                if (result
-                                                    .store
-                                                    .isVerified) ...[
-                                                  const SizedBox(width: 4),
-                                                  const Icon(
-                                                    Icons.verified,
-                                                    color: Colors.blue,
-                                                    size: 14,
-                                                  ),
-                                                ],
-                                                if (isBest) ...[
-                                                  const SizedBox(width: 8),
-                                                  Container(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          horizontal: 6,
-                                                          vertical: 2,
-                                                        ),
-                                                    decoration: BoxDecoration(
-                                                      color: const Color(
-                                                        0xFFFFAB00,
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            4,
-                                                          ),
-                                                    ),
-                                                    child: const Text(
-                                                      'BEST SHOP',
-                                                      style: TextStyle(
-                                                        fontSize: 8,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
+                                              ),
+                                              if (result.store.isVerified) ...[
+                                                const SizedBox(width: 4),
+                                                const Icon(
+                                                  Icons.verified,
+                                                  color: Colors.blue,
+                                                  size: 14,
+                                                ),
                                               ],
-                                            ),
-
-                                            const SizedBox(height: 4),
-                                            Row(
-                                              children: [
-                                                const Icon(
-                                                  Icons.star,
-                                                  size: 12,
-                                                  color: Colors.amber,
-                                                ),
-                                                const SizedBox(width: 2),
-                                                Text(
-                                                  '${result.store.rating} (${result.store.totalReviews})',
-                                                  style: const TextStyle(
-                                                    fontSize: 11,
-                                                    color:
-                                                        AppColors.textSecondary,
+                                              if (isBest) ...[
+                                                const SizedBox(width: 8),
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 6,
+                                                        vertical: 2,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(
+                                                      0xFFFFAB00,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
+                                                  ),
+                                                  child: const Text(
+                                                    'BEST SHOP',
+                                                    style: TextStyle(
+                                                      fontSize: 8,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.white,
+                                                    ),
                                                   ),
                                                 ),
-                                                const SizedBox(width: 8),
-                                                const Icon(
-                                                  Icons.location_on,
-                                                  size: 12,
+                                              ],
+                                            ],
+                                          ),
+
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.star,
+                                                size: 12,
+                                                color: Colors.amber,
+                                              ),
+                                              const SizedBox(width: 2),
+                                              Text(
+                                                '${result.store.rating} (${result.store.totalReviews})',
+                                                style: const TextStyle(
+                                                  fontSize: 11,
                                                   color:
                                                       AppColors.textSecondary,
                                                 ),
-                                                const SizedBox(width: 2),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              const Icon(
+                                                Icons.location_on,
+                                                size: 12,
+                                                color: AppColors.textSecondary,
+                                              ),
+                                              const SizedBox(width: 2),
+                                              Text(
+                                                '${result.distance.toStringAsFixed(1)} km',
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  color:
+                                                      AppColors.textSecondary,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: result.inStock
+                                                  ? AppColors.success
+                                                        .withOpacity(0.1)
+                                                  : Colors.red.withOpacity(0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Container(
+                                                  width: 6,
+                                                  height: 6,
+                                                  decoration: BoxDecoration(
+                                                    color: result.inStock
+                                                        ? AppColors.success
+                                                        : Colors.red,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 4),
                                                 Text(
-                                                  '${result.distance.toStringAsFixed(1)} km',
-                                                  style: const TextStyle(
-                                                    fontSize: 11,
-                                                    color:
-                                                        AppColors.textSecondary,
+                                                  result.inStock
+                                                      ? 'IN STOCK'
+                                                      : 'OUT STOCK',
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: result.inStock
+                                                        ? AppColors.success
+                                                        : Colors.red,
                                                   ),
                                                 ),
                                               ],
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 4,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: result.inStock
-                                                    ? AppColors.success
-                                                          .withOpacity(0.1)
-                                                    : Colors.red.withOpacity(
-                                                        0.1,
-                                                      ),
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Container(
-                                                    width: 6,
-                                                    height: 6,
-                                                    decoration: BoxDecoration(
-                                                      color: result.inStock
-                                                          ? AppColors.success
-                                                          : Colors.red,
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                  Text(
-                                                    result.inStock
-                                                        ? 'IN STOCK'
-                                                        : 'OUT STOCK',
-                                                    style: TextStyle(
-                                                      fontSize: 10,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: result.inStock
-                                                          ? AppColors.success
-                                                          : Colors.red,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          Text(
-                                            '₹${result.price.toStringAsFixed(2)}',
-                                            style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: AppColors.textPrimary,
-                                            ),
-                                          ),
-                                          const Text(
-                                            'per unit',
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              color: AppColors.textSecondary,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          InkWell(
-                                            onTap: () {
-                                              // Increment store visit count
-                                              context
-                                                  .read<ProfileController>()
-                                                  .incrementStoreVisitCount();
-
-                                              controller.navigateToStore(
-                                                result.store,
-                                              );
-                                              // Ideally fly to store
-                                            },
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 6,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: AppColors.background,
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              child: const Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(
-                                                    Icons.navigation_outlined,
-                                                    size: 12,
-                                                    color:
-                                                        AppColors.textPrimary,
-                                                  ),
-                                                  SizedBox(width: 4),
-                                                  Text(
-                                                    'Navigate',
-                                                    style: TextStyle(
-                                                      fontSize: 11,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          '₹${result.price.toStringAsFixed(2)}',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.textPrimary,
+                                          ),
+                                        ),
+                                        const Text(
+                                          'per unit',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        InkWell(
+                                          onTap: () {
+                                            // Increment store visit count
+                                            context
+                                                .read<ProfileController>()
+                                                .incrementStoreVisitCount();
+
+                                            controller.navigateToStore(
+                                              result.store,
+                                            );
+                                            // Ideally fly to store
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.background,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: const Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.navigation_outlined,
+                                                  size: 12,
+                                                  color: AppColors.textPrimary,
+                                                ),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  'Navigate',
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ),
