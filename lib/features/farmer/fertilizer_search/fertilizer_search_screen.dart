@@ -967,8 +967,10 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                                 ? const Color(
                                                     0xFFFFAB00,
                                                   ) // Gold for best
-                                                : Colors.grey.shade100,
-                                            width: isBest ? 2.0 : 1.0,
+                                                : const Color(
+                                                    0xFF43A047,
+                                                  ), // Green for regular stores
+                                            width: 2.0, // Same width as best store
                                           ),
                                           boxShadow: [
                                             BoxShadow(
