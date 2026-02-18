@@ -428,4 +428,30 @@ class FertilizerSearchController extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// Get bounds for the current route to fit in camera view
+  Map<String, double>? getRouteBounds() {
+    if (_routePolyline.isEmpty) return null;
+
+    double minLat = _routePolyline.first.latitude;
+    double maxLat = _routePolyline.first.latitude;
+    double minLng = _routePolyline.first.longitude;
+    double maxLng = _routePolyline.first.longitude;
+
+    for (var point in _routePolyline) {
+      if (point.latitude < minLat) minLat = point.latitude;
+      if (point.latitude > maxLat) maxLat = point.latitude;
+      if (point.longitude < minLng) minLng = point.longitude;
+      if (point.longitude > maxLng) maxLng = point.longitude;
+    }
+
+    return {
+      'minLat': minLat,
+      'maxLat': maxLat,
+      'minLng': minLng,
+      'maxLng': maxLng,
+      'centerLat': (minLat + maxLat) / 2,
+      'centerLng': (minLng + maxLng) / 2,
+    };
+  }
 }

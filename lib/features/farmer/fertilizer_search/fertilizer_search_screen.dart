@@ -36,6 +36,9 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
   // Track if user is interacting with map
   bool _isInteractingWithMap = false;
 
+  // Track if initial camera position has been set
+  bool _initialCameraSet = false;
+
   @override
   void initState() {
     super.initState();
@@ -121,6 +124,51 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
   void _removeOverlay() {
     _overlayEntry?.remove();
     _overlayEntry = null;
+  }
+
+  void _fitRouteBounds() {
+    if (_mapboxMap == null) return;
+
+    final bounds = _controller.getRouteBounds();
+    if (bounds == null) return;
+
+    // Calculate the distance span
+    final latSpan = (bounds['maxLat']! - bounds['minLat']!).abs();
+    final lngSpan = (bounds['maxLng']! - bounds['minLng']!).abs();
+    final maxSpan = latSpan > lngSpan ? latSpan : lngSpan;
+
+    // Calculate appropriate zoom level based on span
+    // For reference: zoom 13 = ~5km, zoom 14 = ~2.5km, zoom 15 = ~1.2km
+    double zoom = 13.0;
+    if (maxSpan < 0.01) {
+      zoom = 15.0; // Very close (< 1km)
+    } else if (maxSpan < 0.03) {
+      zoom = 14.0; // Close (1-3km)
+    } else if (maxSpan < 0.06) {
+      zoom = 13.0; // Medium (3-6km)
+    } else {
+      zoom = 12.0; // Far (> 6km)
+    }
+
+    // Fly camera to center of route with appropriate zoom
+    _mapboxMap?.flyTo(
+      CameraOptions(
+        center: Point(
+          coordinates: Position(
+            bounds['centerLng']!,
+            bounds['centerLat']!,
+          ),
+        ),
+        zoom: zoom,
+        padding: MbxEdgeInsets(
+          top: 80,
+          left: 40,
+          bottom: 250, // Extra padding for store list at bottom
+          right: 40,
+        ),
+      ),
+      MapAnimationOptions(duration: 1500, startDelay: 0),
+    );
   }
 
   void _onMapCreated(MapboxMap mapboxMap) {
@@ -259,20 +307,23 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
     await _circleAnnotationManager?.deleteAll();
 
     if (_controller.currentPosition != null) {
-      // Fly to user location
-      _mapboxMap?.flyTo(
-        CameraOptions(
-          center: Point(
-            coordinates: Position(
-              _controller.currentPosition!.longitude,
-              _controller.currentPosition!.latitude,
+      // Only fly to user location on initial setup, not on every update
+      if (!_initialCameraSet) {
+        _mapboxMap?.flyTo(
+          CameraOptions(
+            center: Point(
+              coordinates: Position(
+                _controller.currentPosition!.longitude,
+                _controller.currentPosition!.latitude,
+              ),
             ),
+            zoom: 13.0, // Zoom level to show ~5km radius area
+            padding: MbxEdgeInsets(top: 0, left: 0, bottom: 0, right: 0),
           ),
-          zoom: 16.0, // Zoom in closer
-          padding: MbxEdgeInsets(top: 0, left: 0, bottom: 0, right: 0),
-        ),
-        MapAnimationOptions(duration: 1000, startDelay: 0),
-      );
+          MapAnimationOptions(duration: 1000, startDelay: 0),
+        );
+        _initialCameraSet = true;
+      }
 
       await _circleAnnotationManager?.create(
         CircleAnnotationOptions(
@@ -708,7 +759,7 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                       12.9716, // Bangalore latitude as fallback
                                 ),
                               ),
-                              zoom: 16.0, // Higher zoom for better visibility
+                              zoom: 13.0, // Zoom level to show ~5km radius
                             ),
                           ),
                         // "Within 5KM" Lozenge
@@ -971,16 +1022,34 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                         ),
                                         const SizedBox(height: 8),
                                         InkWell(
-                                          onTap: () {
+                                          onTap: () async {
                                             // Increment store visit count
                                             context
                                                 .read<ProfileController>()
                                                 .incrementStoreVisitCount();
 
-                                            controller.navigateToStore(
+                                            // Load navigation route
+                                            await controller.navigateToStore(
                                               result.store,
                                             );
-                                            // Ideally fly to store
+
+                                            // Wait a bit for route to be drawn, then fit camera
+                                            if (controller.routePolyline.isNotEmpty) {
+                                              // Small delay to ensure route is rendered
+                                              await Future.delayed(const Duration(milliseconds: 300));
+                                              _fitRouteBounds();
+
+                                              // Show success message
+                                              if (mounted) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text('Route calculated successfully'),
+                                                    duration: Duration(seconds: 2),
+                                                    backgroundColor: AppColors.success,
+                                                  ),
+                                                );
+                                              }
+                                            }
                                           },
                                           child: Container(
                                             padding: const EdgeInsets.symmetric(
