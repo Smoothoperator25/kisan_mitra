@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'home/farmer_home_controller.dart';
-import 'soil_health/soil_health_screen.dart';
+import 'soil_health/soil_health_check_screen.dart';
 
 /// Farmer Dashboard Home Screen
 /// Displays welcome message and action cards
@@ -80,7 +80,7 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const SoilHealthScreen(),
+                            builder: (context) => const SoilHealthCheckScreen(),
                           ),
                         );
                       },
