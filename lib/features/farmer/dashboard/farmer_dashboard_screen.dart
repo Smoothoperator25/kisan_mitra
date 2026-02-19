@@ -60,48 +60,51 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
     );
   }
 
-  /// Bottom navigation bar
+  /// Bottom navigation bar — premium design
   Widget _buildBottomNavigation() {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
+        border: Border(
+          top: BorderSide(color: Colors.grey.shade200, width: 0.5),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.fromLTRB(8, 10, 8, 6),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(
-                icon: Icons.home,
-                label: 'HOME',
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home_rounded,
+                label: 'Home',
                 index: 0,
-                isSelected: _selectedIndex == 0,
               ),
               _buildNavItem(
-                icon: Icons.search,
-                label: 'SEARCH',
+                icon: Icons.search_outlined,
+                activeIcon: Icons.search_rounded,
+                label: 'Search',
                 index: 1,
-                isSelected: _selectedIndex == 1,
               ),
               _buildNavItem(
-                icon: Icons.article,
-                label: 'ADVISORY',
+                icon: Icons.article_outlined,
+                activeIcon: Icons.article_rounded,
+                label: 'Advisory',
                 index: 2,
-                isSelected: _selectedIndex == 2,
               ),
               _buildNavItem(
-                icon: Icons.person,
-                label: 'PROFILE',
+                icon: Icons.person_outlined,
+                activeIcon: Icons.person_rounded,
+                label: 'Profile',
                 index: 3,
-                isSelected: _selectedIndex == 3,
               ),
             ],
           ),
@@ -110,44 +113,57 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
     );
   }
 
-  /// Bottom navigation item
+  /// Bottom navigation item with pill-style active indicator
   Widget _buildNavItem({
     required IconData icon,
+    required IconData activeIcon,
     required String label,
     required int index,
-    required bool isSelected,
   }) {
-    return InkWell(
-      onTap: () => _onBottomNavTap(index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+    final isSelected = _selectedIndex == index;
+    const green = Color(0xFF2E7D32);
+    const greenBg = Color(0xFFE8F5E9);
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _onBottomNavTap(index),
+        behavior: HitTestBehavior.opaque,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: isSelected ? const Color(0xFF2E7D32) : Colors.grey,
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                color: isSelected ? const Color(0xFF2E7D32) : Colors.grey,
+            // Pill background behind icon
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutCubic,
+              padding: EdgeInsets.symmetric(
+                horizontal: isSelected ? 20 : 12,
+                vertical: 6,
               ),
-            ),
-            if (isSelected)
-              Container(
-                margin: const EdgeInsets.only(top: 2),
-                width: 4,
-                height: 4,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF2E7D32),
-                  shape: BoxShape.circle,
+              decoration: BoxDecoration(
+                color: isSelected ? greenBg : Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                child: Icon(
+                  isSelected ? activeIcon : icon,
+                  key: ValueKey(isSelected),
+                  color: isSelected ? green : const Color(0xFF9E9E9E),
+                  size: 24,
                 ),
               ),
+            ),
+            const SizedBox(height: 4),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 250),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? green : const Color(0xFF9E9E9E),
+                letterSpacing: 0.2,
+              ),
+              child: Text(label),
+            ),
           ],
         ),
       ),
