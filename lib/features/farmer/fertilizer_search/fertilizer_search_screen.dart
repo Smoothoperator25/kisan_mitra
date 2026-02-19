@@ -73,6 +73,28 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
     }
   }
 
+  /// Calculate estimated time to reach based on distance
+  /// Assumes average speed of 30 km/h in urban areas
+  String _getEstimatedTime(double distanceInKm) {
+    const double averageSpeedKmh = 30.0; // Urban driving speed
+    double timeInHours = distanceInKm / averageSpeedKmh;
+    int timeInMinutes = (timeInHours * 60).round();
+
+    if (timeInMinutes < 1) {
+      return 'Less than 1 min';
+    } else if (timeInMinutes < 60) {
+      return '$timeInMinutes min';
+    } else {
+      int hours = timeInMinutes ~/ 60;
+      int minutes = timeInMinutes % 60;
+      if (minutes == 0) {
+        return '$hours hr';
+      } else {
+        return '$hours hr $minutes min';
+      }
+    }
+  }
+
   void _showOverlay() {
     if (_overlayEntry != null) return;
 
@@ -1073,6 +1095,26 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                                       const SizedBox(width: 2),
                                                       Text(
                                                         '${result.distance.toStringAsFixed(1)} km',
+                                                        style: const TextStyle(
+                                                          fontSize: 11,
+                                                          color: AppColors
+                                                              .textSecondary,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Row(
+                                                    children: [
+                                                      const Icon(
+                                                        Icons.access_time,
+                                                        size: 12,
+                                                        color: AppColors
+                                                            .textSecondary,
+                                                      ),
+                                                      const SizedBox(width: 2),
+                                                      Text(
+                                                        _getEstimatedTime(result.distance),
                                                         style: const TextStyle(
                                                           fontSize: 11,
                                                           color: AppColors

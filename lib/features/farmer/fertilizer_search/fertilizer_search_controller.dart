@@ -77,9 +77,11 @@ class FertilizerSearchController extends ChangeNotifier {
 
   Future<void> _getCurrentLocation() async {
     _isLoading = true;
+    _error = null; // Clear any previous error when retrying
     notifyListeners();
     try {
       _currentPosition = await _geoService.getCurrentLocation();
+      _error = null; // Clear error on success
     } catch (e) {
       _error = e.toString();
     } finally {
