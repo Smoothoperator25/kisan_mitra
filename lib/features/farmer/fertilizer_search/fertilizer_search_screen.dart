@@ -195,15 +195,22 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
     // Disable default gestures if needed, or adjust settings
     // mapboxMap.gestures.updateSettings(GesturesSettings(scrollEnabled: true));
 
-    _mapboxMap?.annotations.createCircleAnnotationManager().then((manager) {
-      _circleAnnotationManager = manager;
-    });
-    _mapboxMap?.annotations.createPointAnnotationManager().then((manager) {
-      _pointAnnotationManager = manager;
-    });
-    _mapboxMap?.annotations.createPolylineAnnotationManager().then((manager) {
-      _polylineAnnotationManager = manager;
-    });
+    // Create managers sequentially to ensure correct z-ordering (Polyline < Circle < Point)
+
+    mapboxMap.annotations
+        .createPolylineAnnotationManager()
+        .then((polylineManager) {
+          _polylineAnnotationManager = polylineManager;
+          return mapboxMap.annotations.createCircleAnnotationManager();
+        })
+        .then((circleManager) {
+          _circleAnnotationManager = circleManager;
+          return mapboxMap.annotations.createPointAnnotationManager();
+        })
+        .then((pointManager) {
+          _pointAnnotationManager = pointManager;
+          _updateMapMarkers(); // Update markers once manager is ready
+        });
 
     _addMarkerImage();
   }
@@ -449,7 +456,7 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
             iconImage: "user_location_marker",
             iconSize: 0.8,
             iconAnchor: IconAnchor.BOTTOM,
-            iconOffset: [0.0, -5.0],
+            iconOffset: [0.0, -15.0],
           ),
         );
       }
@@ -469,7 +476,7 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
             iconImage: isBest ? "best_store_marker" : "regular_store_marker",
             iconSize: isBest ? 0.7 : 0.6, // Best store is larger
             iconAnchor: IconAnchor.BOTTOM,
-            iconOffset: [0.0, -5.0], // Slightly raise so tip is on point
+            iconOffset: [0.0, -15.0], // Slightly raise so tip is on point
           ),
         );
       }
@@ -992,7 +999,8 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                                 : const Color(
                                                     0xFF43A047,
                                                   ), // Green for regular stores
-                                            width: 2.0, // Same width as best store
+                                            width:
+                                                2.0, // Same width as best store
                                           ),
                                           boxShadow: [
                                             BoxShadow(
@@ -1114,7 +1122,9 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                                       ),
                                                       const SizedBox(width: 2),
                                                       Text(
-                                                        _getEstimatedTime(result.distance),
+                                                        _getEstimatedTime(
+                                                          result.distance,
+                                                        ),
                                                         style: const TextStyle(
                                                           fontSize: 11,
                                                           color: AppColors
