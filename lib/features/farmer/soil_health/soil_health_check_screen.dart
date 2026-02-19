@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
-/// ── Futuristic Soil Health Check Screen ──────────────────────────────
+/// ── Futuristic Soil Health Check Screen (Light Theme) ────────────────
 /// Multi-step wizard with glassmorphism, animated progress, 13+ fields,
 /// and a review/summary page before final submission.
 class SoilHealthCheckScreen extends StatefulWidget {
@@ -14,7 +14,7 @@ class SoilHealthCheckScreen extends StatefulWidget {
 }
 
 class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   // ── Controllers ─────────────────────────────────────────────────────
   final PageController _pageController = PageController();
   final _step1Key = GlobalKey<FormState>();
@@ -73,13 +73,18 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
     'None (Rain-fed)',
   ];
 
-  // ── Theme constants ─────────────────────────────────────────────────
-  static const _gradStart = Color(0xFF0D4F2B);
-  static const _gradEnd = Color(0xFF0A8967);
-  static const _accentCyan = Color(0xFF00E5FF);
-  static const _cardBg = Color(0xFF112D1B);
-  static const _fieldBorder = Color(0xFF1E6E45);
-  static const _fieldFill = Color(0xFF0C3D22);
+  // ── Light-theme constants ───────────────────────────────────────────
+  static const _gradStart = Color(0xFF2E7D32);
+  static const _gradEnd = Color(0xFF43A047);
+  static const _accent = Color(0xFF2E7D32);
+  static const _accentLight = Color(0xFFE8F5E9);
+  static const _scaffoldBg = Color(0xFFF6F8F6);
+  static const _cardBg = Colors.white;
+  static const _fieldBorder = Color(0xFFD6E4D9);
+  static const _fieldFill = Color(0xFFF0F5F1);
+  static const _textPrimary = Color(0xFF212121);
+  static const _textSecondary = Color(0xFF757575);
+  static const _textHint = Color(0xFFB0BEC5);
 
   @override
   void initState() {
@@ -134,7 +139,6 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
 
   Future<void> _submit() async {
     setState(() => _isSubmitting = true);
-    // Simulate network call
     await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
     setState(() {
@@ -151,12 +155,12 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
       lastDate: DateTime.now().add(const Duration(days: 60)),
       builder: (ctx, child) {
         return Theme(
-          data: ThemeData.dark().copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: _accentCyan,
-              onPrimary: Colors.black,
-              surface: _cardBg,
-              onSurface: Colors.white,
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary: _accent,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: _textPrimary,
             ),
           ),
           child: child!,
@@ -167,18 +171,17 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
   }
 
   void _captureGPS() {
-    // Simulate GPS capture
     setState(() => _gpsLocation = '19.0760° N, 72.8777° E');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Row(
           children: [
-            Icon(Icons.gps_fixed, color: _accentCyan, size: 18),
+            Icon(Icons.gps_fixed, color: Colors.white, size: 18),
             SizedBox(width: 8),
             Text('GPS Location captured!'),
           ],
         ),
-        backgroundColor: _cardBg,
+        backgroundColor: _accent,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -193,7 +196,7 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
     if (_isSubmitted) return _buildSuccessScreen();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF071A0E),
+      backgroundColor: _scaffoldBg,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -220,10 +223,7 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
       ),
       body: Column(
         children: [
-          // ── Gradient header with progress ──
           _buildHeader(),
-
-          // ── Page content ──
           Expanded(
             child: PageView(
               controller: _pageController,
@@ -231,8 +231,6 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
               children: [_buildStep1(), _buildStep2(), _buildStep3()],
             ),
           ),
-
-          // ── Bottom navigation ──
           _buildBottomBar(),
         ],
       ),
@@ -279,8 +277,8 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(2),
                         color: i <= _currentStep
-                            ? const Color(0xCC00E5FF)
-                            : const Color(0x26FFFFFF),
+                            ? const Color(0xCCFFFFFF)
+                            : const Color(0x40FFFFFF),
                       ),
                     ),
                   ),
@@ -289,7 +287,6 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
             ],
           ),
           const SizedBox(height: 12),
-          // Step labels
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(3, (i) {
@@ -297,7 +294,7 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
               return Text(
                 labels[i],
                 style: TextStyle(
-                  color: active ? Colors.white : Colors.white38,
+                  color: active ? Colors.white : const Color(0x80FFFFFF),
                   fontSize: 12,
                   fontWeight: active ? FontWeight.w600 : FontWeight.normal,
                 ),
@@ -322,18 +319,18 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
         height: 44,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: active ? const Color(0x3300E5FF) : const Color(0x14FFFFFF),
+          color: active ? const Color(0x40FFFFFF) : const Color(0x1AFFFFFF),
           border: Border.all(
-            color: active ? _accentCyan : const Color(0x33FFFFFF),
+            color: active ? Colors.white : const Color(0x40FFFFFF),
             width: current ? 2.5 : 1.5,
           ),
           boxShadow: current
-              ? [BoxShadow(color: const Color(0x4D00E5FF), blurRadius: 12)]
+              ? [BoxShadow(color: const Color(0x40FFFFFF), blurRadius: 12)]
               : [],
         ),
         child: Icon(
           i < _currentStep ? Icons.check : icon,
-          color: active ? _accentCyan : Colors.white38,
+          color: active ? Colors.white : const Color(0x80FFFFFF),
           size: 20,
         ),
       ),
@@ -353,7 +350,7 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
           children: [
             _sectionTitle('Personal Information', Icons.badge_outlined),
             const SizedBox(height: 16),
-            _glassCard(
+            _card(
               child: Column(
                 children: [
                   _styledTextField(
@@ -430,10 +427,9 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
           children: [
             _sectionTitle('Farm & Soil Details', Icons.eco_outlined),
             const SizedBox(height: 16),
-            _glassCard(
+            _card(
               child: Column(
                 children: [
-                  // ── Farm Area ──
                   _styledTextField(
                     controller: _farmAreaCtrl,
                     label: 'Farm Area (Acres)',
@@ -446,8 +442,6 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                         v == null || v.isEmpty ? 'Farm area required' : null,
                   ),
                   const SizedBox(height: 16),
-
-                  // ── Soil Type ──
                   _styledDropdown<String>(
                     label: 'Soil Type',
                     icon: Icons.layers_outlined,
@@ -459,8 +453,6 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                     validator: (v) => v == null ? 'Select soil type' : null,
                   ),
                   const SizedBox(height: 16),
-
-                  // ── Previous Crop ──
                   _styledTextField(
                     controller: _prevCropCtrl,
                     label: 'Previous Crop Grown',
@@ -468,8 +460,6 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                     icon: Icons.grass,
                   ),
                   const SizedBox(height: 16),
-
-                  // ── Water Source ──
                   _styledDropdown<String>(
                     label: 'Water Source',
                     icon: Icons.water_drop_outlined,
@@ -481,8 +471,6 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                     validator: (v) => v == null ? 'Select water source' : null,
                   ),
                   const SizedBox(height: 16),
-
-                  // ── Irrigation Type ──
                   _styledDropdown<String>(
                     label: 'Irrigation Type',
                     icon: Icons.opacity,
@@ -497,11 +485,10 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                 ],
               ),
             ),
-
             const SizedBox(height: 20),
             _sectionTitle('Collection & Location', Icons.calendar_month),
             const SizedBox(height: 16),
-            _glassCard(
+            _card(
               child: Column(
                 children: [
                   // ── Date Picker ──
@@ -519,24 +506,14 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                             : DateFormat('dd MMM yyyy').format(_selectedDate!),
                         style: TextStyle(
                           color: _selectedDate == null
-                              ? Colors.white38
-                              : Colors.white,
+                              ? _textHint
+                              : _textPrimary,
                           fontSize: 15,
                         ),
                       ),
                     ),
                   ),
-                  if (_selectedDate == null)
-                    const Padding(
-                      padding: EdgeInsets.only(left: 12, top: 6),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(''),
-                      ),
-                    ),
-
                   const SizedBox(height: 16),
-
                   // ── GPS Capture ──
                   InkWell(
                     onTap: _captureGPS,
@@ -550,18 +527,14 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                         color: _fieldFill,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: _gpsLocation != null
-                              ? _accentCyan.withOpacity(0.5)
-                              : _fieldBorder,
+                          color: _gpsLocation != null ? _accent : _fieldBorder,
                         ),
                       ),
                       child: Row(
                         children: [
                           Icon(
                             Icons.gps_fixed,
-                            color: _gpsLocation != null
-                                ? _accentCyan
-                                : Colors.white38,
+                            color: _gpsLocation != null ? _accent : _textHint,
                             size: 22,
                           ),
                           const SizedBox(width: 12),
@@ -572,7 +545,7 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                                 Text(
                                   'GPS Location',
                                   style: TextStyle(
-                                    color: Colors.white.withOpacity(0.5),
+                                    color: _textSecondary,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -581,8 +554,8 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                                   _gpsLocation ?? 'Tap to capture location',
                                   style: TextStyle(
                                     color: _gpsLocation != null
-                                        ? _accentCyan
-                                        : Colors.white38,
+                                        ? _accent
+                                        : _textHint,
                                     fontSize: 14,
                                     fontWeight: _gpsLocation != null
                                         ? FontWeight.w600
@@ -596,9 +569,7 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                             _gpsLocation != null
                                 ? Icons.check_circle
                                 : Icons.my_location,
-                            color: _gpsLocation != null
-                                ? _accentCyan
-                                : Colors.white24,
+                            color: _gpsLocation != null ? _accent : _textHint,
                             size: 20,
                           ),
                         ],
@@ -627,12 +598,12 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
           const SizedBox(height: 16),
 
           // ── Farmer Info Card ──
-          _glassCard(
+          _card(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _reviewCardHeader('Farmer Information', Icons.person),
-                const SizedBox(height: 12),
+                const Divider(height: 24),
                 _reviewRow('Name', _nameCtrl.text),
                 _reviewRow('Phone', _phoneCtrl.text),
                 _reviewRow('Address', _addressCtrl.text),
@@ -643,12 +614,12 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
           const SizedBox(height: 16),
 
           // ── Soil Details Card ──
-          _glassCard(
+          _card(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _reviewCardHeader('Soil & Farm Details', Icons.landscape),
-                const SizedBox(height: 12),
+                const Divider(height: 24),
                 _reviewRow('Farm Area', '${_farmAreaCtrl.text} Acres'),
                 _reviewRow('Soil Type', _selectedSoilType ?? '—'),
                 _reviewRow(
@@ -670,7 +641,7 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
           const SizedBox(height: 16),
 
           // ── Notes ──
-          _glassCard(
+          _card(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -696,7 +667,7 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
   // ══════════════════════════════════════════════════════════════════════
   Widget _buildSuccessScreen() {
     return Scaffold(
-      backgroundColor: const Color(0xFF071A0E),
+      backgroundColor: _scaffoldBg,
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -716,11 +687,11 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: const LinearGradient(
-                          colors: [_gradEnd, _accentCyan],
+                          colors: [_gradStart, _gradEnd],
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: _accentCyan.withOpacity(0.3),
+                            color: _accent.withValues(alpha: 0.3),
                             blurRadius: 30,
                             spreadRadius: 5,
                           ),
@@ -738,7 +709,7 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                 const Text(
                   'Booking Confirmed!',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: _textPrimary,
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
                   ),
@@ -747,8 +718,8 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                 Text(
                   'Your soil health check has been scheduled.\nWe will contact you at ${_phoneCtrl.text}\nfor sample collection.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
+                  style: const TextStyle(
+                    color: _textSecondary,
                     fontSize: 15,
                     height: 1.5,
                   ),
@@ -761,23 +732,23 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: _accentCyan.withOpacity(0.1),
+                      color: _accentLight,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: _accentCyan.withOpacity(0.3)),
+                      border: Border.all(color: _accent.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(
                           Icons.calendar_today,
-                          color: _accentCyan,
+                          color: _accent,
                           size: 18,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           DateFormat('dd MMM yyyy').format(_selectedDate!),
                           style: const TextStyle(
-                            color: _accentCyan,
+                            color: _accent,
                             fontWeight: FontWeight.w600,
                             fontSize: 15,
                           ),
@@ -792,7 +763,7 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                   child: ElevatedButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _gradEnd,
+                      backgroundColor: _accent,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -829,8 +800,14 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
         top: 16,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFF071A0E),
-        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05))),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, -4),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -841,8 +818,8 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                 icon: const Icon(Icons.arrow_back_ios, size: 16),
                 label: const Text('Back'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white70,
-                  side: BorderSide(color: Colors.white.withOpacity(0.2)),
+                  foregroundColor: _textSecondary,
+                  side: BorderSide(color: _fieldBorder),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
@@ -853,17 +830,16 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
           if (_currentStep > 0) const SizedBox(width: 12),
           Expanded(
             flex: 2,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
+            child: SizedBox(
               height: 54,
               child: ElevatedButton(
                 onPressed: _isSubmitting
                     ? null
                     : (isLast ? _submit : _nextStep),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isLast ? _accentCyan : _gradEnd,
-                  foregroundColor: isLast ? Colors.black : Colors.white,
-                  disabledBackgroundColor: _gradEnd.withOpacity(0.5),
+                  backgroundColor: _accent,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: _accent.withValues(alpha: 0.5),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -881,7 +857,6 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                     : FittedBox(
                         fit: BoxFit.scaleDown,
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
@@ -913,16 +888,16 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
   //  REUSABLE WIDGETS
   // ══════════════════════════════════════════════════════════════════════
 
-  /// Section title with icon
+  /// Section title
   Widget _sectionTitle(String text, IconData icon) {
     return Row(
       children: [
-        Icon(icon, color: _accentCyan, size: 20),
+        Icon(icon, color: _accent, size: 20),
         const SizedBox(width: 8),
         Text(
           text,
           style: const TextStyle(
-            color: Colors.white,
+            color: _textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w700,
           ),
@@ -931,22 +906,22 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
     );
   }
 
-  /// Glassmorphism card
-  Widget _glassCard({required Widget child}) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.06),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.08)),
+  /// Light card with soft shadow
+  Widget _card({required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: _cardBg,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
-          child: child,
-        ),
+        ],
       ),
+      child: child,
     );
   }
 
@@ -954,18 +929,18 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
   InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14),
-      prefixIcon: Icon(icon, color: _accentCyan.withOpacity(0.7), size: 20),
+      labelStyle: const TextStyle(color: _textSecondary, fontSize: 14),
+      prefixIcon: Icon(icon, color: _accent, size: 20),
       filled: true,
       fillColor: _fieldFill,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: _fieldBorder),
+        borderSide: const BorderSide(color: _fieldBorder),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: _accentCyan, width: 1.5),
+        borderSide: const BorderSide(color: _accent, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -975,7 +950,7 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
         borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide(color: Colors.red.shade300, width: 1.5),
       ),
-      errorStyle: TextStyle(color: Colors.red.shade300, fontSize: 12),
+      errorStyle: TextStyle(color: Colors.red.shade400, fontSize: 12),
     );
   }
 
@@ -996,11 +971,11 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
       inputFormatters: inputFormatters,
       validator: validator,
       maxLines: maxLines,
-      style: const TextStyle(color: Colors.white, fontSize: 15),
-      cursorColor: _accentCyan,
+      style: const TextStyle(color: _textPrimary, fontSize: 15),
+      cursorColor: _accent,
       decoration: _inputDecoration(label, icon).copyWith(
         hintText: hint,
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.25)),
+        hintStyle: const TextStyle(color: _textHint),
       ),
     );
   }
@@ -1019,12 +994,9 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
       items: items,
       onChanged: onChanged,
       validator: validator,
-      dropdownColor: _cardBg,
-      style: const TextStyle(color: Colors.white, fontSize: 15),
-      icon: Icon(
-        Icons.keyboard_arrow_down,
-        color: _accentCyan.withOpacity(0.6),
-      ),
+      dropdownColor: Colors.white,
+      style: const TextStyle(color: _textPrimary, fontSize: 15),
+      icon: Icon(Icons.keyboard_arrow_down, color: _accent),
       decoration: _inputDecoration(label, icon),
     );
   }
@@ -1036,16 +1008,16 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: _accentCyan.withOpacity(0.12),
+            color: _accentLight,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: _accentCyan, size: 20),
+          child: Icon(icon, color: _accent, size: 20),
         ),
         const SizedBox(width: 10),
         Text(
           title,
           style: const TextStyle(
-            color: Colors.white,
+            color: _textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
@@ -1054,7 +1026,7 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
     );
   }
 
-  /// Review row (label + value)
+  /// Review row
   Widget _reviewRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -1065,17 +1037,14 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
             width: 120,
             child: Text(
               label,
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.45),
-                fontSize: 13,
-              ),
+              style: const TextStyle(color: _textSecondary, fontSize: 13),
             ),
           ),
           Expanded(
             child: Text(
               value.isEmpty ? '—' : value,
               style: const TextStyle(
-                color: Colors.white,
+                color: _textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
