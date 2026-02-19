@@ -1,137 +1,125 @@
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 import '../models/crop_model.dart';
 
 class CropApiService {
-  // Simulating an API call with a local list of global crops
-  Future<List<Crop>> getGlobalCrops() async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 800));
+  // Use dotenv to get base URL, fallback to meaningful default if needed for dev
+  String get _baseUrl => 'https://perenual.com/api/v2';
 
+  String get _apiKey {
+    if (!dotenv.isInitialized) return '';
+    return dotenv.env['PERENUAL_API_KEY'] ?? '';
+  }
+
+  Future<List<Crop>> getGlobalCrops() async {
+    // Perenual API Endpoint for Species List
+    final uri = Uri.parse(
+      '$_baseUrl/species-list?key=$_apiKey&page=1&edible=1',
+    ); // Filter for edible plants
+
+    try {
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+
+        if (data.containsKey('data') && data['data'] is List) {
+          final List<dynamic> cropsList = data['data'];
+          // Filter out entries without images to keep UI looking good
+          var crops = cropsList
+              .map((json) => Crop.fromPerenualJson(json))
+              .where(
+                (crop) =>
+                    crop.imageUrl.isNotEmpty && crop.name != 'Unknown Crop',
+              )
+              .toList();
+
+          if (crops.isEmpty) {
+            print("API returned no valid crops with images. Using Mock Data.");
+            return _getMockCrops();
+          }
+          return crops;
+        } else {
+          print('Invalid response format: "data" key missing or not a list');
+          return _getMockCrops();
+        }
+      } else if (response.statusCode == 429) {
+        print('Rate limit exceeded. Using Mock Data.');
+        return _getMockCrops();
+      } else {
+        print('Failed to load crops: ${response.statusCode}');
+        return _getMockCrops();
+      }
+    } catch (e) {
+      // FALLBACK TO MOCK DATA on any error (Network or API)
+      print("API Error: $e. Using Mock Data.");
+      return _getMockCrops();
+    }
+  }
+
+  // Mock Data for immediate testing/offline usage
+  List<Crop> _getMockCrops() {
     return [
       Crop(
         id: '1',
-        name: 'Rice',
-        scientificName: 'Oryza sativa',
-        imageUrl:
-            'https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=2070&auto=format&fit=crop',
-        growthStages: [
-          'Seedling',
-          'Tillering',
-          'Panicle Initiation',
-          'Heading',
-          'Ripening',
-        ],
-        durationDays: 120,
-        nutrientRequirements: {
-          'Seedling': NPKRequirement(n: 20, p: 10, k: 10),
-          'Tillering': NPKRequirement(n: 40, p: 20, k: 20),
-          'Panicle Initiation': NPKRequirement(n: 30, p: 15, k: 30),
-          'Heading': NPKRequirement(n: 10, p: 10, k: 10),
-          'Ripening': NPKRequirement(n: 0, p: 0, k: 10),
-        },
-      ),
-      Crop(
-        id: '2',
         name: 'Wheat',
         scientificName: 'Triticum aestivum',
         imageUrl:
-            'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?q=80&w=2070&auto=format&fit=crop',
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Vehn%C3%A4pelto_6.jpg/1200px-Vehn%C3%A4pelto_6.jpg',
+        category: 'Cereal',
+        nutrientRequirement: NPKRequirement(n: 120, p: 60, k: 40),
         growthStages: [
-          'Crown Root Initiation',
+          'Seedling',
           'Tillering',
           'Jointing',
+          'Booting',
           'Flowering',
-          'Milking',
-          'Dough',
+          'Maturity',
         ],
-        durationDays: 110,
-        nutrientRequirements: {
-          'Crown Root Initiation': NPKRequirement(n: 25, p: 20, k: 10),
-          'Tillering': NPKRequirement(n: 30, p: 15, k: 15),
-          'Jointing': NPKRequirement(n: 30, p: 0, k: 10),
-          'Flowering': NPKRequirement(n: 15, p: 5, k: 5),
-        },
+      ),
+      Crop(
+        id: '2',
+        name: 'Paddy (Rice)',
+        scientificName: 'Oryza sativa',
+        imageUrl:
+            'https://upload.wikimedia.org/wikipedia/commons/c/c7/Rice_Plants_%28Oryza_sativa%29.jpg',
+        category: 'Cereal',
+        nutrientRequirement: NPKRequirement(n: 100, p: 50, k: 50),
+        growthStages: [
+          'Seedling',
+          'Transplanting',
+          'Tillering',
+          'Panicle Initiation',
+          'Flowering',
+          'Maturity',
+        ],
       ),
       Crop(
         id: '3',
-        name: 'Maize',
+        name: 'Corn (Maize)',
         scientificName: 'Zea mays',
         imageUrl:
-            'https://images.unsplash.com/photo-1551754655-cd27e38d2076?q=80&w=2070&auto=format&fit=crop',
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Maize_ear_closeup.jpg/1200px-Maize_ear_closeup.jpg',
+        category: 'Cereal',
+        nutrientRequirement: NPKRequirement(n: 150, p: 60, k: 60),
         growthStages: [
           'Seedling',
           'Knee High',
           'Tasseling',
           'Silking',
-          'Maturity',
+          'Dough',
+          'Dent',
         ],
-        durationDays: 100,
-        nutrientRequirements: {
-          'Seedling': NPKRequirement(n: 20, p: 20, k: 20),
-          'Knee High': NPKRequirement(n: 40, p: 10, k: 10),
-          'Tasseling': NPKRequirement(n: 30, p: 10, k: 10),
-          'Silking': NPKRequirement(n: 20, p: 10, k: 10),
-        },
       ),
       Crop(
         id: '4',
-        name: 'Cotton',
-        scientificName: 'Gossypium',
-        imageUrl:
-            'https://images.unsplash.com/photo-1605335836262-1c7b56d33816?q=80&w=2070&auto=format&fit=crop',
-        growthStages: [
-          'Germination',
-          'Vegetative',
-          'Flowering',
-          'Boll Formation',
-          'Maturation',
-        ],
-        durationDays: 150,
-        nutrientRequirements: {
-          'Vegetative': NPKRequirement(n: 30, p: 15, k: 15),
-          'Flowering': NPKRequirement(n: 20, p: 10, k: 20),
-          'Boll Formation': NPKRequirement(n: 20, p: 10, k: 20),
-        },
-      ),
-      Crop(
-        id: '5',
-        name: 'Sugarcane',
-        scientificName: 'Saccharum officinarum',
-        imageUrl:
-            'https://images.unsplash.com/photo-1629821804365-517df4eb5350?q=80&w=1974&auto=format&fit=crop',
-        growthStages: ['Germination', 'Tillering', 'Grand Growth', 'Maturity'],
-        durationDays: 365,
-        nutrientRequirements: {
-          'Tillering': NPKRequirement(n: 50, p: 20, k: 30),
-          'Grand Growth': NPKRequirement(n: 40, p: 10, k: 30),
-          'Maturity': NPKRequirement(n: 10, p: 0, k: 10),
-        },
-      ),
-      Crop(
-        id: '6',
-        name: 'Tomato',
-        scientificName: 'Solanum lycopersicum',
-        imageUrl:
-            'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?q=80&w=2070&auto=format&fit=crop',
-        growthStages: [
-          'Transplanting',
-          'Vegetative',
-          'Flowering',
-          'Fruit Setting',
-          'Harvesting',
-        ],
-        durationDays: 90,
-        nutrientRequirements: {
-          'Vegetative': NPKRequirement(n: 20, p: 10, k: 10),
-          'Flowering': NPKRequirement(n: 10, p: 20, k: 20),
-          'Fruit Setting': NPKRequirement(n: 10, p: 10, k: 30),
-        },
-      ),
-      Crop(
-        id: '7',
         name: 'Potato',
         scientificName: 'Solanum tuberosum',
         imageUrl:
-            'https://images.unsplash.com/photo-1518977676601-b53f82aba655?q=80&w=2070&auto=format&fit=crop',
+            'https://upload.wikimedia.org/wikipedia/commons/a/ab/Patates.jpg',
+        category: 'Tuber',
+        nutrientRequirement: NPKRequirement(n: 120, p: 80, k: 120),
         growthStages: [
           'Sprouting',
           'Vegetative',
@@ -139,34 +127,41 @@ class CropApiService {
           'Tuber Bulking',
           'Maturation',
         ],
-        durationDays: 100,
-        nutrientRequirements: {
-          'Vegetative': NPKRequirement(n: 30, p: 15, k: 20),
-          'Tuber Initiation': NPKRequirement(n: 20, p: 20, k: 30),
-          'Tuber Bulking': NPKRequirement(n: 20, p: 10, k: 40),
-        },
       ),
       Crop(
-        id: '8',
-        name: 'Soybean',
-        scientificName: 'Glycine max',
+        id: '5',
+        name: 'Tomato',
+        scientificName: 'Solanum lycopersicum',
         imageUrl:
-            'https://images.unsplash.com/photo-1582236894050-891ca8fa8b2b?q=80&w=1964&auto=format&fit=crop',
+            'https://upload.wikimedia.org/wikipedia/commons/8/89/Tomato_je.jpg',
+        category: 'Vegetable',
+        nutrientRequirement: NPKRequirement(n: 100, p: 60, k: 100),
+        growthStages: [
+          'Transplanting',
+          'Vegetative',
+          'Flowering',
+          'Fruit Set',
+          'Harvest',
+        ],
+      ),
+      Crop(
+        id: '6',
+        name: 'Cotton',
+        scientificName: 'Gossypium',
+        imageUrl:
+            'https://upload.wikimedia.org/wikipedia/commons/c/c1/Cotton_plant.jpg',
+        category: 'Fiber',
+        nutrientRequirement: NPKRequirement(n: 120, p: 60, k: 60),
         growthStages: [
           'Germination',
+          'Seedling',
+          'Square Formation',
           'Flowering',
-          'Pod Formation',
-          'Seed Filling',
-          'Maturity',
+          'Boll Development',
+          'Boll Opening',
         ],
-        durationDays: 120,
-        nutrientRequirements: {
-          'Germination': NPKRequirement(n: 5, p: 10, k: 10),
-          'Flowering': NPKRequirement(n: 5, p: 15, k: 15),
-          'Pod Formation': NPKRequirement(n: 10, p: 10, k: 20),
-        },
       ),
-      // Add more as needed to reach "All Crops" feel
     ];
+    // End of class CropApiService
   }
 }

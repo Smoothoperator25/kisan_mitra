@@ -15,19 +15,16 @@ class AdvisoryController with ChangeNotifier {
   String? errorMessage;
 
   // Data
-  List<Crop> crops = [];
   WeatherData? currentWeather;
   AdvisoryResponse? advisoryResult;
 
   // Inputs
-  Crop? selectedCrop;
   String selectedGrowthStage = 'Seedling'; // Default
   double fieldSize = 1.0;
   bool isHectares = false;
 
   // Soil Inputs
   String selectedSoilType = 'Loamy';
-  // TODO: Add controllers for specific NPK if advanced mode input needed, for now assuming defaults or simple input logic in UI
 
   // Crop Issues
   List<String> selectedIssues = [];
@@ -41,20 +38,12 @@ class AdvisoryController with ChangeNotifier {
     isLoading = true;
     notifyListeners();
     try {
-      await fetchCrops();
       await fetchWeather(); // Auto-fetch weather on load
     } catch (e) {
       errorMessage = "Failed to load initial data: $e";
     } finally {
       isLoading = false;
       notifyListeners();
-    }
-  }
-
-  Future<void> fetchCrops() async {
-    crops = await _repository.getCrops();
-    if (crops.isNotEmpty) {
-      // selectedCrop = crops[0]; // Optional: Select first by default
     }
   }
 
@@ -74,26 +63,19 @@ class AdvisoryController with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> calculateAdvisory() async {
-    if (selectedCrop == null) {
-      errorMessage = "Please select a crop";
-      notifyListeners();
-      return;
-    }
-
+  // Calculate Advisory
+  Future<void> calculateAdvisory(Crop selectedCrop) async {
     isCalculating = true;
     errorMessage = null;
     notifyListeners();
 
     try {
       final request = AdvisoryRequest(
-        crop: selectedCrop!,
+        crop: selectedCrop,
         growthStage: selectedGrowthStage,
         fieldSize: fieldSize,
         isHectares: isHectares,
-        soilData: SoilData(
-          soilType: selectedSoilType,
-        ), // Add logic to grab NPK inputs if added to UI
+        soilData: SoilData(soilType: selectedSoilType),
         weatherData: currentWeather,
         cropIssues: selectedIssues,
         location: "Current Location",
@@ -109,15 +91,6 @@ class AdvisoryController with ChangeNotifier {
   }
 
   // Setters for UI
-  void selectCrop(Crop crop) {
-    selectedCrop = crop;
-    // Reset stage to first available
-    if (crop.growthStages.isNotEmpty) {
-      selectedGrowthStage = crop.growthStages[0];
-    }
-    notifyListeners();
-  }
-
   void setGrowthStage(String stage) {
     selectedGrowthStage = stage;
     notifyListeners();
@@ -144,6 +117,13 @@ class AdvisoryController with ChangeNotifier {
     } else {
       selectedIssues.add(issue);
     }
+    notifyListeners();
+  }
+
+  void reset() {
+    advisoryResult = null;
+    errorMessage = null;
+    selectedIssues = [];
     notifyListeners();
   }
 

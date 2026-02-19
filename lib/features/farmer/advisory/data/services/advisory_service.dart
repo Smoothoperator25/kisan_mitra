@@ -12,18 +12,14 @@ class AdvisoryService {
   // Calculate Fertilizer Recommendations
   Future<AdvisoryResponse> generateAdvisory(AdvisoryRequest request) async {
     // 1. Get Base Nutrient Requirement for Crop & Stage
-    NPKRequirement? req =
-        request.crop.nutrientRequirements[request.growthStage];
-
-    // Default fallback if specific stage not found (use first available or avg)
-    if (req == null && request.crop.nutrientRequirements.isNotEmpty) {
-      req = request.crop.nutrientRequirements.values.first;
-    }
+    // 1. Get Base Nutrient Requirement for Crop
+    // The API provides a single requirement object for the crop.
+    NPKRequirement req = request.crop.nutrientRequirement;
 
     // Safety check
-    double targetN = req?.n ?? 0.0;
-    double targetP = req?.p ?? 0.0;
-    double targetK = req?.k ?? 0.0;
+    double targetN = req.n;
+    double targetP = req.p;
+    double targetK = req.k;
 
     // 1b. Smart Adjustment: Estimate Soil Nutrients if not provided
     SoilData effectiveSoil = request.soilData ?? SoilData(soilType: 'Loamy');

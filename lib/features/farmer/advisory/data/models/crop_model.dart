@@ -3,19 +3,18 @@ class Crop {
   final String name;
   final String scientificName;
   final String imageUrl;
+  final String category;
+  final NPKRequirement nutrientRequirement;
   final List<String> growthStages;
-  final Map<String, NPKRequirement>
-  nutrientRequirements; // keyed by growth stage
-  final int durationDays;
 
   Crop({
     required this.id,
     required this.name,
     required this.scientificName,
     required this.imageUrl,
+    required this.category,
+    required this.nutrientRequirement,
     required this.growthStages,
-    required this.nutrientRequirements,
-    required this.durationDays,
   });
 
   factory Crop.fromJson(Map<String, dynamic> json) {
@@ -24,13 +23,33 @@ class Crop {
       name: json['name'] ?? '',
       scientificName: json['scientific_name'] ?? '',
       imageUrl: json['image_url'] ?? '',
+      category: json['category'] ?? '',
+      nutrientRequirement: NPKRequirement.fromJson(
+        json['nutrient_requirement'] ?? {},
+      ),
       growthStages: List<String>.from(json['growth_stages'] ?? []),
-      nutrientRequirements:
-          (json['nutrient_requirements'] as Map<String, dynamic>?)?.map(
-            (key, value) => MapEntry(key, NPKRequirement.fromJson(value)),
-          ) ??
-          {},
-      durationDays: json['duration_days'] ?? 0,
+    );
+  }
+
+  // Factory for Perenual API Response
+  factory Crop.fromPerenualJson(Map<String, dynamic> json) {
+    String commonName = json['common_name'] ?? 'Unknown Crop';
+
+    // Simulate NPK based on name/category (since API doesn't provide it)
+    NPKRequirement simulatedNPK = _simulateNPK(commonName);
+
+    return Crop(
+      id: (json['id'] ?? 0).toString(),
+      name: commonName,
+      scientificName:
+          (json['scientific_name'] is List &&
+              json['scientific_name'].isNotEmpty)
+          ? json['scientific_name'][0]
+          : 'Unknown',
+      imageUrl: json['default_image']?['regular_url'] ?? '',
+      category: 'General', // Perenual doesn't always provide category in list
+      nutrientRequirement: simulatedNPK,
+      growthStages: _getDefaultStages(),
     );
   }
 
@@ -40,12 +59,33 @@ class Crop {
       'name': name,
       'scientific_name': scientificName,
       'image_url': imageUrl,
+      'category': category,
+      'nutrient_requirement': nutrientRequirement.toJson(),
       'growth_stages': growthStages,
-      'nutrient_requirements': nutrientRequirements.map(
-        (key, value) => MapEntry(key, value.toJson()),
-      ),
-      'duration_days': durationDays,
     };
+  }
+
+  // Helper to simulate NPK for demo purposes
+  static NPKRequirement _simulateNPK(String name) {
+    name = name.toLowerCase();
+    if (name.contains('wheat') ||
+        name.contains('rice') ||
+        name.contains('corn') ||
+        name.contains('maize')) {
+      return NPKRequirement(n: 120, p: 60, k: 40); // Cereals
+    } else if (name.contains('potato') || name.contains('tomato')) {
+      return NPKRequirement(n: 150, p: 80, k: 100); // Heavy feeders
+    } else if (name.contains('bean') ||
+        name.contains('pea') ||
+        name.contains('legume')) {
+      return NPKRequirement(n: 20, p: 60, k: 40); // Legumes (fix N)
+    } else {
+      return NPKRequirement(n: 100, p: 50, k: 50); // Default
+    }
+  }
+
+  static List<String> _getDefaultStages() {
+    return ['Seedling', 'Vegetative', 'Flowering', 'Fruiting', 'Maturity'];
   }
 }
 
@@ -58,13 +98,13 @@ class NPKRequirement {
 
   factory NPKRequirement.fromJson(Map<String, dynamic> json) {
     return NPKRequirement(
-      n: (json['n'] ?? 0.0).toDouble(),
-      p: (json['p'] ?? 0.0).toDouble(),
-      k: (json['k'] ?? 0.0).toDouble(),
+      n: (json['nitrogen'] ?? 0.0).toDouble(),
+      p: (json['phosphorus'] ?? 0.0).toDouble(),
+      k: (json['potassium'] ?? 0.0).toDouble(),
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'n': n, 'p': p, 'k': k};
+    return {'nitrogen': n, 'phosphorus': p, 'potassium': k};
   }
 }

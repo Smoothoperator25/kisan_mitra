@@ -26,10 +26,20 @@ import 'features/store/auth/store_login_screen.dart';
 import 'features/store/auth/store_registration_screen.dart';
 import 'features/farmer/profile/profile_controller.dart';
 import 'features/store/profile/store_profile_controller.dart';
+import 'features/farmer/advisory/presentation/controllers/crop_controller.dart';
 import 'firebase_options.dart';
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    print("Error loading .env file: $e");
+  }
 
   // Initialize Mapbox with access token
   MapboxOptions.setAccessToken(AppConstants.mapboxAccessToken);
@@ -122,6 +132,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => ProfileController()),
         ChangeNotifierProvider(create: (_) => StoreProfileController()),
+        ChangeNotifierProvider(create: (_) => CropController()),
       ],
       child: MaterialApp(
         title: AppConstants.appName,

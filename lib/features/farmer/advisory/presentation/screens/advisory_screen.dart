@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../data/models/crop_model.dart';
 import '../../data/models/advisory_model.dart';
 import '../controllers/advisory_controller.dart';
+import '../controllers/crop_controller.dart';
 import '../../../profile/profile_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -25,49 +26,78 @@ class AdvisoryScreen extends StatelessWidget {
           elevation: 0,
         ),
         body: Consumer<AdvisoryController>(
-          builder: (context, controller, child) {
-            if (controller.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+          builder: (context, advisoryController, child) {
+            // Note: AdvisoryController no longer manages crop state directly,
+            // so we don't check for its loading here for the initial screen.
+            // CropController handles the initial crop list loading.
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildWeatherHeader(controller),
+                  _buildWeatherHeader(advisoryController),
                   const SizedBox(height: 24),
                   _buildSectionTitle("Select Crop"),
                   const SizedBox(height: 12),
-                  _buildCropSelector(context, controller),
+                  _buildCropSelector(context, advisoryController),
                   const SizedBox(height: 24),
-                  if (controller.selectedCrop != null) ...[
-                    _buildGrowthStageSelector(controller),
-                    const SizedBox(height: 24),
-                    _buildFieldSizeSlider(controller),
-                    const SizedBox(height: 24),
-                    _buildSoilHealthSection(controller),
-                    const SizedBox(height: 24),
-                    _buildCropIssuesSection(controller),
-                    const SizedBox(height: 32),
-                    _buildCalculateButton(context, controller),
-                  ],
-                  if (controller.isCalculating)
+
+                  // Consume CropController to check for selection
+                  Consumer<CropController>(
+                    builder: (context, cropController, _) {
+                      if (cropController.selectedCrop != null) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildGrowthStageSelector(
+                              advisoryController,
+                              cropController.selectedCrop!,
+                            ),
+                            const SizedBox(height: 24),
+                            _buildFieldSizeSlider(advisoryController),
+                            const SizedBox(height: 24),
+                            _buildSoilHealthSection(advisoryController),
+                            const SizedBox(height: 24),
+                            _buildCropIssuesSection(advisoryController),
+                            const SizedBox(height: 32),
+                            _buildCalculateButton(
+                              context,
+                              advisoryController,
+                              cropController,
+                            ),
+                          ],
+                        );
+                      } else {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(32.0),
+                            child: Text(
+                              "Please select a crop above to proceed",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+
+                  if (advisoryController.isCalculating)
                     const Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: Center(child: CircularProgressIndicator()),
                     ),
-                  if (controller.errorMessage != null)
+                  if (advisoryController.errorMessage != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 16),
                       child: Text(
-                        controller.errorMessage!,
+                        advisoryController.errorMessage!,
                         style: const TextStyle(color: Colors.red),
                       ),
                     ),
-                  if (controller.advisoryResult != null &&
-                      !controller.isCalculating)
-                    _buildResultSection(controller.advisoryResult!),
+                  if (advisoryController.advisoryResult != null &&
+                      !advisoryController.isCalculating)
+                    _buildResultSection(advisoryController.advisoryResult!),
                 ],
               ),
             );
@@ -90,7 +120,7 @@ class AdvisoryScreen extends StatelessWidget {
 
   Widget _buildWeatherHeader(AdvisoryController controller) {
     final weather = controller.currentWeather;
-    if (weather == null) return const SizedBox();
+    if (weather == null) return const SizedBox(); // Or a shimmer placeholder
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -166,72 +196,147 @@ class AdvisoryScreen extends StatelessWidget {
 
   Widget _buildCropSelector(
     BuildContext context,
-    AdvisoryController controller,
+    AdvisoryController advisoryController,
   ) {
-    return SizedBox(
-      height: 140, // Height for avatar + text
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: controller.crops.length + 1, // +1 for "View All"
-        separatorBuilder: (_, __) => const SizedBox(width: 16),
-        itemBuilder: (context, index) {
-          if (index == controller.crops.length) {
-            return _buildViewAllCard();
-          }
-          final crop = controller.crops[index];
-          final isSelected = controller.selectedCrop?.id == crop.id;
-
-          return GestureDetector(
-            onTap: () => controller.selectCrop(crop),
-            child: Column(
-              children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSelected ? Colors.green : Colors.transparent,
-                      width: 3,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: ClipOval(
-                    child: CachedNetworkImage(
-                      imageUrl: crop.imageUrl,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.image),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.error),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  crop.name,
-                  style: TextStyle(
-                    fontWeight: isSelected
-                        ? FontWeight.bold
-                        : FontWeight.normal,
-                    color: isSelected ? Colors.green[800] : Colors.black87,
-                  ),
-                ),
-              ],
+    return Consumer<CropController>(
+      builder: (context, cropController, child) {
+        if (cropController.isLoading) {
+          return SizedBox(
+            height: 140,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: 4,
+              separatorBuilder: (_, __) => const SizedBox(width: 16),
+              itemBuilder: (_, __) => _buildShimmerCrop(),
             ),
           );
-        },
-      ),
+        }
+
+        if (cropController.errorMessage.isNotEmpty) {
+          return SizedBox(
+            height: 100,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Failed to load crops',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  TextButton(
+                    onPressed: () => cropController.retry(),
+                    child: Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        final crops = cropController.crops;
+
+        return SizedBox(
+          height: 140, // Height for avatar + text
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: crops.length + 1, // +1 for "View All"
+            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              if (index == crops.length) {
+                // Pass advisoryController to the modal function
+                return GestureDetector(
+                  onTap: () => _showAllCropsModal(context, advisoryController),
+                  child: _buildViewAllCard(),
+                );
+              }
+              final crop = crops[index];
+              final isSelected = cropController.selectedCrop?.id == crop.id;
+
+              return GestureDetector(
+                onTap: () {
+                  cropController.selectCrop(crop);
+                  // Reset growth stage in advisory controller when crop changes
+                  if (crop.growthStages.isNotEmpty) {
+                    advisoryController.setGrowthStage(crop.growthStages[0]);
+                  }
+                },
+                child: Column(
+                  children: [
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isSelected ? Colors.green : Colors.transparent,
+                          width: 3,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ClipOval(
+                        child: CachedNetworkImage(
+                          imageUrl: crop.imageUrl,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.image),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.error),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: 80,
+                      child: Text(
+                        crop.name,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: isSelected
+                              ? Colors.green[800]
+                              : Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildShimmerCrop() {
+    return Column(
+      children: [
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.grey[300],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(width: 60, height: 10, color: Colors.grey[300]),
+      ],
     );
   }
 
@@ -259,12 +364,166 @@ class AdvisoryScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        const Text("View All"),
+        const Text("View All", style: TextStyle(fontWeight: FontWeight.bold)),
       ],
     );
   }
 
-  Widget _buildGrowthStageSelector(AdvisoryController controller) {
+  // Updated to accept AdvisoryController
+  void _showAllCropsModal(
+    BuildContext context,
+    AdvisoryController advisoryController,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (context, scrollController) {
+            return Consumer<CropController>(
+              builder: (context, controller, _) {
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Text(
+                            "All Crops",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Spacer(),
+                          IconButton(
+                            icon: Icon(Icons.close),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: "Search crops...",
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 0,
+                            horizontal: 16,
+                          ),
+                        ),
+                        onChanged: (val) => controller.searchCrops(val),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Expanded(
+                      child: GridView.builder(
+                        controller: scrollController,
+                        padding: EdgeInsets.all(16),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          childAspectRatio: 0.8,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
+                        itemCount: controller.crops.length,
+                        itemBuilder: (context, index) {
+                          final crop = controller.crops[index];
+                          final isSelected =
+                              controller.selectedCrop?.id == crop.id;
+                          return GestureDetector(
+                            onTap: () {
+                              controller.selectCrop(crop);
+                              // Update advisory controller growth stage using passed instance
+                              if (crop.growthStages.isNotEmpty) {
+                                advisoryController.setGrowthStage(
+                                  crop.growthStages[0],
+                                );
+                              }
+                              Navigator.pop(context);
+                            },
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? Colors.green
+                                            : Colors.transparent,
+                                        width: 3,
+                                      ),
+                                    ),
+                                    child: ClipOval(
+                                      child: CachedNetworkImage(
+                                        imageUrl: crop.imageUrl,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  crop.name,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                    color: isSelected
+                                        ? Colors.green
+                                        : Colors.black,
+                                    fontSize: 12,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildGrowthStageSelector(
+    AdvisoryController advisoryController,
+    Crop selectedCrop,
+  ) {
+    // Ensure selected stage is valid for current crop
+    // Use a safety check for display
+    final String currentStage = advisoryController.selectedGrowthStage;
+    final String displayStage = selectedCrop.growthStages.contains(currentStage)
+        ? currentStage
+        : (selectedCrop.growthStages.isNotEmpty
+              ? selectedCrop.growthStages[0]
+              : "");
+
+    // If mismatch, we should ideally trigger an update, but modifying state during build is bad.
+    // The previous update logic in selectCrop() handles the state update.
+    // This just ensures the dropdown doesn't crash visually.
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
@@ -274,14 +533,14 @@ class AdvisoryScreen extends StatelessWidget {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: controller.selectedGrowthStage,
+          value: displayStage.isNotEmpty ? displayStage : null,
           isExpanded: true,
           icon: const Icon(Icons.arrow_drop_down_circle, color: Colors.green),
-          items: controller.selectedCrop!.growthStages.map((String stage) {
+          items: selectedCrop.growthStages.map((String stage) {
             return DropdownMenuItem<String>(value: stage, child: Text(stage));
           }).toList(),
           onChanged: (val) {
-            if (val != null) controller.setGrowthStage(val);
+            if (val != null) advisoryController.setGrowthStage(val);
           },
         ),
       ),
@@ -409,7 +668,8 @@ class AdvisoryScreen extends StatelessWidget {
 
   Widget _buildCalculateButton(
     BuildContext context,
-    AdvisoryController controller,
+    AdvisoryController advisoryController,
+    CropController cropController,
   ) {
     return SizedBox(
       width: double.infinity,
@@ -422,11 +682,16 @@ class AdvisoryScreen extends StatelessWidget {
           ),
           elevation: 4,
         ),
-        onPressed: controller.isCalculating
+        onPressed:
+            advisoryController.isCalculating ||
+                cropController.selectedCrop == null
             ? null
             : () async {
-                await controller.calculateAdvisory();
-                if (context.mounted && controller.advisoryResult != null) {
+                await advisoryController.calculateAdvisory(
+                  cropController.selectedCrop!,
+                );
+                if (context.mounted &&
+                    advisoryController.advisoryResult != null) {
                   // Increment advisory used count
                   context.read<ProfileController>().incrementAdvisoryCount();
                 }
