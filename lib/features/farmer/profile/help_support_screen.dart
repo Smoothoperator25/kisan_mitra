@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'privacy_policy_screen.dart';
+import 'terms_of_service_screen.dart';
+import 'user_guide_screen.dart';
 
 /// Help & Support Screen
 /// Provides help resources and support options for farmers
@@ -13,10 +16,7 @@ class HelpSupportScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Help & Support',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         backgroundColor: const Color(0xFF2E7D32),
         elevation: 0,
@@ -32,10 +32,7 @@ class HelpSupportScreen extends StatelessWidget {
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF2E7D32),
-                  Color(0xFF43A047),
-                ],
+                colors: [Color(0xFF2E7D32), Color(0xFF43A047)],
               ),
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
@@ -76,10 +73,7 @@ class HelpSupportScreen extends StatelessWidget {
                       SizedBox(height: 4),
                       Text(
                         'Get assistance anytime you need',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.white,
-                        ),
+                        style: TextStyle(fontSize: 13, color: Colors.white),
                       ),
                     ],
                   ),
@@ -96,9 +90,9 @@ class HelpSupportScreen extends StatelessWidget {
           _buildContactCard(
             icon: Icons.phone,
             title: 'Call Support',
-            subtitle: '+91 1800-XXX-XXXX',
+            subtitle: '+91 8080509271',
             color: const Color(0xFF1976D2),
-            onTap: () => _makePhoneCall('+911800XXXXXXX'),
+            onTap: () => _makePhoneCall('+918080509271'),
           ),
           const SizedBox(height: 12),
           _buildContactCard(
@@ -112,9 +106,9 @@ class HelpSupportScreen extends StatelessWidget {
           _buildContactCard(
             icon: Icons.chat,
             title: 'WhatsApp Support',
-            subtitle: '+91 98XXX-XXXXX',
+            subtitle: '+91 8080509271',
             color: const Color(0xFF25D366),
-            onTap: () => _openWhatsApp('+919XXXXXXXXX'),
+            onTap: () => _openWhatsApp('+918080509271'),
           ),
 
           const SizedBox(height: 24),
@@ -141,10 +135,7 @@ class HelpSupportScreen extends StatelessWidget {
               icon: const Icon(Icons.feedback_outlined),
               label: const Text(
                 'Send Feedback',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2E7D32),
@@ -226,10 +217,7 @@ class HelpSupportScreen extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                   ),
                 ],
               ),
@@ -346,7 +334,10 @@ class HelpSupportScreen extends StatelessWidget {
             icon: Icons.description,
             title: 'User Guide',
             onTap: () {
-              // Open user guide
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const UserGuideScreen()),
+              );
             },
             isFirst: true,
           ),
@@ -355,7 +346,10 @@ class HelpSupportScreen extends StatelessWidget {
             icon: Icons.policy,
             title: 'Privacy Policy',
             onTap: () {
-              // Open privacy policy
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
+              );
             },
           ),
           const Divider(height: 1, indent: 56),
@@ -363,7 +357,10 @@ class HelpSupportScreen extends StatelessWidget {
             icon: Icons.gavel,
             title: 'Terms & Conditions',
             onTap: () {
-              // Open terms
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TermsOfServiceScreen()),
+              );
             },
             isLast: true,
           ),
@@ -417,8 +414,10 @@ class HelpSupportScreen extends StatelessWidget {
 
   void _makePhoneCall(String phoneNumber) async {
     final Uri uri = Uri(scheme: 'tel', path: phoneNumber);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      // Phone dialer not available
     }
   }
 
@@ -426,17 +425,21 @@ class HelpSupportScreen extends StatelessWidget {
     final Uri uri = Uri(
       scheme: 'mailto',
       path: email,
-      query: 'subject=Support Request - Kisan Mitra App',
+      queryParameters: {'subject': 'Support Request - Kisan Mitra App'},
     );
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      // No email client available
     }
   }
 
   void _openWhatsApp(String phoneNumber) async {
     final Uri uri = Uri.parse('https://wa.me/$phoneNumber');
-    if (await canLaunchUrl(uri)) {
+    try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      // WhatsApp not installed
     }
   }
 
@@ -494,4 +497,3 @@ class HelpSupportScreen extends StatelessWidget {
     );
   }
 }
-

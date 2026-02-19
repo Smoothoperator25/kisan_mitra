@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'privacy_policy_screen.dart';
+import 'terms_of_service_screen.dart';
+import 'licenses_screen.dart';
 
 /// About App Screen
 /// Displays app information, version, and credits
@@ -40,10 +43,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
       appBar: AppBar(
         title: const Text(
           'About App',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         backgroundColor: const Color(0xFF2E7D32),
         elevation: 0,
@@ -60,10 +60,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF2E7D32),
-                    Color(0xFF43A047),
-                  ],
+                  colors: [Color(0xFF2E7D32), Color(0xFF43A047)],
                 ),
               ),
               child: Column(
@@ -329,11 +326,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
             color: const Color(0xFFE8F5E9),
             borderRadius: BorderRadius.circular(6),
           ),
-          child: Icon(
-            icon,
-            size: 16,
-            color: const Color(0xFF2E7D32),
-          ),
+          child: Icon(icon, size: 16, color: const Color(0xFF2E7D32)),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -409,7 +402,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
           const SizedBox(height: 16),
           _buildContactItem(Icons.email, 'support@kisanmitra.com'),
           const SizedBox(height: 8),
-          _buildContactItem(Icons.phone, '+91 1800-XXX-XXXX'),
+          _buildContactItem(Icons.phone, '+91 8080509271'),
           const SizedBox(height: 8),
           _buildContactItem(Icons.language, 'www.kisanmitra.com'),
         ],
@@ -422,13 +415,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
       children: [
         Icon(icon, size: 18, color: Colors.grey.shade600),
         const SizedBox(width: 8),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey.shade700,
-          ),
-        ),
+        Text(text, style: TextStyle(fontSize: 14, color: Colors.grey.shade700)),
       ],
     );
   }
@@ -466,14 +453,15 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
   }) {
     return InkWell(
       onTap: () {
-        // Open legal document
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Opening $title...'),
-            backgroundColor: const Color(0xFF2E7D32),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        Widget screen;
+        if (title == 'Privacy Policy') {
+          screen = const PrivacyPolicyScreen();
+        } else if (title == 'Terms of Service') {
+          screen = const TermsOfServiceScreen();
+        } else {
+          screen = const LicensesScreen();
+        }
+        Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
       },
       borderRadius: BorderRadius.vertical(
         top: isFirst ? const Radius.circular(16) : Radius.zero,
@@ -517,10 +505,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF6366F1),
-            Color(0xFF8B5CF6),
-          ],
+          colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -542,11 +527,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(
-                  Icons.code,
-                  color: Colors.white,
-                  size: 20,
-                ),
+                child: const Icon(Icons.code, color: Colors.white, size: 20),
               ),
               const SizedBox(width: 12),
               const Text(
@@ -700,21 +681,26 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                     _buildSocialButtonWithText(
                       text: 'in',
                       color: const Color(0xFF0A66C2),
-                      onTap: () => _launchURL('https://www.linkedin.com/in/satyajit-gaikwad-092381372/'),
+                      onTap: () => _launchURL(
+                        'https://www.linkedin.com/in/satyajit-gaikwad-092381372/',
+                      ),
                       tooltip: 'LinkedIn',
                     ),
                     const SizedBox(width: 16),
                     _buildSocialButtonWithIcon(
                       icon: Icons.code_outlined,
                       color: const Color(0xFF181717),
-                      onTap: () => _launchURL('https://github.com/CodeBySatyajit'),
+                      onTap: () =>
+                          _launchURL('https://github.com/CodeBySatyajit'),
                       tooltip: 'GitHub',
                     ),
                     const SizedBox(width: 16),
                     _buildSocialButtonWithIcon(
                       icon: Icons.camera_alt_outlined,
                       color: const Color(0xFFE4405F),
-                      onTap: () => _launchURL('https://www.instagram.com/itz_satyajit._07/'),
+                      onTap: () => _launchURL(
+                        'https://www.instagram.com/itz_satyajit._07/',
+                      ),
                       tooltip: 'Instagram',
                     ),
                   ],
@@ -804,11 +790,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
               ),
             ],
           ),
-          child: Icon(
-            icon,
-            color: Colors.white,
-            size: 22,
-          ),
+          child: Icon(icon, color: Colors.white, size: 22),
         ),
       ),
     );
@@ -955,18 +937,12 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
 
       // First try: External application mode
       if (await canLaunchUrl(uri)) {
-        launched = await launchUrl(
-          uri,
-          mode: LaunchMode.externalApplication,
-        );
+        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
 
       // Second try: Platform default mode if first failed
       if (!launched) {
-        launched = await launchUrl(
-          uri,
-          mode: LaunchMode.platformDefault,
-        );
+        launched = await launchUrl(uri, mode: LaunchMode.platformDefault);
       }
 
       // If still not launched, show error
@@ -995,4 +971,3 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
     }
   }
 }
-
