@@ -27,6 +27,7 @@ import 'features/store/auth/store_registration_screen.dart';
 import 'features/farmer/profile/profile_controller.dart';
 import 'features/store/profile/store_profile_controller.dart';
 import 'features/farmer/advisory/presentation/controllers/crop_controller.dart';
+import 'core/controllers/ai_assistant_controller.dart';
 import 'firebase_options.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -133,6 +134,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProfileController()),
         ChangeNotifierProvider(create: (_) => StoreProfileController()),
         ChangeNotifierProvider(create: (_) => CropController()),
+        ChangeNotifierProvider(create: (_) => AiAssistantController()),
       ],
       child: MaterialApp(
         title: AppConstants.appName,
