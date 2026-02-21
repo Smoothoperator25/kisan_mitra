@@ -41,6 +41,8 @@ class AdvisoryScreen extends StatelessWidget {
                   _buildSectionTitle("Select Crop"),
                   const SizedBox(height: 12),
                   _buildCropSelector(context, advisoryController),
+                  const SizedBox(height: 12),
+                  _buildSelectedCropDisplay(),
                   const SizedBox(height: 24),
 
                   // Consume CropController to check for selection
@@ -133,7 +135,7 @@ class AdvisoryScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withOpacity(0.3),
+            color: Colors.blue.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -147,7 +149,7 @@ class AdvisoryScreen extends StatelessWidget {
             children: [
               Text(
                 "Current Weather",
-                style: TextStyle(color: Colors.white.withOpacity(0.9)),
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.9)),
               ),
               const SizedBox(height: 4),
               Text(
@@ -206,8 +208,8 @@ class AdvisoryScreen extends StatelessWidget {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: 4,
-              separatorBuilder: (_, __) => const SizedBox(width: 16),
-              itemBuilder: (_, __) => _buildShimmerCrop(),
+              separatorBuilder: (_, _) => const SizedBox(width: 16),
+              itemBuilder: (_, _) => _buildShimmerCrop(),
             ),
           );
         }
@@ -234,18 +236,23 @@ class AdvisoryScreen extends StatelessWidget {
         }
 
         final crops = cropController.crops;
+        final allCrops = cropController.allCrops;
+        final hasMoreCrops = allCrops.length > CropController.INITIAL_CROPS_LIMIT;
+        final showViewAllButton = hasMoreCrops && !cropController.showAllCrops;
 
         return SizedBox(
           height: 140, // Height for avatar + text
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: crops.length + 1, // +1 for "View All"
-            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            itemCount: crops.length + (showViewAllButton ? 1 : 0),
+            separatorBuilder: (_, _) => const SizedBox(width: 16),
             itemBuilder: (context, index) {
-              if (index == crops.length) {
-                // Pass advisoryController to the modal function
+              if (showViewAllButton && index == crops.length) {
+                // Show "View All" button only after 10 crops
                 return GestureDetector(
-                  onTap: () => _showAllCropsModal(context, advisoryController),
+                  onTap: () {
+                    _showAllCropsModal(context, advisoryController);
+                  },
                   child: _buildViewAllCard(),
                 );
               }
@@ -273,7 +280,7 @@ class AdvisoryScreen extends StatelessWidget {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -351,7 +358,7 @@ class AdvisoryScreen extends StatelessWidget {
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -366,6 +373,108 @@ class AdvisoryScreen extends StatelessWidget {
         const SizedBox(height: 8),
         const Text("View All", style: TextStyle(fontWeight: FontWeight.bold)),
       ],
+    );
+  }
+
+  Widget _buildSelectedCropDisplay() {
+    return Consumer<CropController>(
+      builder: (context, cropController, child) {
+        final selectedCrop = cropController.selectedCrop;
+
+        if (selectedCrop == null) {
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              "No crop selected",
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          );
+        }
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          decoration: BoxDecoration(
+            color: Colors.green[50],
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.green[300]!, width: 1.5),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.green, width: 2),
+                ),
+                child: ClipOval(
+                  child: CachedNetworkImage(
+                    imageUrl: selectedCrop.imageUrl,
+                    fit: BoxFit.cover,
+                    errorWidget: (context, url, error) {
+                      return Container(
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.image_not_supported),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Selected Crop",
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      selectedCrop.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      selectedCrop.scientificName,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.check_circle,
+                color: Colors.green[700],
+                size: 28,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -389,6 +498,8 @@ class AdvisoryScreen extends StatelessWidget {
           builder: (context, scrollController) {
             return Consumer<CropController>(
               builder: (context, controller, _) {
+                // Display all crops in the modal
+                final allCrops = controller.allCrops;
                 return Column(
                   children: [
                     Padding(
@@ -438,9 +549,9 @@ class AdvisoryScreen extends StatelessWidget {
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
                         ),
-                        itemCount: controller.crops.length,
+                        itemCount: allCrops.length,
                         itemBuilder: (context, index) {
-                          final crop = controller.crops[index];
+                          final crop = allCrops[index];
                           final isSelected =
                               controller.selectedCrop?.id == crop.id;
                           return GestureDetector(
@@ -799,7 +910,7 @@ class AdvisoryScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -909,7 +1020,7 @@ class AdvisoryScreen extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 5),
+          BoxShadow(color: Colors.grey.withValues(alpha: 0.1), blurRadius: 5),
         ],
       ),
       child: Column(
@@ -941,7 +1052,7 @@ class AdvisoryScreen extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 5),
+          BoxShadow(color: Colors.grey.withValues(alpha: 0.1), blurRadius: 5),
         ],
       ),
       child: Column(
