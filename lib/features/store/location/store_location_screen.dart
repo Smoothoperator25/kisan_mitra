@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'store_location_controller.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Store Location Screen
 /// Allows store owners to set and update their store location on Mapbox Maps
@@ -106,7 +107,7 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
 
             // Title
             Text(
-              'Store Location',
+              AppLocalizations.of(context).storeLocation,
               style: GoogleFonts.poppins(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -129,7 +130,7 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
                   const Icon(Icons.verified, color: Colors.white, size: 14),
                   const SizedBox(width: 4),
                   Text(
-                    'VERIFIED',
+                    AppLocalizations.of(context).verified,
                     style: GoogleFonts.poppins(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
@@ -161,7 +162,7 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
             borderRadius: BorderRadius.circular(24),
           ),
           child: Text(
-            'Tap anywhere on the map to set your store location',
+            AppLocalizations.of(context).tapMapToSelect,
             style: GoogleFonts.poppins(
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -178,7 +179,7 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
   Widget _buildMapSection(StoreLocationController controller) {
     if (controller.selectedLatitude == null ||
         controller.selectedLongitude == null) {
-      return const Center(child: Text('Unable to load map'));
+      return Center(child: Text(AppLocalizations.of(context).unableToLoadMap));
     }
 
     return MapWidget(
@@ -266,7 +267,11 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'LAT: ${controller.selectedLatitude?.toStringAsFixed(4) ?? ''} • LNG: ${controller.selectedLongitude?.toStringAsFixed(4) ?? ''}',
+                        AppLocalizations.of(context).latLngPreview(
+                          controller.selectedLatitude?.toStringAsFixed(4) ?? '',
+                          controller.selectedLongitude?.toStringAsFixed(4) ??
+                              '',
+                        ),
                         style: GoogleFonts.poppins(
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
@@ -316,7 +321,7 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'ADDRESS PREVIEW',
+                          AppLocalizations.of(context).addressPreviewLabel,
                           style: GoogleFonts.poppins(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
@@ -372,7 +377,7 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
                         ),
                       )
                     : Text(
-                        'Save Location',
+                        AppLocalizations.of(context).saveChanges,
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -411,7 +416,7 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
                       )
                     : const Icon(Icons.navigation, size: 20),
                 label: Text(
-                  'Use Current Location',
+                  AppLocalizations.of(context).useMyLocation,
                   style: GoogleFonts.poppins(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -433,7 +438,9 @@ class _StoreLocationScreenState extends State<StoreLocationScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(result['message'] ?? 'Location updated'),
+        content: Text(
+          result['message'] ?? AppLocalizations.of(context).updatedSuccessfully,
+        ),
         backgroundColor: result['success'] == true ? Colors.green : Colors.red,
       ),
     );

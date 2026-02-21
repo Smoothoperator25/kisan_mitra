@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/utils/helpers.dart';
+import '../../../l10n/app_localizations.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
@@ -42,15 +42,14 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
     try {
       final username = _usernameController.text.trim();
+      final l10n = AppLocalizations.of(context);
 
-      // Enforce single admin username
       if (username.toLowerCase() != _defaultAdminUsername) {
-        SnackBarHelper.showError(context, 'Wrong username/password');
+        SnackBarHelper.showError(context, l10n.wrongCredentials);
         setState(() => _isLoading = false);
         return;
       }
 
-      // Attempt Firebase Auth sign-in with provided password
       final authResult = await _authService.signInWithEmailPassword(
         email: _defaultAdminEmail,
         password: _passwordController.text,
@@ -66,12 +65,15 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       } else {
         SnackBarHelper.showError(
           context,
-          'Wrong username/password',
+          AppLocalizations.of(context).wrongCredentials,
         );
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, 'An error occurred: $e');
+        SnackBarHelper.showError(
+          context,
+          '${AppLocalizations.of(context).errorOccurred}: $e',
+        );
       }
     } finally {
       if (mounted) {
@@ -82,6 +84,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final backgroundColor = _isDarkMode
         ? const Color(0xFF1B5E20)
         : const Color(0xFFD5E8D4);
@@ -137,7 +140,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
                 const SizedBox(height: 12),
 
-                // App Name
                 Text(
                   'Kisan Mitra',
                   style: GoogleFonts.poppins(
@@ -149,7 +151,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
                 const SizedBox(height: 4),
 
-                // Tagline
                 Text(
                   'BEEJ SE BAZAR TAK',
                   style: GoogleFonts.poppins(
@@ -162,9 +163,8 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
                 const SizedBox(height: 20),
 
-                // Admin Login
                 Text(
-                  'Admin Login',
+                  l10n.adminLogin,
                   style: GoogleFonts.poppins(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -174,9 +174,8 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
                 const SizedBox(height: 8),
 
-                // Subtitle
                 Text(
-                  'Access the control panel to manage users and\nstores.',
+                  l10n.adminLoginSubtitle,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 15,
@@ -187,11 +186,10 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
                 const SizedBox(height: 16),
 
-                // Username Label
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Username',
+                    l10n.username,
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -202,18 +200,17 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
                 const SizedBox(height: 8),
 
-                // Username Field
                 TextFormField(
                   controller: _usernameController,
                   enabled: !_isLoading,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Username is required';
+                      return l10n.usernameRequired;
                     }
                     return null;
                   },
                   decoration: InputDecoration(
-                    hintText: 'Enter your username',
+                    hintText: l10n.enterUsername,
                     hintStyle: GoogleFonts.poppins(
                       fontSize: 14,
                       color: const Color(0xFFB0BDB4),
@@ -237,11 +234,10 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
                 const SizedBox(height: 16),
 
-                // Password Label
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Password',
+                    l10n.password,
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -252,7 +248,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
                 const SizedBox(height: 8),
 
-                // Password Field
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -296,7 +291,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
                 const SizedBox(height: 20),
 
-                // Login Button
                 SizedBox(
                   width: double.infinity,
                   height: 56,
@@ -320,7 +314,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                             ),
                           )
                         : Text(
-                            'Login',
+                            l10n.login,
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -331,12 +325,11 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
                 const SizedBox(height: 16),
 
-                // Contact Support
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Need help? ',
+                      l10n.needHelp,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: const Color(0xFF5F7D63),
@@ -344,7 +337,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        _showSupportDialog();
+                        _showSupportDialog(l10n);
                       },
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.zero,
@@ -352,7 +345,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
-                        'Contact Support',
+                        l10n.contactSupport,
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -370,7 +363,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         ),
       ),
 
-      // Theme Toggle Button
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           setState(() {
@@ -387,33 +379,27 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     );
   }
 
-  void _showSupportDialog() {
+  void _showSupportDialog(AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'Contact Support',
+          l10n.contactSupport,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Email: support@kisanmitra.com',
-              style: GoogleFonts.poppins(fontSize: 14),
-            ),
+            Text(l10n.supportEmail, style: GoogleFonts.poppins(fontSize: 14)),
             const SizedBox(height: 8),
-            Text(
-              'Phone: +91 1800-XXX-XXXX',
-              style: GoogleFonts.poppins(fontSize: 14),
-            ),
+            Text(l10n.supportPhone, style: GoogleFonts.poppins(fontSize: 14)),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(l10n.close),
           ),
         ],
       ),

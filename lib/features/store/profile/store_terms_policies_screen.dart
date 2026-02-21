@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../l10n/app_localizations.dart';
 
 class StoreTermsPoliciesScreen extends StatelessWidget {
   const StoreTermsPoliciesScreen({super.key});
@@ -11,9 +12,12 @@ class StoreTermsPoliciesScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: const Color(0xFFF5F5F5),
         appBar: AppBar(
-          title: const Text(
-            'Terms & Policies',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+          title: Text(
+            AppLocalizations.of(context).termsOfService,
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           backgroundColor: Colors.white,
           elevation: 0,
@@ -21,13 +25,13 @@ class StoreTermsPoliciesScreen extends StatelessWidget {
             icon: const Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () => Navigator.pop(context),
           ),
-          bottom: const TabBar(
-            labelColor: Color(0xFF2E7D32),
+          bottom: TabBar(
+            labelColor: const Color(0xFF2E7D32),
             unselectedLabelColor: Colors.grey,
-            indicatorColor: Color(0xFF2E7D32),
+            indicatorColor: const Color(0xFF2E7D32),
             tabs: [
-              Tab(text: 'Terms of Service'),
-              Tab(text: 'Privacy Policy'),
+              Tab(text: AppLocalizations.of(context).termsOfService),
+              Tab(text: AppLocalizations.of(context).privacyPolicy),
             ],
           ),
         ),
@@ -60,11 +64,19 @@ class _LegalDocumentView extends StatelessWidget {
         }
 
         if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          return Center(
+            child: Text(
+              AppLocalizations.of(
+                context,
+              ).errorPrefix(snapshot.error.toString()),
+            ),
+          );
         }
 
         final content = snapshot.data?.data() as Map<String, dynamic>?;
-        final text = content?['content'] as String? ?? 'No content available.';
+        final text =
+            content?['content'] as String? ??
+            AppLocalizations.of(context).noContentAvailable;
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),

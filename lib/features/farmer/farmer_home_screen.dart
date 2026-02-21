@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kisan_mitra/l10n/app_localizations.dart';
 import 'home/farmer_home_controller.dart';
 import 'soil_health/soil_health_check_screen.dart';
 
@@ -54,28 +55,32 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
                   children: [
                     _buildActionCard(
                       icon: Icons.search,
-                      title: 'Fertilizer Search',
-                      subtitle: 'Find nearby stores with\nbest price',
+                      title: AppLocalizations.of(context).fertilizerSearch,
+                      subtitle: AppLocalizations.of(
+                        context,
+                      ).fertilizerSearchSubtitle,
                       onTap: () {
-                        // Navigate to Search tab (index 1)
                         widget.onNavigateToTab?.call(1);
                       },
                     ),
                     const SizedBox(height: 16),
                     _buildActionCard(
                       icon: Icons.eco,
-                      title: 'Fertilizer Advisory',
-                      subtitle: 'Get crop-wise fertilizer\nguidance',
+                      title: AppLocalizations.of(context).fertilizerAdvisory,
+                      subtitle: AppLocalizations.of(
+                        context,
+                      ).fertilizerAdvisorySubtitle,
                       onTap: () {
-                        // Navigate to Advisory tab (index 2)
                         widget.onNavigateToTab?.call(2);
                       },
                     ),
                     const SizedBox(height: 16),
                     _buildActionCard(
                       icon: Icons.science,
-                      title: 'Soil Health Check',
-                      subtitle: 'Book your sample test\ntoday',
+                      title: AppLocalizations.of(context).soilHealthCheck,
+                      subtitle: AppLocalizations.of(
+                        context,
+                      ).soilHealthCheckSubtitle,
                       onTap: () {
                         Navigator.push(
                           context,
@@ -88,10 +93,9 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
                     const SizedBox(height: 16),
                     _buildActionCard(
                       icon: Icons.person,
-                      title: 'Profile',
-                      subtitle: 'View and manage your\nprofile',
+                      title: AppLocalizations.of(context).profile,
+                      subtitle: AppLocalizations.of(context).profileSubtitle,
                       onTap: () {
-                        // Navigate to Profile tab (index 3)
                         widget.onNavigateToTab?.call(3);
                       },
                     ),
@@ -162,9 +166,9 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
           const SizedBox(height: 8),
 
           // Title
-          const Text(
-            'Smart Fertilizer Finder',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context).appSmartFertilizer,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Color(0xFF1B5E20),
@@ -178,10 +182,10 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
   /// Welcome text with dynamic farmer name or loading indicator
   Widget _buildWelcomeText() {
     if (_controller.isLoading) {
-      return const Row(
+      return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(
+          const SizedBox(
             width: 16,
             height: 16,
             child: CircularProgressIndicator(
@@ -189,10 +193,10 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
               valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2E7D32)),
             ),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Text(
-            'Loading...',
-            style: TextStyle(fontSize: 16, color: Color(0xFF4A7C59)),
+            AppLocalizations.of(context).loading,
+            style: const TextStyle(fontSize: 16, color: Color(0xFF4A7C59)),
           ),
         ],
       );
@@ -200,13 +204,13 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
 
     if (_controller.error != null) {
       return Text(
-        'Welcome, Farmer',
+        AppLocalizations.of(context).welcomeFarmer,
         style: TextStyle(fontSize: 16, color: Colors.grey[700]),
       );
     }
 
     return Text(
-      'Welcome, ${_controller.farmerName ?? "Farmer"}',
+      AppLocalizations.of(context).welcomeName(_controller.farmerName ?? ''),
       style: TextStyle(fontSize: 16, color: Colors.grey[700]),
     );
   }

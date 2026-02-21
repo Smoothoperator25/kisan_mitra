@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'profile_controller.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Edit Profile Screen
 /// Allows farmer to edit their profile information
@@ -192,9 +193,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.white, size: 22),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Edit Profile',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context).editProfile,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -241,9 +242,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             strokeWidth: 2,
                           ),
                         )
-                      : const Text(
-                          'Save',
-                          style: TextStyle(
+                      : Text(
+                          AppLocalizations.of(context).save,
+                          style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                           ),
@@ -334,15 +335,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                   // Personal Details Section
                   _buildSection(
-                    title: 'Personal Details',
+                    title: AppLocalizations.of(context).personalDetails,
                     children: [
                       _buildTextField(
                         controller: _nameController,
-                        label: 'FULL NAME',
-                        hint: 'Enter your full name',
+                        label: AppLocalizations.of(context).fullName,
+                        hint: AppLocalizations.of(context).enterYourUsername,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Name is required';
+                            return AppLocalizations.of(context).errorFieldRequired;
                           }
                           return null;
                         },
@@ -350,13 +351,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       const SizedBox(height: 16),
                       _buildTextField(
                         initialValue: profile?.email ?? '',
-                        label: 'EMAIL ID',
+                        label: AppLocalizations.of(context).emailAddress,
                         enabled: false,
                       ),
                       const SizedBox(height: 16),
                       _buildTextField(
                         controller: _phoneController,
-                        label: 'MOBILE NUMBER',
+                        label: AppLocalizations.of(context).phone,
                         hint: '9876543210',
                         prefixText: '+91  ',
                         keyboardType: TextInputType.phone,
@@ -366,10 +367,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ],
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Mobile number is required';
+                            return AppLocalizations.of(context).phoneRequired;
                           }
                           if (value.length != 10) {
-                            return 'Mobile number must be 10 digits';
+                            return AppLocalizations.of(context).phoneLengthError;
                           }
                           return null;
                         },
@@ -381,12 +382,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                   // Location Details Section
                   _buildSection(
-                    title: 'Location Details',
+                    title: AppLocalizations.of(context).storeAddress,
                     children: [
                       _buildDropdownField(
                         value: _selectedState,
-                        label: 'STATE',
-                        hint: 'Select State',
+                        label: AppLocalizations.of(context).state,
+                        hint: AppLocalizations.of(context).selectState,
                         items: _states.map((state) {
                           return DropdownMenuItem(
                             value: state,
@@ -401,7 +402,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'State is required';
+                            return AppLocalizations.of(context).pleaseSelectState;
                           }
                           return null;
                         },
@@ -409,8 +410,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       const SizedBox(height: 16),
                       _buildDropdownField(
                         value: _selectedCity,
-                        label: 'CITY / DISTRICT',
-                        hint: 'Select City',
+                        label: AppLocalizations.of(context).cityDistrict,
+                        hint: AppLocalizations.of(context).enterCity,
                         items: _selectedState != null &&
                                 _citiesByState.containsKey(_selectedState)
                             ? _citiesByState[_selectedState]!.map((city) {
@@ -429,7 +430,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             : null,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'City is required';
+                            return AppLocalizations.of(context).pleaseSelectState;
                           }
                           return null;
                         },
@@ -437,11 +438,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       const SizedBox(height: 16),
                       _buildTextField(
                         controller: _villageController,
-                        label: 'VILLAGE / AREA',
-                        hint: 'Enter village or area',
+                        label: AppLocalizations.of(context).village,
+                        hint: AppLocalizations.of(context).enterVillage,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Village is required';
+                            return AppLocalizations.of(context).errorFieldRequired;
                           }
                           return null;
                         },
@@ -626,8 +627,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (mounted) {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile updated successfully!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context).updatedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -637,7 +638,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              controller.errorMessage ?? 'Failed to update profile',
+              controller.errorMessage ?? AppLocalizations.of(context).somethingWentWrong,
             ),
             backgroundColor: Colors.red,
           ),
@@ -648,12 +649,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   // Upload profile image
   void _uploadImage(ProfileController controller) async {
+    final l10n = AppLocalizations.of(context);
     final success = await controller.uploadProfileImage();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            success ? 'Profile image updated!' : 'Image upload cancelled',
+            success ? l10n.profileImageUpdated : l10n.imageUploadCancelled,
           ),
           backgroundColor: success ? Colors.green : Colors.orange,
         ),

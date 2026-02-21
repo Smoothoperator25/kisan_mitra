@@ -119,7 +119,24 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                     itemBuilder: (context, index) {
                       final suggestion = controller.suggestions[index];
                       return ListTile(
-                        title: Text(suggestion.name),
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(suggestion.name),
+                            if (suggestion.manufacturer.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  suggestion.manufacturer,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                         onTap: () {
                           _searchController.text = suggestion.name;
                           _removeOverlay();
@@ -737,6 +754,25 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
+                                            if (controller
+                                                    .selectedFertilizer!
+                                                    .manufacturer
+                                                    .isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  top: 4,
+                                                ),
+                                                child: Text(
+                                                  controller
+                                                      .selectedFertilizer!
+                                                      .manufacturer,
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    color: Colors.grey[600],
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ),
                                             Text(
                                               controller
                                                   .selectedFertilizer!
@@ -748,6 +784,7 @@ class _FertilizerSearchScreenState extends State<FertilizerSearchScreen> {
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),
+
                                           ],
                                         ),
                                       ),

@@ -18,7 +18,7 @@ class CropApiService {
         name: 'Paddy (Rice)',
         scientificName: 'Oryza sativa',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Rice_Fields_in_Comilla.jpg/800px-Rice_Fields_in_Comilla.jpg',
+            'https://media.istockphoto.com/id/187251869/photo/rice-crop.jpg?s=612x612&w=0&k=20&c=ATxHepv7IZ99NcNKkA7WyPsrsjorIubeV1uZbXboGag=',
         category: 'Cereal',
         nutrientRequirement: NPKRequirement(n: 100, p: 50, k: 50),
         growthStages: [
@@ -35,7 +35,7 @@ class CropApiService {
         name: 'Wheat',
         scientificName: 'Triticum aestivum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Vehn%C3%A4pelto_6.jpg/800px-Vehn%C3%A4pelto_6.jpg',
+            'https://images.presentationgo.com/2025/04/green-wheat-field-sunrise.jpg',
         category: 'Cereal',
         nutrientRequirement: NPKRequirement(n: 120, p: 60, k: 40),
         growthStages: [
@@ -52,7 +52,7 @@ class CropApiService {
         name: 'Jowar (Sorghum)',
         scientificName: 'Sorghum bicolor',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Sorghum_bicolor_003.jpg/800px-Sorghum_bicolor_003.jpg',
+            'https://brightcrop.in/cdn/shop/files/250grams_ca3fdf56-e5b8-4e9c-87f1-5ac0af04f2c7.png?v=1711950290&width=1445',
         category: 'Cereal',
         nutrientRequirement: NPKRequirement(n: 80, p: 40, k: 40),
         growthStages: [
@@ -69,7 +69,7 @@ class CropApiService {
         name: 'Bajra (Pearl Millet)',
         scientificName: 'Pennisetum glaucum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Pearl_Millet_on_the_vine.jpg/800px-Pearl_Millet_on_the_vine.jpg',
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiPtIFnv8R1Vl1ib5EcQGhES_QbUrgPWo-jAK9G6qmAhnFt3p1MNy1m-xo6Kz3wK93pIRx3bAB6jHPVkyPvAhWMkfgvqK1x4Kd3xrJEw&s=10',
         category: 'Cereal',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 30),
         growthStages: [
@@ -86,7 +86,7 @@ class CropApiService {
         name: 'Maize (Corn)',
         scientificName: 'Zea mays',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Maize_ear_closeup.jpg/800px-Maize_ear_closeup.jpg',
+            'https://i0.wp.com/afrimash.com/wp-content/uploads/2024/05/maize-prefered.jpg?ssl=1',
         category: 'Cereal',
         nutrientRequirement: NPKRequirement(n: 150, p: 60, k: 60),
         growthStages: [
@@ -103,7 +103,7 @@ class CropApiService {
         name: 'Ragi (Finger Millet)',
         scientificName: 'Eleusine coracana',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Eleusine_coracana_at_Kadavoor.jpg/800px-Eleusine_coracana_at_Kadavoor.jpg',
+            'https://naturallyyours.in/cdn/shop/articles/ragi1.jpg?v=1659348826',
         category: 'Cereal',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 30),
         growthStages: [
@@ -119,7 +119,7 @@ class CropApiService {
         name: 'Barley',
         scientificName: 'Hordeum vulgare',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Barley_crop.jpg/800px-Barley_crop.jpg',
+            'https://upload.wikimedia.org/wikipedia/commons/2/20/Barley_%28Hordeum_vulgare%29_-_United_States_National_Arboretum_-_24_May_2009.jpg',
         category: 'Cereal',
         nutrientRequirement: NPKRequirement(n: 80, p: 40, k: 30),
         growthStages: [
@@ -135,7 +135,7 @@ class CropApiService {
         name: 'Oats',
         scientificName: 'Avena sativa',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Hafer.jpg/800px-Hafer.jpg',
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Avena_sativa_002.JPG/960px-Avena_sativa_002.JPG',
         category: 'Cereal',
         nutrientRequirement: NPKRequirement(n: 80, p: 40, k: 30),
         growthStages: [
@@ -153,7 +153,7 @@ class CropApiService {
         name: 'Tur (Pigeon Pea)',
         scientificName: 'Cajanus cajan',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Pigeon_Peas.jpg/800px-Pigeon_Peas.jpg',
+            'https://mybageecha.com/cdn/shop/products/Toor-Cajanus_cajan_1024x.jpg?v=1571438538',
         category: 'Legume',
         nutrientRequirement: NPKRequirement(n: 20, p: 60, k: 30),
         growthStages: [
@@ -169,7 +169,7 @@ class CropApiService {
         name: 'Moong (Green Gram)',
         scientificName: 'Vigna radiata',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Mung_beans.jpg/800px-Mung_beans.jpg',
+            'https://www.epicgardening.com/wp-content/uploads/2021/10/A-close-up-shot-of-several-pods-of-legumes-alongside-their-leaves-showcasing-the-mung-bean.jpg',
         category: 'Legume',
         nutrientRequirement: NPKRequirement(n: 20, p: 50, k: 30),
         growthStages: [
@@ -185,7 +185,7 @@ class CropApiService {
         name: 'Urad (Black Gram)',
         scientificName: 'Vigna mungo',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Vigna_mungo.jpg/800px-Vigna_mungo.jpg',
+            'https://kasturiudyavara.in/wp-content/uploads/2021/07/adfeeb1e-3af6-4e74-8019-26f8bb6035db.jpg',
         category: 'Legume',
         nutrientRequirement: NPKRequirement(n: 20, p: 50, k: 30),
         growthStages: [
@@ -201,7 +201,7 @@ class CropApiService {
         name: 'Chickpea (Gram)',
         scientificName: 'Cicer arietinum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Chickpeas_in_a_bowl.jpg/800px-Chickpeas_in_a_bowl.jpg',
+            'https://www.agrifarming.in/wp-content/uploads/Guide-to-Chickpea-Bengal-GramChana-Farming-1.jpg',
         category: 'Legume',
         nutrientRequirement: NPKRequirement(n: 20, p: 60, k: 30),
         growthStages: [
@@ -217,7 +217,7 @@ class CropApiService {
         name: 'Masoor (Red Lentil)',
         scientificName: 'Lens culinaris',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Red_Lentils.jpg/800px-Red_Lentils.jpg',
+            'https://nationalgauravaward.org/wp-content/uploads/2020/12/Red-Lentils1.jpg',
         category: 'Legume',
         nutrientRequirement: NPKRequirement(n: 20, p: 50, k: 30),
         growthStages: [
@@ -233,7 +233,7 @@ class CropApiService {
         name: 'Cowpea (Lobia)',
         scientificName: 'Vigna unguiculata',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Cowpea.jpg/800px-Cowpea.jpg',
+            'https://5.imimg.com/data5/WN/EF/SL/SELLER-13256592/cowpea-lobia-thattaipayuru-karamani.jpg',
         category: 'Legume',
         nutrientRequirement: NPKRequirement(n: 20, p: 50, k: 30),
         growthStages: [
@@ -249,7 +249,7 @@ class CropApiService {
         name: 'Horse Gram (Kulthi)',
         scientificName: 'Macrotyloma uniflorum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Horsegram.jpg/800px-Horsegram.jpg',
+            'https://img-cdn.publive.online/fit-in/1200x675/30-stades/media/media_files/2026/01/03/kulthi-dal-superfood-lead-30stades-2026-01-03-00-00-06.jpg',
         category: 'Legume',
         nutrientRequirement: NPKRequirement(n: 20, p: 40, k: 20),
         growthStages: ['Germination', 'Vegetative', 'Flowering', 'Maturity'],
@@ -259,7 +259,7 @@ class CropApiService {
         name: 'Soybean',
         scientificName: 'Glycine max',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Soybean_scenery.jpg/800px-Soybean_scenery.jpg',
+            'https://www.news-medical.net/images/news/ImageForNews_745986_16823072833517897.jpg',
         category: 'Legume',
         nutrientRequirement: NPKRequirement(n: 20, p: 80, k: 40),
         growthStages: [
@@ -278,7 +278,7 @@ class CropApiService {
         name: 'Groundnut (Peanut)',
         scientificName: 'Arachis hypogaea',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Peanut_field.jpg/800px-Peanut_field.jpg',
+            'https://www.protectourlivelihood.in/wp-content/uploads/2025/04/Image-Groundnut.jpg',
         category: 'Oilseed',
         nutrientRequirement: NPKRequirement(n: 20, p: 60, k: 40),
         growthStages: [
@@ -295,7 +295,7 @@ class CropApiService {
         name: 'Sunflower',
         scientificName: 'Helianthus annuus',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Sunflower_in_the_field.jpg/800px-Sunflower_in_the_field.jpg',
+            'https://www.gardendesign.com/pictures/images/675x529Max/site_3/ring-of-fire-sunflower-bicolor-sunflower-all-america-selections_12080.jpg',
         category: 'Oilseed',
         nutrientRequirement: NPKRequirement(n: 80, p: 40, k: 40),
         growthStages: [
@@ -312,7 +312,7 @@ class CropApiService {
         name: 'Mustard (Rapeseed)',
         scientificName: 'Brassica juncea',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Mustard_field.jpg/800px-Mustard_field.jpg',
+            'https://media.assettype.com/english-sentinelassam%2Fimport%2Fh-upload%2F2023%2F02%2F12%2F438138-mustard.webp?w=1200&ar=40%3A21&auto=format%2Ccompress&ogImage=true&mode=crop&enlarge=true&overlay=false&overlay_position=bottom&overlay_width=100',
         category: 'Oilseed',
         nutrientRequirement: NPKRequirement(n: 80, p: 40, k: 40),
         growthStages: [
@@ -329,7 +329,7 @@ class CropApiService {
         name: 'Sesame (Til)',
         scientificName: 'Sesamum indicum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Sesamum_indicum.jpg/800px-Sesamum_indicum.jpg',
+            'https://www.chandigarhayurvedcentre.com/wp-content/uploads/2016/03/til.jpg',
         category: 'Oilseed',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 30),
         growthStages: [
@@ -345,7 +345,7 @@ class CropApiService {
         name: 'Linseed (Flax)',
         scientificName: 'Linum usitatissimum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Blue_Flax_Flower.jpg/800px-Blue_Flax_Flower.jpg',
+            'https://5.imimg.com/data5/SELLER/Default/2022/9/SI/ZQ/OT/139751067/flax-seeds-linseeds.jpg',
         category: 'Oilseed',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 30),
         growthStages: ['Germination', 'Vegetative', 'Flowering', 'Maturity'],
@@ -355,7 +355,7 @@ class CropApiService {
         name: 'Castor',
         scientificName: 'Ricinus communis',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Ricinus_communis_-_castor_oil_plant.jpg/640px-Ricinus_communis_-_castor_oil_plant.jpg',
+            'https://www.shutterstock.com/image-photo/organic-ricinus-communis-oil-castor-600nw-2600935963.jpg',
         category: 'Oilseed',
         nutrientRequirement: NPKRequirement(n: 80, p: 40, k: 40),
         growthStages: [
@@ -372,7 +372,7 @@ class CropApiService {
         name: 'Safflower',
         scientificName: 'Carthamus tinctorius',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Safflower2009.JPG/800px-Safflower2009.JPG',
+            'https://www.apnikheti.com/upload/crops/33idea99safflower.jpg',
         category: 'Oilseed',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 30),
         growthStages: [
@@ -390,7 +390,7 @@ class CropApiService {
         name: 'Cotton',
         scientificName: 'Gossypium hirsutum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Cotton_plant.jpg/800px-Cotton_plant.jpg',
+            'https://img.jagranjosh.com/1812021/iStock-589121090.webp',
         category: 'Fiber',
         nutrientRequirement: NPKRequirement(n: 120, p: 60, k: 60),
         growthStages: [
@@ -407,7 +407,7 @@ class CropApiService {
         name: 'Sugarcane',
         scientificName: 'Saccharum officinarum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Sugarcane_2.jpg/800px-Sugarcane_2.jpg',
+            'https://www.mahagro.com/cdn/shop/articles/iStock_000063947343_Medium_4e1c882b-faf0-4487-b45b-c2b557d32442.jpg?v=1541408129&width=1100',
         category: 'Commercial',
         nutrientRequirement: NPKRequirement(n: 250, p: 100, k: 120),
         growthStages: [
@@ -423,7 +423,7 @@ class CropApiService {
         name: 'Jute',
         scientificName: 'Corchorus olitorius',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/JuteField_bg110712.jpg/800px-JuteField_bg110712.jpg',
+            'https://matixgroup.com/wp-content/uploads/2025/03/jute-location-1024x902.png',
         category: 'Fiber',
         nutrientRequirement: NPKRequirement(n: 80, p: 40, k: 40),
         growthStages: ['Germination', 'Vegetative', 'Flowering', 'Maturity'],
@@ -433,7 +433,7 @@ class CropApiService {
         name: 'Tobacco',
         scientificName: 'Nicotiana tabacum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Tabacum_xanthii.jpg/800px-Tabacum_xanthii.jpg',
+            'https://eos.com/wp-content/uploads/2024/10/growing-tobacco-main.jpg',
         category: 'Commercial',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 80),
         growthStages: [
@@ -451,7 +451,7 @@ class CropApiService {
         name: 'Tomato',
         scientificName: 'Solanum lycopersicum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Tomato_je.jpg/800px-Tomato_je.jpg',
+            'https://cdn.britannica.com/16/187216-050-CB57A09B/tomatoes-tomato-plant-Fruit-vegetable.jpg?w=400&h=300&c=crop',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 100, p: 60, k: 100),
         growthStages: [
@@ -467,7 +467,7 @@ class CropApiService {
         name: 'Onion',
         scientificName: 'Allium cepa',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Onions_in_Field.jpg/800px-Onions_in_Field.jpg',
+            'https://m.media-amazon.com/images/I/41uWBT2Hw-L._AC_UF1000,1000_QL80_.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 80, p: 50, k: 80),
         growthStages: [
@@ -483,7 +483,7 @@ class CropApiService {
         name: 'Potato',
         scientificName: 'Solanum tuberosum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Patates.jpg/800px-Patates.jpg',
+            'https://cdn.mos.cms.futurecdn.net/v2/t:0,l:420,cw:1080,ch:1080,q:80,w:1080/iC7HBvohbJqExqvbKcV3pP.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 120, p: 80, k: 120),
         growthStages: [
@@ -499,7 +499,7 @@ class CropApiService {
         name: 'Brinjal (Eggplant)',
         scientificName: 'Solanum melongena',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Aubergine.jpg/800px-Aubergine.jpg',
+            'https://static.wixstatic.com/media/5f1a7b_5f9cec1922cf45acb1884aa8e4958856~mv2.jpg/v1/fill/w_640,h_326,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/5f1a7b_5f9cec1922cf45acb1884aa8e4958856~mv2.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 100, p: 60, k: 60),
         growthStages: [
@@ -515,7 +515,7 @@ class CropApiService {
         name: 'Okra (Bhindi)',
         scientificName: 'Abelmoschus esculentus',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Okra_fruits_growing_in_garden.jpg/800px-Okra_fruits_growing_in_garden.jpg',
+            'https://m.media-amazon.com/images/I/51WrXUG8qLL._AC_UF1000,1000_QL80_.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 80, p: 50, k: 60),
         growthStages: [
@@ -531,7 +531,7 @@ class CropApiService {
         name: 'Chili (Hot Pepper)',
         scientificName: 'Capsicum annuum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Red_Hot_Chili_Pepper.jpg/800px-Red_Hot_Chili_Pepper.jpg',
+            'https://cdn.mos.cms.futurecdn.net/fxTMUKDnKRGq2twv7iecH4.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 100, p: 60, k: 80),
         growthStages: [
@@ -547,7 +547,7 @@ class CropApiService {
         name: 'Capsicum (Bell Pepper)',
         scientificName: 'Capsicum annuum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Capsicum_pubescens_fruits.jpg/800px-Capsicum_pubescens_fruits.jpg',
+            'https://www.freshpoint.com/wp-content/uploads/2019/03/freshpoint-produce-101-peppers-4.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 100, p: 60, k: 80),
         growthStages: [
@@ -563,7 +563,7 @@ class CropApiService {
         name: 'Cauliflower',
         scientificName: 'Brassica oleracea',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Chou-fleur_01.jpg/800px-Chou-fleur_01.jpg',
+            'https://www.thespruce.com/thmb/3xv-bplva31jK5D9fYL0_5c9UB0=/4696x0/filters:no_upscale():max_bytes(150000):strip_icc()/how-to-grow-cauliflower-1403494-hero-76cf5f524a564adabb1ac6adfa311482.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 100, p: 60, k: 60),
         growthStages: [
@@ -579,7 +579,7 @@ class CropApiService {
         name: 'Cabbage',
         scientificName: 'Brassica oleracea var. capitata',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Kale-Bundle.jpg/800px-Kale-Bundle.jpg',
+            'https://images.squarespace-cdn.com/content/v1/60d5fe5c9e25003cd4b3b2ed/1634316438635-27FNWQSMMPRHWXB0MLGJ/green-cabbage-envato.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 100, p: 60, k: 60),
         growthStages: ['Seedling', 'Vegetative', 'Head Formation', 'Maturity'],
@@ -589,7 +589,7 @@ class CropApiService {
         name: 'Cucumber',
         scientificName: 'Cucumis sativus',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Cucumbers_on_a_vine.jpg/800px-Cucumbers_on_a_vine.jpg',
+            'https://hgtvhome.sndimg.com/content/dam/images/hgtv/fullset/2020/2/16/0/shutterstock_316149275.jpg.rend.hgtvcom.1280.960.85.suffix/1581877377601.webp',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 80, p: 50, k: 60),
         growthStages: [
@@ -605,7 +605,7 @@ class CropApiService {
         name: 'Bitter Gourd (Karela)',
         scientificName: 'Momordica charantia',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Bittermelon_2009.jpg/800px-Bittermelon_2009.jpg',
+            'https://drvaidji.com/cdn/shop/articles/Bitter_Melon_1024x1024_37ab9838-93f6-4c88-83b4-508443174b78.jpg?v=1699514225',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 80, p: 50, k: 60),
         growthStages: [
@@ -621,7 +621,7 @@ class CropApiService {
         name: 'Bottle Gourd (Lauki)',
         scientificName: 'Lagenaria siceraria',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Lagenaria_siceraria_fruit.jpg/800px-Lagenaria_siceraria_fruit.jpg',
+            'https://gardeningcentre.in/cdn/shop/files/lauki.jpg?v=1707578281',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 80, p: 50, k: 60),
         growthStages: [
@@ -637,7 +637,7 @@ class CropApiService {
         name: 'Pumpkin',
         scientificName: 'Cucurbita pepo',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/FrenchMarketPumpkins.jpg/800px-FrenchMarketPumpkins.jpg',
+            'https://m.media-amazon.com/images/I/61xFCOu6W5L._AC_UF1000,1000_QL80_.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 80, p: 50, k: 60),
         growthStages: [
@@ -653,7 +653,7 @@ class CropApiService {
         name: 'Watermelon',
         scientificName: 'Citrullus lanatus',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_Watermelon_and_cross_section.jpg/800px-PNG_Watermelon_and_cross_section.jpg',
+            'https://hips.hearstapps.com/hmg-prod/images/fresh-ripe-watermelon-slices-on-wooden-table-royalty-free-image-1684966820.jpg?crop=0.88973xw:1xh;center,top&resize=1200:*',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 80, p: 50, k: 80),
         growthStages: [
@@ -669,7 +669,7 @@ class CropApiService {
         name: 'Muskmelon (Kharbooj)',
         scientificName: 'Cucumis melo',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Melon_cantaloupe.jpg/800px-Melon_cantaloupe.jpg',
+            'https://image.myupchar.com/1957/original/muskmelon-seeds-benefits-in-hindi.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 60, p: 40, k: 60),
         growthStages: [
@@ -685,7 +685,7 @@ class CropApiService {
         name: 'Garlic',
         scientificName: 'Allium sativum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Allium_sativum_Woodwill_1793.jpg/800px-Allium_sativum_Woodwill_1793.jpg',
+            'https://connect.healthkart.com/wp-content/uploads/2016/12/Banner-2021-05-05T174631.491.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 60, p: 40, k: 60),
         growthStages: [
@@ -701,7 +701,7 @@ class CropApiService {
         name: 'Spinach (Palak)',
         scientificName: 'Spinacia oleracea',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Spinacia_oleracea_Spinach_10240px.jpg/800px-Spinacia_oleracea_Spinach_10240px.jpg',
+            'https://nurserynisarga.in/wp-content/uploads/2021/10/elianna-friedman-4jpNPu7IW8k-unsplash.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 80, p: 40, k: 60),
         growthStages: ['Germination', 'Vegetative', 'Harvest'],
@@ -711,7 +711,7 @@ class CropApiService {
         name: 'Fenugreek (Methi)',
         scientificName: 'Trigonella foenum-graecum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Koeh-060.jpg/640px-Koeh-060.jpg',
+            'https://beejwala.com/cdn/shop/products/fenugreek-4_compressed.jpg?v=1653821518',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 20, p: 40, k: 20),
         growthStages: ['Germination', 'Vegetative', 'Flowering', 'Maturity'],
@@ -721,7 +721,7 @@ class CropApiService {
         name: 'Carrot',
         scientificName: 'Daucus carota',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Vegetable-Carrot-Bundle-wStalks.jpg/800px-Vegetable-Carrot-Bundle-wStalks.jpg',
+            'https://www.trustbasket.com/cdn/shop/articles/Carrot.jpg?v=1688378789',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 60, p: 40, k: 60),
         growthStages: [
@@ -736,7 +736,7 @@ class CropApiService {
         name: 'Radish (Mooli)',
         scientificName: 'Raphanus sativus',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Radish-andi-3.jpg/800px-Radish-andi-3.jpg',
+            'https://freshfarmse.com/wp-content/uploads/2025/09/360_F_221710872_T4XcHOJslwykFteHlgPBf8PXglkAwiyG.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 50, p: 30, k: 40),
         growthStages: [
@@ -753,7 +753,7 @@ class CropApiService {
         name: 'Mango',
         scientificName: 'Mangifera indica',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Mango_Mangifera_indica.jpg/800px-Mango_Mangifera_indica.jpg',
+            'https://www.biovie.fr/img/cms/histoire-origine-mangue.png',
         category: 'Fruit',
         nutrientRequirement: NPKRequirement(n: 100, p: 50, k: 100),
         growthStages: [
@@ -769,7 +769,7 @@ class CropApiService {
         name: 'Banana',
         scientificName: 'Musa paradisiaca',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/4/44/Banana_farm.jpg',
+            'https://zamaorganics.com/cdn/shop/files/banana1000_x_1000_px_1.png?v=1752738968',
         category: 'Fruit',
         nutrientRequirement: NPKRequirement(n: 200, p: 60, k: 300),
         growthStages: [
@@ -785,7 +785,7 @@ class CropApiService {
         name: 'Grapes',
         scientificName: 'Vitis vinifera',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/6/6c/Grapes_during_pigmentation_anthocyanins.jpg',
+            'https://www.apnikheti.com/upload/crops/1850idea99grapes.jpg',
         category: 'Fruit',
         nutrientRequirement: NPKRequirement(n: 100, p: 60, k: 120),
         growthStages: [
@@ -801,7 +801,7 @@ class CropApiService {
         name: 'Pomegranate',
         scientificName: 'Punica granatum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/3/30/Pomegranate_fruit_-_I.jpg',
+            'https://plantsguru.com/cdn/shop/files/Ripe-Pomegranate-Fruit-on-Tree-Branch.jpg?v=1755687567',
         category: 'Fruit',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 60),
         growthStages: [
@@ -817,7 +817,7 @@ class CropApiService {
         name: 'Orange (Nagpur)',
         scientificName: 'Citrus sinensis',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Orange-Whole-%26-Split.jpg/800px-Orange-Whole-%26-Split.jpg',
+            'https://m.media-amazon.com/images/I/51qFSdheDPL._AC_UF1000,1000_QL80_.jpg',
         category: 'Fruit',
         nutrientRequirement: NPKRequirement(n: 80, p: 40, k: 80),
         growthStages: [
@@ -832,7 +832,7 @@ class CropApiService {
         name: 'Papaya',
         scientificName: 'Carica papaya',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/1/10/Papaya1.jpg',
+            'https://andamangreengrocers.com/wp-content/uploads/2021/12/1639840955890-e1639848809306.jpg',
         category: 'Fruit',
         nutrientRequirement: NPKRequirement(n: 100, p: 50, k: 80),
         growthStages: [
@@ -848,7 +848,7 @@ class CropApiService {
         name: 'Guava',
         scientificName: 'Psidium guajava',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/3/30/Guava_ID.jpg',
+            'https://www.health.com/thmb/XlWTD8TZF5574DVtMEfD-XSj5Lg=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Guava-15d1050d22034909bfca038ef1f8aaa2.jpg',
         category: 'Fruit',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 60),
         growthStages: [
@@ -864,7 +864,7 @@ class CropApiService {
         name: 'Coconut',
         scientificName: 'Cocos nucifera',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/f/f2/Coconut_on_tree_02.jpg',
+            'https://images.squarespace-cdn.com/content/v1/5c1074accc8fed6a4251da8f/1632825358284-7LGGMHZO98Q9L3FWUSKC/Coconut+Tree',
         category: 'Fruit',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 120),
         growthStages: ['Seedling', 'Juvenile', 'Bearing', 'Full Production'],
@@ -874,7 +874,7 @@ class CropApiService {
         name: 'Custard Apple (Sitaphal)',
         scientificName: 'Annona squamosa',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/0/01/Custard_apple.jpg',
+            'https://m.media-amazon.com/images/I/71tsufOwH5L._AC_UF1000,1000_QL80_.jpg',
         category: 'Fruit',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 60),
         growthStages: [
@@ -890,7 +890,7 @@ class CropApiService {
         name: 'Lemon',
         scientificName: 'Citrus limon',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Lemon.jpg/800px-Lemon.jpg',
+            'https://cdn.britannica.com/84/188484-050-F27B0049/lemons-tree.jpg',
         category: 'Fruit',
         nutrientRequirement: NPKRequirement(n: 80, p: 40, k: 80),
         growthStages: [
@@ -906,7 +906,7 @@ class CropApiService {
         name: 'Strawberry',
         scientificName: 'Fragaria ananassa',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/2/29/PerfectStrawberry.jpg',
+            'https://im.pluckk.in/unsafe/1920x0/uploads/30300-2.png',
         category: 'Fruit',
         nutrientRequirement: NPKRequirement(n: 60, p: 40, k: 80),
         growthStages: [
@@ -922,7 +922,7 @@ class CropApiService {
         name: 'Fig (Anjeer)',
         scientificName: 'Ficus carica',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/c/cf/Ficus_carica_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-054.jpg',
+            'https://www.aishcart.in/4303/figs-anjeer-fruit-1kg.jpg',
         category: 'Fruit',
         nutrientRequirement: NPKRequirement(n: 60, p: 40, k: 60),
         growthStages: [
@@ -937,7 +937,7 @@ class CropApiService {
         name: 'Sweet Lime (Mosambi)',
         scientificName: 'Citrus limetta',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Orange-Whole-%26-Split.jpg/1024px-Orange-Whole-%26-Split.jpg',
+            'https://bhoomifresh.com/image/cache/catalog/Fruits/mosambis-600x367.jpg',
         category: 'Fruit',
         nutrientRequirement: NPKRequirement(n: 80, p: 40, k: 80),
         growthStages: ['Flowering', 'Fruit Set', 'Development', 'Maturity'],
@@ -947,7 +947,7 @@ class CropApiService {
         name: 'Jackfruit',
         scientificName: 'Artocarpus heterophyllus',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/6/6e/Jackfruit_Bangladesh.jpg',
+            'https://images.everydayhealth.com/images/diet-nutrition/jackfruit-101-1440x810.jpg?w=508',
         category: 'Fruit',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 60),
         growthStages: [
@@ -962,7 +962,7 @@ class CropApiService {
         name: 'Sapodilla (Chiku)',
         scientificName: 'Manilkara zapota',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/9/95/Sapodilla_fruit.jpg',
+            'https://nurserylive.com/cdn/shop/products/nurserylive-chikoo-sapota-chiku-fruit-grafted-plant.jpg?v=1634215991',
         category: 'Fruit',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 60),
         growthStages: [
@@ -979,7 +979,7 @@ class CropApiService {
         name: 'Turmeric (Haldi)',
         scientificName: 'Curcuma longa',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/2/27/Curcuma_longa_roots.jpg',
+            'https://dhanipurespices.com/wp-content/uploads/2022/10/Turmeric-Powder-and-Whole.jpeg',
         category: 'Spice',
         nutrientRequirement: NPKRequirement(n: 100, p: 50, k: 120),
         growthStages: [
@@ -995,7 +995,7 @@ class CropApiService {
         name: 'Ginger (Adrak)',
         scientificName: 'Zingiber officinale',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/4/44/Ginger_plant.jpg',
+            'https://m.media-amazon.com/images/I/71cKdUVK6cL._AC_UF1000,1000_QL80_.jpg',
         category: 'Spice',
         nutrientRequirement: NPKRequirement(n: 100, p: 50, k: 120),
         growthStages: [
@@ -1011,7 +1011,7 @@ class CropApiService {
         name: 'Coriander (Dhaniya)',
         scientificName: 'Coriandrum sativum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/d/d8/Coriander_%28Coriandrum_sativum%29.jpg',
+            'https://m.media-amazon.com/images/I/61x9Zv3gI7L._AC_UF1000,1000_QL80_.jpg',
         category: 'Spice',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 30),
         growthStages: [
@@ -1027,7 +1027,7 @@ class CropApiService {
         name: 'Cumin (Jeera)',
         scientificName: 'Cuminum cyminum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/8/82/Cumin_on_white.jpg',
+            'https://www.greendna.in/cdn/shop/products/cumin1_1000x.jpg?v=1561041488',
         category: 'Spice',
         nutrientRequirement: NPKRequirement(n: 40, p: 20, k: 20),
         growthStages: [
@@ -1043,7 +1043,7 @@ class CropApiService {
         name: 'Fennel (Saunf)',
         scientificName: 'Foeniculum vulgare',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/1/12/Fennel_seeds.jpg',
+            'https://www.puremart.in/images/products/thumbnails/533-fennel-saunf-500gms-1746611849.jpeg',
         category: 'Spice',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 30),
         growthStages: [
@@ -1059,7 +1059,7 @@ class CropApiService {
         name: 'Cardamom (Elaichi)',
         scientificName: 'Elettaria cardamomum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/a/a7/Elettaria_cardamomum2.jpg',
+            'https://www.agrifarming.in/wp-content/uploads/Ultimate-Guide-to-Cardamom-Elaichi-Farming-1.jpg',
         category: 'Spice',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 60),
         growthStages: [
@@ -1075,7 +1075,7 @@ class CropApiService {
         name: 'Pepper (Kali Mirch)',
         scientificName: 'Piper nigrum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/e/e3/Piper_nigrum_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-107.jpg',
+            'https://m.media-amazon.com/images/I/61bv6tKoW8L._AC_UF894,1000_QL80_.jpg',
         category: 'Spice',
         nutrientRequirement: NPKRequirement(n: 80, p: 40, k: 80),
         growthStages: [
@@ -1093,7 +1093,7 @@ class CropApiService {
         name: 'Tea',
         scientificName: 'Camellia sinensis',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/4/44/Tea_garden_in_Munnar.jpg',
+            'https://m.media-amazon.com/images/I/71Pw4pgd69L.jpg',
         category: 'Plantation',
         nutrientRequirement: NPKRequirement(n: 100, p: 50, k: 50),
         growthStages: ['Planting', 'Nursery', 'Young', 'Mature', 'Plucking'],
@@ -1103,7 +1103,7 @@ class CropApiService {
         name: 'Coffee',
         scientificName: 'Coffea arabica',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/c/cf/Coffee_beans_-_by_Abdulaziz_Almuzaini.jpg',
+            'https://www.aboutcoffee.org/wp-content/uploads/2024/10/ripe-coffee-cherries-on-branch-of-coffee-tree-1024x576.jpg',
         category: 'Plantation',
         nutrientRequirement: NPKRequirement(n: 100, p: 50, k: 80),
         growthStages: [
@@ -1118,7 +1118,7 @@ class CropApiService {
         name: 'Rubber',
         scientificName: 'Hevea brasiliensis',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/7/76/Hevea_brasiliensis8.jpg',
+            'https://www.rainforest-alliance.org/wp-content/uploads/2021/06/rubber-tree-tapping-square-1.jpg.optimal.jpg',
         category: 'Plantation',
         nutrientRequirement: NPKRequirement(n: 100, p: 50, k: 80),
         growthStages: ['Nursery', 'Immature', 'Mature', 'Tapping'],
@@ -1130,7 +1130,7 @@ class CropApiService {
         name: 'Sweet Potato',
         scientificName: 'Ipomoea batatas',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/5/58/Ipomoea_batatas_006.jpg',
+            'https://foodcare.in/cdn/shop/files/sweetpotato.jpg?v=1768271500',
         category: 'Tuber',
         nutrientRequirement: NPKRequirement(n: 80, p: 50, k: 100),
         growthStages: [
@@ -1145,7 +1145,7 @@ class CropApiService {
         name: 'Tapioca (Cassava)',
         scientificName: 'Manihot esculenta',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/d/d5/Manihot_esculenta_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-088.jpg',
+            'https://www.shutterstock.com/image-photo/tapioca-plants-cassava-closeup-useful-600w-83105608.jpg',
         category: 'Tuber',
         nutrientRequirement: NPKRequirement(n: 60, p: 40, k: 80),
         growthStages: [
@@ -1160,7 +1160,7 @@ class CropApiService {
         name: 'Colocasia (Arbi)',
         scientificName: 'Colocasia esculenta',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/6/6b/Colocasia_esculenta_leaf.jpg',
+            'https://www.jiomart.com/images/product/original/590004128/arbi-colocasia-small-250-g-product-images-o590004128-p590004128-0-202408070949.jpg?im=Resize=(1000,1000)',
         category: 'Tuber',
         nutrientRequirement: NPKRequirement(n: 60, p: 40, k: 60),
         growthStages: [
@@ -1177,7 +1177,7 @@ class CropApiService {
         name: 'Lucerne (Alfalfa)',
         scientificName: 'Medicago sativa',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Alfalfa_Medicago_sativa_Flowering.jpg/800px-Alfalfa_Medicago_sativa_Flowering.jpg',
+            'https://nurserylive.com/cdn/shop/products/nurserylive-seeds-alfalfa-lucerne-seeds_300x@2x.jpg?v=1634212997',
         category: 'Fodder',
         nutrientRequirement: NPKRequirement(n: 20, p: 60, k: 40),
         growthStages: [
@@ -1193,7 +1193,7 @@ class CropApiService {
         name: 'Berseem Clover',
         scientificName: 'Trifolium alexandrinum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/7/74/Trifolium_alexandrinum_kz.jpg',
+            'https://growhoss.com/cdn/shop/products/frosty-berseem-clover_460x@2x.jpg?v=1691781056',
         category: 'Fodder',
         nutrientRequirement: NPKRequirement(n: 20, p: 40, k: 30),
         growthStages: ['Germination', 'Vegetative', 'Cutting'],
@@ -1203,7 +1203,7 @@ class CropApiService {
         name: 'Napier Grass',
         scientificName: 'Pennisetum purpureum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Napier_grass_%28Pennisetum_purpureum%29_-_geograph.org.uk_-_1148699.jpg/800px-Napier_grass_%28Pennisetum_purpureum%29_-_geograph.org.uk_-_1148699.jpg',
+            'https://khetkidawai.com/wp-content/uploads/2023/09/super-napier-grass-1.webp',
         category: 'Fodder',
         nutrientRequirement: NPKRequirement(n: 100, p: 40, k: 60),
         growthStages: ['Planting', 'Establishment', 'Vegetative', 'Cutting'],
@@ -1215,7 +1215,7 @@ class CropApiService {
         name: 'Marigold',
         scientificName: 'Tagetes erecta',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/0/0e/Marigold18.jpg',
+            'https://gardenerspath.com/wp-content/uploads/2024/03/How-to-Grow-Marigolds-Feature.jpg',
         category: 'Flower',
         nutrientRequirement: NPKRequirement(n: 60, p: 40, k: 40),
         growthStages: ['Seedling', 'Vegetative', 'Bud', 'Flowering', 'Harvest'],
@@ -1225,7 +1225,7 @@ class CropApiService {
         name: 'Rose',
         scientificName: 'Rosa hybrida',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Rosa_rugosa_1_Luc_Viatour.jpg/800px-Rosa_rugosa_1_Luc_Viatour.jpg',
+            'https://i.pinimg.com/736x/7f/f3/3f/7ff33fae1896f12a779a5640f7c8d232.jpg',
         category: 'Flower',
         nutrientRequirement: NPKRequirement(n: 80, p: 50, k: 60),
         growthStages: [
@@ -1241,7 +1241,7 @@ class CropApiService {
         name: 'Jasmine (Mogra)',
         scientificName: 'Jasminum sambac',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/7/7f/Jasminum_sambac_%281%29.jpg',
+            'https://m.media-amazon.com/images/I/61xreWtQL6L._AC_UF1000,1000_QL80_.jpg',
         category: 'Flower',
         nutrientRequirement: NPKRequirement(n: 60, p: 40, k: 60),
         growthStages: [
@@ -1257,7 +1257,7 @@ class CropApiService {
         name: 'Chrysanthemum',
         scientificName: 'Chrysanthemum indicum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/d/d8/Chrysanthemum1.jpg',
+            'https://www.padmamnursery.com/cdn/shop/files/growing-chrysanthemum-02-_1.jpg?v=1728318433',
         category: 'Flower',
         nutrientRequirement: NPKRequirement(n: 80, p: 50, k: 60),
         growthStages: [
@@ -1273,7 +1273,7 @@ class CropApiService {
         name: 'Tuberose (Rajnigandha)',
         scientificName: 'Polianthes tuberosa',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Polianthes_tuberosa_Hdh.jpg/800px-Polianthes_tuberosa_Hdh.jpg',
+            'https://www.hugaplant.com/cdn/shop/files/MAIN_5cf6c879-c583-49b1-87fd-225d90c04bfc.png?v=1694176650',
         category: 'Flower',
         nutrientRequirement: NPKRequirement(n: 80, p: 50, k: 60),
         growthStages: [
@@ -1291,7 +1291,7 @@ class CropApiService {
         name: 'French Beans',
         scientificName: 'Phaseolus vulgaris',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/9/90/Cowpea.jpg',
+            'https://creativefarmer.in/cdn/shop/products/601.png?v=1616235759',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 60, p: 50, k: 40),
         growthStages: [
@@ -1307,7 +1307,7 @@ class CropApiService {
         name: 'Peas (Matar)',
         scientificName: 'Pisum sativum',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/a/a1/Peas_in_pods_-_Studio.jpg',
+            'https://plantogallery.com/cdn/shop/files/greenpea.jpg?v=1754119747',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 20, p: 50, k: 40),
         growthStages: [
@@ -1323,7 +1323,7 @@ class CropApiService {
         name: 'Beetroot',
         scientificName: 'Beta vulgaris',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/3/37/Beetroot.jpg',
+            'https://www.seedparade.co.uk/news/wp-content/uploads/2023/08/beetroot-boltardy.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 60, p: 40, k: 60),
         growthStages: [
@@ -1338,7 +1338,7 @@ class CropApiService {
         name: 'Turnip (Shalgam)',
         scientificName: 'Brassica napus',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/4/4a/Radish-andi-3.jpg',
+            'https://www.trustbasket.com/cdn/shop/articles/Turnip.webp?v=1679656480',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 60, p: 40, k: 40),
         growthStages: [
@@ -1353,7 +1353,7 @@ class CropApiService {
         name: 'Drumstick (Moringa)',
         scientificName: 'Moringa oleifera',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/e/e4/Moringa_oleifera_fruits.jpg',
+            'https://organicbazar.net/cdn/shop/products/Untitled-design-2022-06-05T111342.081.jpg?v=1771571732&width=1445',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 40),
         growthStages: [
@@ -1369,7 +1369,7 @@ class CropApiService {
         name: 'Snake Gourd',
         scientificName: 'Trichosanthes cucumerina',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Trichosanthes_cucumerina_-_Snake_Gourd.jpg/800px-Trichosanthes_cucumerina_-_Snake_Gourd.jpg',
+            'https://satvafarm.com/cdn/shop/files/snakegourd_65a7734d-87eb-4a02-a8fd-a6946e1f0535.jpg?v=1737359125',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 60, p: 40, k: 50),
         growthStages: ['Germination', 'Vegetative', 'Flowering', 'Maturity'],
@@ -1379,7 +1379,7 @@ class CropApiService {
         name: 'Sponge Gourd (Turai)',
         scientificName: 'Luffa cylindrica',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Luffa_cylindrica_Blanco1.63.jpg/800px-Luffa_cylindrica_Blanco1.63.jpg',
+            'https://m.media-amazon.com/images/I/51+-z6eG+BL._AC_UF1000,1000_QL80_.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 60, p: 40, k: 50),
         growthStages: ['Germination', 'Vegetative', 'Flowering', 'Harvest'],
@@ -1389,7 +1389,7 @@ class CropApiService {
         name: 'Ridge Gourd (Torai)',
         scientificName: 'Luffa acutangula',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Ridged_Loofah_in_India.jpg/800px-Ridged_Loofah_in_India.jpg',
+            'https://m.media-amazon.com/images/I/61N65aFfSPL._AC_UF1000,1000_QL80_.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 60, p: 40, k: 50),
         growthStages: ['Germination', 'Vegetative', 'Flowering', 'Harvest'],
@@ -1399,7 +1399,7 @@ class CropApiService {
         name: 'Lettuce',
         scientificName: 'Lactuca sativa',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/7/7e/Lettuce_x320.jpg',
+            'https://media.newyorker.com/photos/5b6b08d3a676470b4ea9b91f/1:1/w_1748,h_1748,c_limit/Rosner-Lettuce.jpg',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 60, p: 40, k: 40),
         growthStages: ['Germination', 'Rosette', 'Heading', 'Harvest'],
@@ -1409,7 +1409,7 @@ class CropApiService {
         name: 'Sweet Corn',
         scientificName: 'Zea mays saccharata',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Maize_ear_closeup.jpg/1200px-Maize_ear_closeup.jpg',
+            'https://lh5.googleusercontent.com/proxy/GbS8Sytqrirx0cVt9MZ0HQSVIGsQzbMk_XlBZf4flasKXCroXph2WEwbwaL299pz9KeKdA4nT4Ns1tpZSNzTdYH3pGiJubqiQTlqNcYRO5zuvK3pK3DA8q09_nnvl1oqyd0Ayn1N_lVTD0PvM1fn1pEsxAeNJQ',
         category: 'Vegetable',
         nutrientRequirement: NPKRequirement(n: 120, p: 60, k: 60),
         growthStages: [
@@ -1459,7 +1459,7 @@ class CropApiService {
         name: 'Avocado',
         scientificName: 'Persea americana',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/1/1f/Avocado_halved.jpg',
+            'https://cdn.britannica.com/72/170772-050-D52BF8C2/Avocado-fruits.jpg',
         category: 'Fruit',
         nutrientRequirement: NPKRequirement(n: 80, p: 40, k: 80),
         growthStages: [
@@ -1477,7 +1477,7 @@ class CropApiService {
         name: 'Aloe Vera',
         scientificName: 'Aloe barbadensis',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/4/4b/Aloe_vera_flower_inset.png',
+            'https://thealtitudestore.com/cdn/shop/files/Aloe-Vera-Aloe-barbadensis-_miller_-2-Gallon_7_1080x_ebe5e737-c509-4af5-bd01-3893727bbfbb.webp?v=1748240155',
         category: 'Medicinal',
         nutrientRequirement: NPKRequirement(n: 40, p: 20, k: 40),
         growthStages: ['Planting', 'Establishment', 'Vegetative', 'Harvest'],
@@ -1487,7 +1487,7 @@ class CropApiService {
         name: 'Stevia',
         scientificName: 'Stevia rebaudiana',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/d/d8/Stevia_rebaudiana.JPG',
+            'https://www.apnikheti.com/upload/crops/7365idea99STEVIA.jpg',
         category: 'Medicinal',
         nutrientRequirement: NPKRequirement(n: 60, p: 30, k: 40),
         growthStages: ['Planting', 'Vegetative', 'Flowering', 'Harvest'],
@@ -1497,7 +1497,7 @@ class CropApiService {
         name: 'Ashwagandha',
         scientificName: 'Withania somnifera',
         imageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Withania_somnifera.jpg/800px-Withania_somnifera.jpg',
+            'https://www.dhanvantariarogya.com/uploads/2/2025-07/ashwagandha_1.jpg',
         category: 'Medicinal',
         nutrientRequirement: NPKRequirement(n: 40, p: 20, k: 30),
         growthStages: ['Germination', 'Vegetative', 'Flowering', 'Maturity'],

@@ -8,6 +8,7 @@ class Fertilizer {
   final String description;
   final String suitableCrops;
   final String recommendedDosage;
+  final String manufacturer;
 
   Fertilizer({
     required this.id,
@@ -19,6 +20,7 @@ class Fertilizer {
     required this.description,
     required this.suitableCrops,
     required this.recommendedDosage,
+    this.manufacturer = '',
   });
 
   factory Fertilizer.fromMap(Map<String, dynamic> data, String id) {
@@ -72,6 +74,7 @@ class Fertilizer {
       suitableCrops: data['suitable_crops']?.toString() ?? 'All Crops',
       recommendedDosage:
           data['recommended_dosage']?.toString() ?? 'As per soil test',
+      manufacturer: data['manufacturer']?.toString() ?? data['brand']?.toString() ?? '',
     );
   }
 }

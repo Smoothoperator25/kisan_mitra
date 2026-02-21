@@ -25,6 +25,10 @@ class AdvisoryController with ChangeNotifier {
 
   // Soil Inputs
   String selectedSoilType = 'Loamy';
+  double? nitrogen;
+  double? phosphorus;
+  double? potassium;
+  double? ph;
 
   // Crop Issues
   List<String> selectedIssues = [];
@@ -75,7 +79,13 @@ class AdvisoryController with ChangeNotifier {
         growthStage: selectedGrowthStage,
         fieldSize: fieldSize,
         isHectares: isHectares,
-        soilData: SoilData(soilType: selectedSoilType),
+        soilData: SoilData(
+          soilType: selectedSoilType,
+          nitrogen: nitrogen,
+          phosphorus: phosphorus,
+          potassium: potassium,
+          ph: ph,
+        ),
         weatherData: currentWeather,
         cropIssues: selectedIssues,
         location: "Current Location",
@@ -108,6 +118,26 @@ class AdvisoryController with ChangeNotifier {
 
   void setSoilType(String type) {
     selectedSoilType = type;
+    notifyListeners();
+  }
+
+  void setNitrogen(double? value) {
+    nitrogen = value;
+    notifyListeners();
+  }
+
+  void setPhosphorus(double? value) {
+    phosphorus = value;
+    notifyListeners();
+  }
+
+  void setPotassium(double? value) {
+    potassium = value;
+    notifyListeners();
+  }
+
+  void setPh(double? value) {
+    ph = value;
     notifyListeners();
   }
 

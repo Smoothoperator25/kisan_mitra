@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../core/constants/app_constants.dart';
 import 'store_profile_controller.dart';
 import 'store_profile_model.dart';
@@ -58,12 +59,20 @@ class _StoreProfileContentState extends State<_StoreProfileContent> {
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+              child: Text(
+                AppLocalizations.of(
+                  context,
+                ).errorPrefix(snapshot.error.toString()),
+              ),
+            );
           }
 
           final profile = snapshot.data;
           if (profile == null) {
-            return const Center(child: Text('Profile not found'));
+            return Center(
+              child: Text(AppLocalizations.of(context).profileNotFound),
+            );
           }
 
           return SafeArea(
@@ -75,8 +84,8 @@ class _StoreProfileContentState extends State<_StoreProfileContent> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Store Profile',
+                      Text(
+                        AppLocalizations.of(context).storeProfile,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -96,15 +105,21 @@ class _StoreProfileContentState extends State<_StoreProfileContent> {
                               await controller.updateStoreStatistics();
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Statistics updated!'),
-                                    backgroundColor: Color(0xFF27AE60),
-                                    duration: Duration(seconds: 2),
+                                  SnackBar(
+                                    content: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      ).statisticsUpdated,
+                                    ),
+                                    backgroundColor: const Color(0xFF27AE60),
+                                    duration: const Duration(seconds: 2),
                                   ),
                                 );
                               }
                             },
-                            tooltip: 'Refresh Statistics',
+                            tooltip: AppLocalizations.of(
+                              context,
+                            ).refreshStatistics,
                           ),
                           IconButton(
                             icon: Icon(
@@ -128,7 +143,7 @@ class _StoreProfileContentState extends State<_StoreProfileContent> {
                                 ),
                               );
                             },
-                            tooltip: 'Edit Profile',
+                            tooltip: AppLocalizations.of(context).edit,
                           ),
                         ],
                       ),
@@ -283,16 +298,22 @@ class _StoreProfileContentState extends State<_StoreProfileContent> {
           Expanded(
             child: _buildStatCard(
               profile.totalFertilizers.toString(),
-              'FERTILIZERS\nLISTED',
+              AppLocalizations.of(context).fertilizersListed,
             ),
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: _buildStatCard(profile.formattedStock, 'ACTIVE\nSTOCK'),
+            child: _buildStatCard(
+              profile.formattedStock,
+              AppLocalizations.of(context).activeStock,
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: _buildStatCard(profile.formattedViews, 'FARMER\nVIEWS'),
+            child: _buildStatCard(
+              profile.formattedViews,
+              AppLocalizations.of(context).farmerViews,
+            ),
           ),
         ],
       ),
@@ -369,21 +390,43 @@ class _StoreProfileContentState extends State<_StoreProfileContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildDetailItem('STORE NAME', profile.storeName),
+          _buildDetailItem(
+            AppLocalizations.of(context).storeName.toUpperCase(),
+            profile.storeName,
+          ),
           const SizedBox(height: 16),
-          _buildDetailItem('OWNER NAME', profile.ownerName),
+          _buildDetailItem(
+            AppLocalizations.of(context).ownerName.toUpperCase(),
+            profile.ownerName,
+          ),
           const SizedBox(height: 16),
           Row(
             children: [
-              Expanded(child: _buildDetailItem('CONTACT', profile.phone)),
+              Expanded(
+                child: _buildDetailItem(
+                  AppLocalizations.of(context).mobileNumber.toUpperCase(),
+                  profile.phone,
+                ),
+              ),
               const SizedBox(width: 16),
-              Expanded(child: _buildDetailItem('EMAIL', profile.email)),
+              Expanded(
+                child: _buildDetailItem(
+                  AppLocalizations.of(context).email.toUpperCase(),
+                  profile.email,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          _buildDetailItem('ADDRESS', profile.address),
+          _buildDetailItem(
+            AppLocalizations.of(context).storeAddress.toUpperCase(),
+            profile.address,
+          ),
           const SizedBox(height: 16),
-          _buildDetailItem('COORDINATES', profile.coordinates),
+          _buildDetailItem(
+            AppLocalizations.of(context).coordinates.toUpperCase(),
+            profile.coordinates,
+          ),
         ],
       ),
     );
@@ -437,7 +480,7 @@ class _StoreProfileContentState extends State<_StoreProfileContent> {
           _buildMenuItem(
             context,
             icon: Icons.edit_outlined,
-            title: 'Edit Store Details',
+            title: AppLocalizations.of(context).editStoreDetails,
             onTap: () async {
               // Get the controller from context before navigation
               final controller = context.read<StoreProfileController>();
@@ -457,7 +500,7 @@ class _StoreProfileContentState extends State<_StoreProfileContent> {
           _buildMenuItem(
             context,
             icon: Icons.lock_outline,
-            title: 'Change Password',
+            title: AppLocalizations.of(context).changePassword,
             onTap: () {
               Navigator.push(
                 context,
@@ -471,7 +514,7 @@ class _StoreProfileContentState extends State<_StoreProfileContent> {
           _buildMenuItem(
             context,
             icon: Icons.help_outline,
-            title: 'Help & Support',
+            title: AppLocalizations.of(context).helpSupport,
             onTap: () {
               Navigator.push(
                 context,
@@ -485,7 +528,7 @@ class _StoreProfileContentState extends State<_StoreProfileContent> {
           _buildMenuItem(
             context,
             icon: Icons.description_outlined,
-            title: 'Terms & Policies',
+            title: AppLocalizations.of(context).termsOfService,
             onTap: () {
               Navigator.push(
                 context,
@@ -555,9 +598,9 @@ class _StoreProfileContentState extends State<_StoreProfileContent> {
           children: [
             const Icon(Icons.logout, size: 20),
             const SizedBox(width: 8),
-            const Text(
-              'Logout',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            Text(
+              AppLocalizations.of(context).logout,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -573,12 +616,12 @@ class _StoreProfileContentState extends State<_StoreProfileContent> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Confirm Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text(AppLocalizations.of(context).confirmLogout),
+        content: Text(AppLocalizations.of(context).logoutConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context).cancel),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -599,7 +642,7 @@ class _StoreProfileContentState extends State<_StoreProfileContent> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: const Text('Logout'),
+            child: Text(AppLocalizations.of(context).logout),
           ),
         ],
       ),

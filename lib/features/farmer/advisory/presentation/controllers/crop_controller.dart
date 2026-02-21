@@ -11,12 +11,18 @@ class CropController extends ChangeNotifier {
   bool _isLoading = false;
   String _errorMessage = '';
   Crop? _selectedCrop;
+  bool _showAllCrops = false;
+
+  // Constants
+  static const int INITIAL_CROPS_LIMIT = 10;
 
   // Getters
   List<Crop> get crops => _filteredCrops;
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
   Crop? get selectedCrop => _selectedCrop;
+  bool get showAllCrops => _showAllCrops;
+  List<Crop> get allCrops => _allCrops;
 
   // Constructor
   CropController() {
@@ -31,13 +37,29 @@ class CropController extends ChangeNotifier {
 
     try {
       _allCrops = await _repository.getCrops();
-      _filteredCrops = List.from(_allCrops);
+      _updateFilteredCrops();
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  // Update filtered crops based on showAllCrops flag
+  void _updateFilteredCrops() {
+    if (_showAllCrops) {
+      _filteredCrops = List.from(_allCrops);
+    } else {
+      _filteredCrops = _allCrops.take(INITIAL_CROPS_LIMIT).toList();
+    }
+  }
+
+  // Toggle view all crops
+  void toggleViewAllCrops() {
+    _showAllCrops = !_showAllCrops;
+    _updateFilteredCrops();
+    notifyListeners();
   }
 
   // Select a crop

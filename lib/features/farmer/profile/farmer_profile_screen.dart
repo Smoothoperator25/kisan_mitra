@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../l10n/app_localizations.dart';
 import 'profile_controller.dart';
 import 'edit_profile_screen.dart';
 import 'language_screen.dart';
@@ -64,9 +65,9 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2D6A4F),
                     ),
-                    child: const Text(
-                      'Retry',
-                      style: TextStyle(color: Colors.white),
+                    child: Text(
+                      AppLocalizations.of(context).retry,
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
                 ],
@@ -127,19 +128,23 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                                 onPressed: () {
                                   controller.initialize();
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Refreshing profile...'),
-                                      duration: Duration(seconds: 1),
-                                      backgroundColor: Color(0xFF2D6A4F),
+                                    SnackBar(
+                                      content: Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        ).refreshingProfile,
+                                      ),
+                                      duration: const Duration(seconds: 1),
+                                      backgroundColor: const Color(0xFF2D6A4F),
                                     ),
                                   );
                                 },
                               ),
                             ),
 
-                            const Text(
-                              'My Profile',
-                              style: TextStyle(
+                            Text(
+                              AppLocalizations.of(context).myProfile,
+                              style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -316,7 +321,7 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                             Expanded(
                               child: _buildStatCard(
                                 '${activity?.searchCount ?? 0}',
-                                'Searched',
+                                AppLocalizations.of(context).searched,
                                 icon: Icons.search,
                                 color: const Color(
                                   0xFFEFFBF3,
@@ -329,7 +334,7 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                             Expanded(
                               child: _buildStatCard(
                                 '${activity?.advisoryCount ?? 0}',
-                                'Advisory',
+                                AppLocalizations.of(context).advisory,
                                 icon: Icons.psychology_alt,
                                 color: const Color(0xFFE8F5E9),
                                 accentColor: const Color(0xFF1B5E20),
@@ -340,18 +345,20 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                             Expanded(
                               child: _buildStatCard(
                                 '${activity?.visitedStoresCount ?? 0}',
-                                'Visits',
+                                AppLocalizations.of(context).visits,
                                 icon: Icons.storefront,
                                 color: const Color(0xFFF1F8E9),
                                 accentColor: const Color(0xFF33691E),
                                 onTap: () {
                                   widget.onNavigateToTab?.call(1);
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
                                       content: Text(
-                                        'See nearby stores in Search tab',
+                                        AppLocalizations.of(
+                                          context,
+                                        ).seeNearbyStores,
                                       ),
-                                      duration: Duration(seconds: 2),
+                                      duration: const Duration(seconds: 2),
                                     ),
                                   );
                                 },
@@ -373,17 +380,18 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
 
                         // Settings Group
                         _buildSettingsGroup(
-                          title: "APP SETTINGS",
+                          title: AppLocalizations.of(context).appSettings,
                           children: [
                             _buildSettingsItem(
                               icon: Icons.language,
-                              title: 'Language',
+                              title: AppLocalizations.of(context).language,
                               trailing: 'English',
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const LanguageScreen(),
+                                    builder: (context) =>
+                                        const LanguageScreen(),
                                   ),
                                 );
                               },
@@ -392,12 +400,13 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                             const Divider(height: 1, indent: 56),
                             _buildSettingsItem(
                               icon: Icons.notifications_none_rounded,
-                              title: 'Notifications',
+                              title: AppLocalizations.of(context).notifications,
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const NotificationsScreen(),
+                                    builder: (context) =>
+                                        const NotificationsScreen(),
                                   ),
                                 );
                               },
@@ -405,12 +414,13 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                             const Divider(height: 1, indent: 56),
                             _buildSettingsItem(
                               icon: Icons.help_outline_rounded,
-                              title: 'Help & Support',
+                              title: AppLocalizations.of(context).helpSupport,
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const HelpSupportScreen(),
+                                    builder: (context) =>
+                                        const HelpSupportScreen(),
                                   ),
                                 );
                               },
@@ -418,12 +428,13 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                             const Divider(height: 1, indent: 56),
                             _buildSettingsItem(
                               icon: Icons.info_outline_rounded,
-                              title: 'About App',
+                              title: AppLocalizations.of(context).aboutApp,
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const AboutAppScreen(),
+                                    builder: (context) =>
+                                        const AboutAppScreen(),
                                   ),
                                 );
                               },
@@ -436,29 +447,29 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
 
                         // Personal Details Group
                         _buildSettingsGroup(
-                          title: "PERSONAL DETAILS",
+                          title: AppLocalizations.of(context).personalDetails,
                           children: [
                             _buildDetailRow(
                               Icons.person_outline,
-                              "Full Name",
+                              AppLocalizations.of(context).fullName,
                               profile?.name ?? "",
                             ),
                             const Divider(height: 1, indent: 56),
                             _buildDetailRow(
                               Icons.email_outlined,
-                              "Email",
+                              AppLocalizations.of(context).email,
                               profile?.email ?? "",
                             ),
                             const Divider(height: 1, indent: 56),
                             _buildDetailRow(
                               Icons.location_city,
-                              "State",
+                              AppLocalizations.of(context).state,
                               profile?.state ?? "",
                             ),
                             const Divider(height: 1, indent: 56),
                             _buildDetailRow(
                               Icons.map_outlined,
-                              "Village",
+                              AppLocalizations.of(context).village,
                               profile?.village ?? "",
                               isLast: true,
                             ),
@@ -479,7 +490,7 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                                 icon: Container(
                                   padding: const EdgeInsets.all(6),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.2),
+                                    color: Colors.white.withOpacity(0.2),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: const Icon(
@@ -488,9 +499,9 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                                     color: Colors.white,
                                   ),
                                 ),
-                                label: const Text(
-                                  "Change Password",
-                                  style: TextStyle(
+                                label: Text(
+                                  AppLocalizations.of(context).changePassword,
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -526,9 +537,9 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
                                     color: Color(0xFFC62828),
                                   ),
                                 ),
-                                label: const Text(
-                                  "Logout",
-                                  style: TextStyle(
+                                label: Text(
+                                  AppLocalizations.of(context).logout,
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -804,10 +815,7 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
   }
 
   // Change password
-  void _changePassword(
-    BuildContext context,
-    ProfileController controller,
-  ) {
+  void _changePassword(BuildContext context, ProfileController controller) {
     // Navigate to Change Password screen
     Navigator.push(
       context,
@@ -826,9 +834,7 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
             Container(
@@ -844,20 +850,17 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
               ),
             ),
             const SizedBox(width: 12),
-            const Text(
-              'Logout',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+            Text(
+              AppLocalizations.of(context).logout,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],
         ),
-        content: const Padding(
-          padding: EdgeInsets.only(top: 8),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 8),
           child: Text(
-            'Are you sure you want to logout from your account?',
-            style: TextStyle(fontSize: 15),
+            AppLocalizations.of(context).logoutConfirm,
+            style: const TextStyle(fontSize: 15),
           ),
         ),
         actions: [
@@ -865,14 +868,11 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
             onPressed: () => Navigator.pop(context, false),
             style: TextButton.styleFrom(
               foregroundColor: Colors.grey.shade700,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 12,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            child: Text(
+              AppLocalizations.of(context).cancel,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
             ),
           ),
           ElevatedButton(
@@ -880,17 +880,14 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFC62828),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 12,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: const Text(
-              'Logout',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            child: Text(
+              AppLocalizations.of(context).logout,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -902,18 +899,16 @@ class _FarmerProfileScreenState extends State<FarmerProfileScreen> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const Center(
+        builder: (context) => Center(
           child: Card(
             child: Padding(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(
-                    color: Color(0xFF2E7D32),
-                  ),
-                  SizedBox(height: 16),
-                  Text('Logging out...'),
+                  const CircularProgressIndicator(color: Color(0xFF2E7D32)),
+                  const SizedBox(height: 16),
+                  Text(AppLocalizations.of(context).pleaseWait),
                 ],
               ),
             ),

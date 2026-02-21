@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/localization/locale_provider.dart';
+import '../../core/localization/language_model.dart';
+import 'package:kisan_mitra/l10n/app_localizations.dart';
 
 class RoleSelectionScreen extends StatefulWidget {
   const RoleSelectionScreen({super.key});
@@ -12,11 +16,128 @@ class RoleSelectionScreen extends StatefulWidget {
 class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
   bool _isDarkMode = false;
 
+  /// Opens a modal bottom sheet for language selection
+  void _showLanguageSelector() {
+    final localeProvider = context.read<LocaleProvider>();
+    final currentCode = localeProvider.currentLanguageCode;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle bar
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              // Title
+              Text(
+                AppLocalizations.of(context).selectLanguage,
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF1B5E20),
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Language list
+              ...LanguageModel.supportedLanguages.map((lang) {
+                final isSelected = lang.code == currentCode;
+                return InkWell(
+                  onTap: () {
+                    localeProvider.setLocaleByCode(lang.code);
+                    Navigator.pop(ctx);
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? const Color(0xFFE8F5E9)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected
+                            ? const Color(0xFF2E7D32)
+                            : Colors.grey.shade200,
+                        width: isSelected ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(lang.flag, style: const TextStyle(fontSize: 24)),
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              lang.nativeName,
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                fontWeight: isSelected
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                                color: isSelected
+                                    ? const Color(0xFF2E7D32)
+                                    : const Color(0xFF212121),
+                              ),
+                            ),
+                            Text(
+                              lang.name,
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        if (isSelected)
+                          const Icon(
+                            Icons.check_circle_rounded,
+                            color: Color(0xFF2E7D32),
+                            size: 22,
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final localeProvider = context.watch<LocaleProvider>();
+    final currentLang = LanguageModel.fromCode(
+      localeProvider.currentLanguageCode,
+    );
+
     final backgroundColor = _isDarkMode
         ? const Color(0xFF1B5E20)
-        : const Color(0xFFD5E8D4); // Light mint green
+        : const Color(0xFFD5E8D4);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -46,7 +167,6 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Circular border
                       Container(
                         width: 95,
                         height: 95,
@@ -58,13 +178,11 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                           ),
                         ),
                       ),
-                      // Tractor icon
                       const Icon(
                         Icons.agriculture,
                         size: 45,
                         color: Color(0xFF2E7D32),
                       ),
-                      // Location pin
                       Positioned(
                         bottom: 25,
                         child: Container(
@@ -88,7 +206,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
 
                 // App Name
                 Text(
-                  'Kisan Mitra',
+                  l10n.appName,
                   style: GoogleFonts.poppins(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -100,7 +218,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
 
                 // Tagline
                 Text(
-                  '"BEEJ SE BAZAR TAK"',
+                  l10n.appTagline,
                   style: GoogleFonts.poppins(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -109,11 +227,64 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
+
+                // ── Language Selector ──────────────────────────────────
+                GestureDetector(
+                  onTap: _showLanguageSelector,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color(0xFF2E7D32).withValues(alpha: 0.4),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          currentLang.flag,
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          currentLang.nativeName,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF2E7D32),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        const Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: Color(0xFF2E7D32),
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ──────────────────────────────────────────────────────
+                const SizedBox(height: 20),
 
                 // Welcome Back
                 Text(
-                  'Welcome Back',
+                  l10n.welcomeBack,
                   style: GoogleFonts.poppins(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -125,7 +296,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
 
                 // Subtitle
                 Text(
-                  'Select your role to continue',
+                  l10n.selectRoleSubtitle,
                   style: GoogleFonts.poppins(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
@@ -139,10 +310,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                 _RoleCard(
                   icon: Icons.person_search,
                   iconColor: const Color(0xFF2E7D32),
-                  title: 'Farmer',
-                  subtitle: 'Search fertilizers and find stores',
+                  title: l10n.farmer,
+                  subtitle: l10n.farmerSubtitle,
                   onTap: () {
-                    // Navigate to Farmer Login
                     Navigator.pushNamed(context, AppConstants.farmerLoginRoute);
                   },
                 ),
@@ -153,10 +323,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                 _RoleCard(
                   icon: Icons.store,
                   iconColor: const Color(0xFF2E7D32),
-                  title: 'Store Owner',
-                  subtitle: 'Manage inventory and prices',
+                  title: l10n.storeOwner,
+                  subtitle: l10n.storeOwnerSubtitle,
                   onTap: () {
-                    // Navigate to Store Login
                     Navigator.pushNamed(context, AppConstants.storeLoginRoute);
                   },
                 ),
@@ -167,10 +336,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                 _RoleCard(
                   icon: Icons.admin_panel_settings,
                   iconColor: const Color(0xFF2E7D32),
-                  title: 'Admin',
-                  subtitle: 'Verify stores and manage system',
+                  title: l10n.admin,
+                  subtitle: l10n.adminSubtitle,
                   onTap: () {
-                    // Navigate to Admin Login
                     Navigator.pushNamed(context, AppConstants.adminLoginRoute);
                   },
                 ),
@@ -182,24 +350,21 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Need help? ',
+                      l10n.needHelp,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: const Color(0xFF5F7D63),
                       ),
                     ),
                     TextButton(
-                      onPressed: () {
-                        // Show support dialog or navigate to support
-                        _showSupportDialog();
-                      },
+                      onPressed: _showSupportDialog,
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.zero,
                         minimumSize: const Size(0, 0),
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
-                        'Contact Support',
+                        l10n.contactSupport,
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -235,11 +400,12 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
   }
 
   void _showSupportDialog() {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'Contact Support',
+          l10n.contactSupport,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         content: Column(
@@ -247,12 +413,12 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Email: support@kisanmitra.com',
+              l10n.contactSupportEmail,
               style: GoogleFonts.poppins(fontSize: 14),
             ),
             const SizedBox(height: 8),
             Text(
-              'Phone: +91 1800-XXX-XXXX',
+              l10n.contactSupportPhone,
               style: GoogleFonts.poppins(fontSize: 14),
             ),
           ],
@@ -260,7 +426,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(l10n.close),
           ),
         ],
       ),
@@ -344,9 +510,9 @@ class _RoleCard extends StatelessWidget {
               ),
 
               // Arrow Icon
-              Icon(
+              const Icon(
                 Icons.arrow_forward_ios,
-                color: const Color(0xFFB0BDB4),
+                color: Color(0xFFB0BDB4),
                 size: 18,
               ),
             ],

@@ -5,6 +5,7 @@ import '../../core/constants/app_constants.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/firestore_service.dart';
 import '../../core/utils/helpers.dart';
+import 'package:kisan_mitra/l10n/app_localizations.dart';
 
 class FarmerLoginScreen extends StatefulWidget {
   const FarmerLoginScreen({super.key});
@@ -72,7 +73,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
             if (mounted) {
               SnackBarHelper.showError(
                 context,
-                'Invalid role. Please use the correct login.',
+                AppLocalizations.of(context).invalidRole,
               );
             }
           }
@@ -82,7 +83,8 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
           if (mounted) {
             SnackBarHelper.showError(
               context,
-              firestoreResult['message'] ?? 'User data not found',
+              firestoreResult['message'] ??
+                  AppLocalizations.of(context).userDataNotFound,
             );
           }
         }
@@ -91,13 +93,16 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
         if (mounted) {
           SnackBarHelper.showError(
             context,
-            authResult['message'] ?? 'Login failed',
+            authResult['message'] ?? AppLocalizations.of(context).loginFailed,
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, 'An error occurred: $e');
+        SnackBarHelper.showError(
+          context,
+          AppLocalizations.of(context).anErrorOccurred(e.toString()),
+        );
       }
     } finally {
       if (mounted) {
@@ -146,12 +151,14 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
             await _authService.signOut();
             SnackBarHelper.showError(
               context,
-              'Failed to create profile. Please try again.',
+              AppLocalizations.of(context).failedToCreateProfile,
             );
           }
         } else {
           // Existing user - verify role
-          final firestoreResult = await _firestoreService.getUserRoleAndData(user.uid);
+          final firestoreResult = await _firestoreService.getUserRoleAndData(
+            user.uid,
+          );
 
           if (!mounted) return;
 
@@ -170,7 +177,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
               if (mounted) {
                 SnackBarHelper.showError(
                   context,
-                  'This Google account is registered with a different role.',
+                  AppLocalizations.of(context).googleAccountDifferentRole,
                 );
               }
             }
@@ -200,7 +207,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
               await _authService.signOut();
               SnackBarHelper.showError(
                 context,
-                'Failed to create profile. Please try again.',
+                AppLocalizations.of(context).failedToCreateProfile,
               );
             }
           }
@@ -210,13 +217,17 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
         if (mounted) {
           SnackBarHelper.showError(
             context,
-            result['message'] ?? 'Google sign-in failed',
+            result['message'] ??
+                AppLocalizations.of(context).googleSignInFailed,
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, 'An error occurred: $e');
+        SnackBarHelper.showError(
+          context,
+          AppLocalizations.of(context).anErrorOccurred(e.toString()),
+        );
       }
     } finally {
       if (mounted) {
@@ -324,7 +335,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
 
                 // Welcome Back
                 Text(
-                  'Welcome Back',
+                  AppLocalizations.of(context).welcomeBack,
                   style: GoogleFonts.poppins(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -336,7 +347,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
 
                 // Subtitle
                 Text(
-                  'Login to find nearby fertilizer stores\neasily',
+                  AppLocalizations.of(context).loginSubtitle,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 15,
@@ -354,7 +365,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                   enabled: !_isLoading,
                   validator: Validators.validateEmail,
                   decoration: InputDecoration(
-                    hintText: 'Email Address',
+                    hintText: AppLocalizations.of(context).emailAddress,
                     prefixIcon: const Icon(
                       Icons.email_outlined,
                       color: Color(0xFF5F7D63),
@@ -381,7 +392,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                   enabled: !_isLoading,
                   validator: Validators.validatePassword,
                   decoration: InputDecoration(
-                    hintText: 'Password',
+                    hintText: AppLocalizations.of(context).password,
                     prefixIcon: const Icon(
                       Icons.lock_outline,
                       color: Color(0xFF5F7D63),
@@ -427,7 +438,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                             );
                           },
                     child: Text(
-                      'Forgot Password?',
+                      AppLocalizations.of(context).forgotPassword,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -463,7 +474,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                             ),
                           )
                         : Text(
-                            'Login',
+                            AppLocalizations.of(context).login,
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -481,7 +492,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        'OR',
+                        AppLocalizations.of(context).or,
                         style: GoogleFonts.poppins(
                           fontSize: 13,
                           color: const Color(0xFF5F7D63),
@@ -522,13 +533,11 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(2),
                           ),
-                          child: CustomPaint(
-                            painter: GoogleLogoPainter(),
-                          ),
+                          child: CustomPaint(painter: GoogleLogoPainter()),
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          'Sign in with Google',
+                          AppLocalizations.of(context).signInWithGoogle,
                           style: GoogleFonts.poppins(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -553,7 +562,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                           );
                         },
                   child: Text(
-                    'Create New Account',
+                    AppLocalizations.of(context).createNewAccount,
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -569,7 +578,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Need help? ',
+                      AppLocalizations.of(context).needHelp,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: const Color(0xFF5F7D63),
@@ -585,7 +594,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
-                        'Contact Support',
+                        AppLocalizations.of(context).contactSupport,
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -621,11 +630,12 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
   }
 
   void _showSupportDialog() {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'Contact Support',
+          l10n.contactSupport,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         content: Column(
@@ -633,12 +643,12 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Email: support@kisanmitra.com',
+              l10n.contactSupportEmail,
               style: GoogleFonts.poppins(fontSize: 14),
             ),
             const SizedBox(height: 8),
             Text(
-              'Phone: +91 1800-XXX-XXXX',
+              l10n.contactSupportPhone,
               style: GoogleFonts.poppins(fontSize: 14),
             ),
           ],
@@ -646,7 +656,7 @@ class _FarmerLoginScreenState extends State<FarmerLoginScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(l10n.close),
           ),
         ],
       ),
@@ -716,4 +726,3 @@ class GoogleLogoPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
-

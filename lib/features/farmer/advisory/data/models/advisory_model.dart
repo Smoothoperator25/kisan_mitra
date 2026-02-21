@@ -71,6 +71,7 @@ class FertilizerRecommendation {
   final String applicationMethod;
   final String applicationTime;
   final List<String> precautions;
+  final String? manufacturer;
 
   FertilizerRecommendation({
     required this.name,
@@ -81,5 +82,6 @@ class FertilizerRecommendation {
     required this.applicationMethod,
     required this.applicationTime,
     required this.precautions,
+    this.manufacturer,
   });
 }

@@ -6,6 +6,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/firestore_service.dart';
 import '../../../core/utils/helpers.dart';
+import '../../../l10n/app_localizations.dart';
 
 class StoreRegistrationScreen extends StatefulWidget {
   const StoreRegistrationScreen({super.key});
@@ -113,12 +114,18 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
     }
 
     if (_selectedState == null) {
-      SnackBarHelper.showError(context, 'Please select a state');
+      SnackBarHelper.showError(
+        context,
+        AppLocalizations.of(context).pleaseSelectState,
+      );
       return;
     }
 
     if (_selectedLatitude == null || _selectedLongitude == null) {
-      SnackBarHelper.showError(context, 'Please select location on map');
+      SnackBarHelper.showError(
+        context,
+        AppLocalizations.of(context).pleaseSelectLocation,
+      );
       return;
     }
 
@@ -166,7 +173,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
           // Navigate to Store Home
           SnackBarHelper.showSuccess(
             context,
-            'Store registered successfully! Awaiting verification.',
+            AppLocalizations.of(context).storeRegisterSuccess,
           );
 
           if (mounted) {
@@ -181,7 +188,8 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
           if (mounted) {
             SnackBarHelper.showError(
               context,
-              firestoreResult['message'] ?? 'Failed to create store profile',
+              firestoreResult['message'] ??
+                  AppLocalizations.of(context).failedCreateStoreProfile,
             );
           }
         }
@@ -190,13 +198,16 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
         if (mounted) {
           SnackBarHelper.showError(
             context,
-            authResult['message'] ?? 'Registration failed',
+            authResult['message'] ?? AppLocalizations.of(context).loginFailed,
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, 'An error occurred: $e');
+        SnackBarHelper.showError(
+          context,
+          AppLocalizations.of(context).anErrorOccurred(e.toString()),
+        );
       }
     } finally {
       if (mounted) {
@@ -326,7 +337,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
             // Store Registration
             Center(
               child: Text(
-                'Store Registration',
+                AppLocalizations.of(context).storeRegistration,
                 style: GoogleFonts.poppins(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -340,7 +351,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
             // Subtitle
             Center(
               child: Text(
-                'Step 1 of 2: Let\'s set up your store account',
+                AppLocalizations.of(context).storeRegistrationSubtitle,
                 style: GoogleFonts.poppins(
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
@@ -353,7 +364,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
 
             // AUTHENTICATION DETAILS Section
             Text(
-              'AUTHENTICATION DETAILS',
+              AppLocalizations.of(context).authenticationDetails,
               style: GoogleFonts.poppins(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -366,7 +377,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
 
             // Email ID
             Text(
-              'Email ID',
+              AppLocalizations.of(context).emailAddress,
               style: GoogleFonts.poppins(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -378,14 +389,16 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               validator: Validators.validateEmail,
-              decoration: _inputDecoration('store@example.com'),
+              decoration: _inputDecoration(
+                AppLocalizations.of(context).emailHint,
+              ),
             ),
 
             const SizedBox(height: 16),
 
             // Password
             Text(
-              'Password',
+              AppLocalizations.of(context).password,
               style: GoogleFonts.poppins(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -397,28 +410,31 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
               controller: _passwordController,
               obscureText: _obscurePassword,
               validator: Validators.validatePassword,
-              decoration: _inputDecoration('Create a strong password').copyWith(
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                    color: const Color(0xFF5F7D63),
+              decoration:
+                  _inputDecoration(
+                    AppLocalizations.of(context).passwordHint,
+                  ).copyWith(
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        color: const Color(0xFF5F7D63),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
-                ),
-              ),
             ),
 
             const SizedBox(height: 24),
 
             // STORE INFORMATION Section
             Text(
-              'STORE INFORMATION',
+              AppLocalizations.of(context).storeInformation,
               style: GoogleFonts.poppins(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -431,7 +447,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
 
             // Store Name
             Text(
-              'Store Name',
+              AppLocalizations.of(context).storeName,
               style: GoogleFonts.poppins(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -442,14 +458,16 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
             TextFormField(
               controller: _storeNameController,
               validator: Validators.validateName,
-              decoration: _inputDecoration('Enter your business name'),
+              decoration: _inputDecoration(
+                AppLocalizations.of(context).enterBusinessName,
+              ),
             ),
 
             const SizedBox(height: 16),
 
             // Owner Name
             Text(
-              'Owner Name',
+              AppLocalizations.of(context).ownerName,
               style: GoogleFonts.poppins(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -460,14 +478,16 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
             TextFormField(
               controller: _ownerNameController,
               validator: Validators.validateName,
-              decoration: _inputDecoration('Full name of proprietor'),
+              decoration: _inputDecoration(
+                AppLocalizations.of(context).enterOwnerName,
+              ),
             ),
 
             const SizedBox(height: 16),
 
             // Mobile Number
             Text(
-              'Mobile Number',
+              AppLocalizations.of(context).phone,
               style: GoogleFonts.poppins(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -479,7 +499,9 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
               controller: _phoneController,
               keyboardType: TextInputType.phone,
               validator: Validators.validatePhone,
-              decoration: _inputDecoration('+91 00000 00000'),
+              decoration: _inputDecoration(
+                AppLocalizations.of(context).phoneHint,
+              ),
             ),
 
             const SizedBox(height: 32),
@@ -502,7 +524,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Next',
+                      AppLocalizations.of(context).next,
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -522,7 +544,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Already have an account? ',
+                  AppLocalizations.of(context).alreadyHaveAccount,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: const Color(0xFF5F7D63),
@@ -559,7 +581,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Need help? ',
+                  AppLocalizations.of(context).needHelp,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: const Color(0xFF5F7D63),
@@ -676,7 +698,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
             // Store Profile
             Center(
               child: Text(
-                'Store Profile',
+                AppLocalizations.of(context).storeProfile,
                 style: GoogleFonts.poppins(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -690,7 +712,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
             // Step indicator
             Center(
               child: Text(
-                'Step 2: Location & Verification',
+                AppLocalizations.of(context).storeProfileStep2,
                 style: GoogleFonts.poppins(
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
@@ -711,7 +733,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Store Address',
+                  AppLocalizations.of(context).storeAddress,
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -725,7 +747,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
 
             // State
             Text(
-              'State',
+              AppLocalizations.of(context).state,
               style: GoogleFonts.poppins(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -734,13 +756,15 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              value: _selectedState,
+              initialValue: _selectedState,
               onChanged: (value) {
                 setState(() {
                   _selectedState = value;
                 });
               },
-              decoration: _inputDecoration('Select your state'),
+              decoration: _inputDecoration(
+                AppLocalizations.of(context).selectState,
+              ),
               items: _indianStates.map((state) {
                 return DropdownMenuItem(
                   value: state,
@@ -759,7 +783,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'City / District',
+                        AppLocalizations.of(context).cityDistrict,
                         style: GoogleFonts.poppins(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -769,9 +793,13 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _cityController,
-                        validator: (value) =>
-                            Validators.validateRequired(value, 'City'),
-                        decoration: _inputDecoration('Enter city'),
+                        validator: (value) => Validators.validateRequired(
+                          value,
+                          AppLocalizations.of(context).city,
+                        ),
+                        decoration: _inputDecoration(
+                          AppLocalizations.of(context).enterCity,
+                        ),
                       ),
                     ],
                   ),
@@ -782,7 +810,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Village / Area',
+                        AppLocalizations.of(context).villageArea,
                         style: GoogleFonts.poppins(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -792,9 +820,13 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _villageController,
-                        validator: (value) =>
-                            Validators.validateRequired(value, 'Village'),
-                        decoration: _inputDecoration('Enter village'),
+                        validator: (value) => Validators.validateRequired(
+                          value,
+                          AppLocalizations.of(context).village,
+                        ),
+                        decoration: _inputDecoration(
+                          AppLocalizations.of(context).enterVillage,
+                        ),
                       ),
                     ],
                   ),
@@ -806,7 +838,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
 
             // Store Location (Pin on Map)
             Text(
-              'Store Location (Pin on Map)',
+              AppLocalizations.of(context).mapPinInstruction,
               style: GoogleFonts.poppins(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -903,7 +935,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
                             ),
                           ),
                           Text(
-                            'Tap to adjust location',
+                            AppLocalizations.of(context).tapToAdjust,
                             style: GoogleFonts.poppins(
                               fontSize: 10,
                               color: const Color(0xFF5F7D63),
@@ -932,7 +964,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Tap on map to select your store location',
+                        AppLocalizations.of(context).tapMapToSelect,
                         style: GoogleFonts.poppins(
                           fontSize: 12,
                           color: const Color(0xFF5F7D63),
@@ -951,7 +983,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
                 const Icon(Icons.verified, color: Color(0xFF2E7D32), size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  'Verification Details',
+                  AppLocalizations.of(context).verificationDetails,
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -965,7 +997,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
 
             // Store License Number / GSTIN
             Text(
-              'Store License Number / GSTIN',
+              AppLocalizations.of(context).fertilizerLicense,
               style: GoogleFonts.poppins(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -977,15 +1009,17 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
               controller: _licenseController,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'License/GSTIN is required';
+                  return AppLocalizations.of(context).errorFieldRequired;
                 }
                 if (value.trim().length < 10) {
-                  return 'Invalid license number';
+                  return AppLocalizations.of(context).errorInvalidLicense;
                 }
                 return null;
               },
-              decoration: _inputDecoration('Enter 15-digit GST or License No.')
-                  .copyWith(
+              decoration:
+                  _inputDecoration(
+                    AppLocalizations.of(context).enterLicenseNo,
+                  ).copyWith(
                     suffixIcon: IconButton(
                       icon: const Icon(
                         Icons.info_outline,
@@ -994,7 +1028,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
                       onPressed: () {
                         SnackBarHelper.showInfo(
                           context,
-                          'Enter your GST number or store license for verification',
+                          AppLocalizations.of(context).enterLicenseInfo,
                         );
                       },
                     ),
@@ -1027,7 +1061,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
                         ),
                       )
                     : Text(
-                        'Complete Signup',
+                        AppLocalizations.of(context).createAccount,
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -1048,7 +1082,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
                     const Icon(Icons.arrow_back, size: 16),
                     const SizedBox(width: 4),
                     Text(
-                      'Back to Step 1',
+                      AppLocalizations.of(context).backToStep1,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -1067,7 +1101,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Already have an account? ',
+                  AppLocalizations.of(context).alreadyHaveAccount,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: const Color(0xFF5F7D63),
@@ -1106,7 +1140,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Need help? ',
+                  AppLocalizations.of(context).needHelp,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: const Color(0xFF5F7D63),
@@ -1160,7 +1194,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'Contact Support',
+          AppLocalizations.of(context).contactSupport,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         content: Column(
@@ -1168,12 +1202,12 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Email: support@kisanmitra.com',
+              AppLocalizations.of(context).supportEmail,
               style: GoogleFonts.poppins(fontSize: 14),
             ),
             const SizedBox(height: 8),
             Text(
-              'Phone: +91 1800-XXX-XXXX',
+              AppLocalizations.of(context).supportPhone,
               style: GoogleFonts.poppins(fontSize: 14),
             ),
           ],
@@ -1181,7 +1215,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(AppLocalizations.of(context).close),
           ),
         ],
       ),
