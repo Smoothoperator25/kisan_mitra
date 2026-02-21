@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:kisan_mitra/l10n/app_localizations.dart';
 import '../farmer_home_screen.dart';
 import '../fertilizer_search/fertilizer_search_screen.dart';
 import '../advisory/presentation/screens/advisory_screen.dart';
@@ -85,25 +86,25 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
               _buildNavItem(
                 icon: Icons.home_outlined,
                 activeIcon: Icons.home_rounded,
-                label: 'Home',
+                label: AppLocalizations.of(context).home,
                 index: 0,
               ),
               _buildNavItem(
                 icon: Icons.search_outlined,
                 activeIcon: Icons.search_rounded,
-                label: 'Search',
+                label: AppLocalizations.of(context).search,
                 index: 1,
               ),
               _buildNavItem(
                 icon: Icons.article_outlined,
                 activeIcon: Icons.article_rounded,
-                label: 'Advisory',
+                label: AppLocalizations.of(context).advisory,
                 index: 2,
               ),
               _buildNavItem(
                 icon: Icons.person_outlined,
                 activeIcon: Icons.person_rounded,
-                label: 'Profile',
+                label: AppLocalizations.of(context).profile,
                 index: 3,
               ),
             ],

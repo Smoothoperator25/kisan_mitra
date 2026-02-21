@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../l10n/app_localizations.dart';
 
 class StoreHelpSupportScreen extends StatelessWidget {
   const StoreHelpSupportScreen({super.key});
@@ -34,8 +35,8 @@ class StoreHelpSupportScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: const Text(
-          'Help & Support',
+        title: Text(
+          AppLocalizations.of(context).helpSupport,
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.white,
@@ -51,8 +52,8 @@ class StoreHelpSupportScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Contact Support Section
-            const Text(
-              'Contact Support',
+            Text(
+              AppLocalizations.of(context).contactSupport,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -62,14 +63,14 @@ class StoreHelpSupportScreen extends StatelessWidget {
             const SizedBox(height: 16),
             _buildContactCard(
               icon: Icons.email_outlined,
-              title: 'Email Us',
+              title: AppLocalizations.of(context).emailUs,
               subtitle: 'support@kisanmitra.com',
               onTap: _launchEmail,
             ),
             const SizedBox(height: 12),
             _buildContactCard(
               icon: Icons.phone_outlined,
-              title: 'Call Us',
+              title: AppLocalizations.of(context).callUs,
               subtitle: '+91 12345 67890',
               onTap: _launchPhone,
             ),
@@ -77,8 +78,8 @@ class StoreHelpSupportScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             // FAQ Section
-            const Text(
-              'Frequently Asked Questions',
+            Text(
+              AppLocalizations.of(context).faqs,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -87,20 +88,20 @@ class StoreHelpSupportScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             _buildFaqItem(
-              'How do I add new fertilizers?',
-              'As a store owner, you cannot create new fertilizers. Admin adds the master list of fertilizers. You can only manage the stock and price of existing fertilizers in your inventory.',
+              AppLocalizations.of(context).faq1Q,
+              AppLocalizations.of(context).faq1A,
             ),
             _buildFaqItem(
-              'How do I update my store location?',
-              'Go to Store Dashboard > Location. You can tap on the map to set your precise location or use the "Use Current Location" button.',
+              AppLocalizations.of(context).faq2Q,
+              AppLocalizations.of(context).faq2A,
             ),
             _buildFaqItem(
-              'How can I change my password?',
-              'Go to Store Profile > Change Password. Enter your current password and the new password to update it.',
+              AppLocalizations.of(context).faq3Q,
+              AppLocalizations.of(context).faq3A,
             ),
             _buildFaqItem(
-              'Why is my store not verified yet?',
-              'Verification usually takes 24-48 hours. Admin verifies details manually. Ensure your profile information is complete.',
+              AppLocalizations.of(context).faq4Q,
+              AppLocalizations.of(context).faq4A,
             ),
 
             const SizedBox(height: 24),
@@ -117,7 +118,7 @@ class StoreHelpSupportScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('Send Feedback'),
+                child: Text(AppLocalizations.of(context).sendFeedback),
               ),
             ),
             const SizedBox(height: 24),

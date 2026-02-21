@@ -6,6 +6,7 @@ import '../stock/store_stock_screen.dart';
 import '../stock/fertilizer_details_screen.dart';
 import '../location/store_location_screen.dart';
 import '../profile/store_profile_screen.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Store Dashboard Screen
 /// Main dashboard for store owners with inventory management
@@ -79,25 +80,25 @@ class _StoreDashboardScreenState extends State<StoreDashboardScreen> {
             children: [
               _buildNavItem(
                 icon: Icons.dashboard_outlined,
-                label: 'DASHBOARD',
+                label: AppLocalizations.of(context).dashboard.toUpperCase(),
                 index: 0,
                 isSelected: _selectedIndex == 0,
               ),
               _buildNavItem(
                 icon: Icons.inventory_2,
-                label: 'STOCK',
+                label: AppLocalizations.of(context).stock.toUpperCase(),
                 index: 1,
                 isSelected: _selectedIndex == 1,
               ),
               _buildNavItem(
                 icon: Icons.location_on_outlined,
-                label: 'LOCATION',
+                label: AppLocalizations.of(context).storeLocation.toUpperCase(),
                 index: 2,
                 isSelected: _selectedIndex == 2,
               ),
               _buildNavItem(
                 icon: Icons.person_outline,
-                label: 'PROFILE',
+                label: AppLocalizations.of(context).profile.toUpperCase(),
                 index: 3,
                 isSelected: _selectedIndex == 3,
               ),
@@ -169,7 +170,9 @@ class _DashboardTab extends StatelessWidget {
                 : controller.error != null
                 ? Center(
                     child: Text(
-                      controller.error!,
+                      AppLocalizations.of(
+                        context,
+                      ).errorPrefix(controller.error!),
                       style: const TextStyle(color: Colors.red),
                     ),
                   )
@@ -189,13 +192,15 @@ class _DashboardTab extends StatelessWidget {
                         const SizedBox(height: 24),
 
                         // Inventory Management Section
-                        const Text(
-                          'INVENTORY MANAGEMENT',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey,
-                            letterSpacing: 0.5,
+                        Builder(
+                          builder: (context) => Text(
+                            AppLocalizations.of(context).inventoryManagement,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey,
+                              letterSpacing: 0.5,
+                            ),
                           ),
                         ),
 
@@ -220,9 +225,9 @@ class _DashboardTab extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          const Text(
-            'Store Dashboard',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Text(
+            AppLocalizations.of(context).storeDashboard,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(width: 8),
           if (controller.storeInfo?.isVerified == true)
@@ -241,9 +246,9 @@ class _DashboardTab extends StatelessWidget {
                     color: Color(0xFF2E7D32),
                   ),
                   const SizedBox(width: 4),
-                  const Text(
-                    'VERIFIED',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context).verified,
+                    style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF2E7D32),
@@ -256,11 +261,12 @@ class _DashboardTab extends StatelessWidget {
           IconButton(
             onPressed: () {
               // Navigate to profile tab
-              final dashboardState = context.findAncestorStateOfType<_StoreDashboardScreenState>();
+              final dashboardState = context
+                  .findAncestorStateOfType<_StoreDashboardScreenState>();
               dashboardState?._onBottomNavTap(3);
             },
             icon: const Icon(Icons.person_outline),
-            tooltip: 'Profile',
+            tooltip: AppLocalizations.of(context).profile,
           ),
         ],
       ),
@@ -357,11 +363,12 @@ class _DashboardTab extends StatelessWidget {
         Expanded(
           child: _ActionCard(
             icon: Icons.inventory_2_outlined,
-            label: 'Update Price & Stock',
+            label: AppLocalizations.of(context).updatePriceStock,
             color: const Color(0xFF2E7D32),
             onTap: () {
               // Navigate to Stock tab
-              final dashboardState = context.findAncestorStateOfType<_StoreDashboardScreenState>();
+              final dashboardState = context
+                  .findAncestorStateOfType<_StoreDashboardScreenState>();
               dashboardState?._onBottomNavTap(1);
             },
           ),
@@ -373,11 +380,12 @@ class _DashboardTab extends StatelessWidget {
         Expanded(
           child: _ActionCard(
             icon: Icons.location_on_outlined,
-            label: 'Store Location',
+            label: AppLocalizations.of(context).storeLocation,
             color: const Color(0xFF1976D2),
             onTap: () {
               // Navigate to Location tab
-              final dashboardState = context.findAncestorStateOfType<_StoreDashboardScreenState>();
+              final dashboardState = context
+                  .findAncestorStateOfType<_StoreDashboardScreenState>();
               dashboardState?._onBottomNavTap(2);
             },
           ),
@@ -405,7 +413,9 @@ class _DashboardTab extends StatelessWidget {
             if (snapshot.hasError) {
               return Center(
                 child: Text(
-                  'Error loading inventory: ${snapshot.error}',
+                  AppLocalizations.of(
+                    context,
+                  ).errorPrefix(snapshot.error.toString()),
                   style: const TextStyle(color: Colors.red),
                 ),
               );
@@ -414,12 +424,12 @@ class _DashboardTab extends StatelessWidget {
             final fertilizers = snapshot.data ?? [];
 
             if (fertilizers.isEmpty) {
-              return const Center(
+              return Center(
                 child: Padding(
-                  padding: EdgeInsets.all(32),
+                  padding: const EdgeInsets.all(32),
                   child: Text(
-                    'No fertilizers in inventory',
-                    style: TextStyle(color: Colors.grey),
+                    AppLocalizations.of(context).noFertilizersInventory,
+                    style: const TextStyle(color: Colors.grey),
                   ),
                 ),
               );
@@ -530,8 +540,8 @@ class _FertilizerCardState extends State<_FertilizerCard> {
 
     if (price == null || stock == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter valid numbers'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).enterValidNumbers),
           backgroundColor: Colors.red,
         ),
       );
@@ -555,7 +565,10 @@ class _FertilizerCardState extends State<_FertilizerCard> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result['message'] ?? 'Updated successfully'),
+          content: Text(
+            result['message'] ??
+                AppLocalizations.of(context).updatedSuccessfully,
+          ),
           backgroundColor: result['success'] == true
               ? Colors.green
               : Colors.red,
@@ -567,7 +580,8 @@ class _FertilizerCardState extends State<_FertilizerCard> {
   @override
   Widget build(BuildContext context) {
     // Determine stock status
-    final currentStock = int.tryParse(_stockController.text) ?? widget.fertilizer.stock;
+    final currentStock =
+        int.tryParse(_stockController.text) ?? widget.fertilizer.stock;
     final isInStock = currentStock > 0 && widget.fertilizer.isAvailable;
     final isLowStock = currentStock > 0 && currentStock <= 10;
 
@@ -599,10 +613,7 @@ class _FertilizerCardState extends State<_FertilizerCard> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  const Color(0xFFE8F5E9),
-                  Colors.white,
-                ],
+                colors: [const Color(0xFFE8F5E9), Colors.white],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -619,10 +630,7 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFF4CAF50),
-                        Color(0xFF2E7D32),
-                      ],
+                      colors: [Color(0xFF4CAF50), Color(0xFF2E7D32)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -635,11 +643,7 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.eco,
-                    size: 28,
-                    color: Colors.white,
-                  ),
+                  child: const Icon(Icons.eco, size: 28, color: Colors.white),
                 ),
 
                 const SizedBox(width: 14),
@@ -651,7 +655,8 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                     children: [
                       // Fertilizer Name with better styling
                       Text(
-                        widget.fertilizer.fertilizerName ?? 'Loading...',
+                        widget.fertilizer.fertilizerName ??
+                            AppLocalizations.of(context).loading,
                         style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
@@ -719,8 +724,14 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                           gradient: LinearGradient(
                             colors: isInStock
                                 ? (isLowStock
-                                    ? [Colors.orange.shade400, Colors.orange.shade600]
-                                    : [const Color(0xFF1FB327), const Color(0xFF2E7D32)])
+                                      ? [
+                                          Colors.orange.shade400,
+                                          Colors.orange.shade600,
+                                        ]
+                                      : [
+                                          const Color(0xFF1FB327),
+                                          const Color(0xFF2E7D32),
+                                        ])
                                 : [Colors.red.shade400, Colors.red.shade600],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
@@ -728,12 +739,13 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                           borderRadius: BorderRadius.circular(8),
                           boxShadow: [
                             BoxShadow(
-                              color: (isInStock
-                                      ? (isLowStock
-                                          ? Colors.orange.shade300
-                                          : const Color(0xFF2E7D32))
-                                      : Colors.red.shade300)
-                                  .withValues(alpha: 0.4),
+                              color:
+                                  (isInStock
+                                          ? (isLowStock
+                                                ? Colors.orange.shade300
+                                                : const Color(0xFF2E7D32))
+                                          : Colors.red.shade300)
+                                      .withValues(alpha: 0.4),
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
@@ -744,7 +756,9 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                           children: [
                             Icon(
                               isInStock
-                                  ? (isLowStock ? Icons.warning_rounded : Icons.check_circle_rounded)
+                                  ? (isLowStock
+                                        ? Icons.warning_rounded
+                                        : Icons.check_circle_rounded)
                                   : Icons.cancel_rounded,
                               size: 14,
                               color: Colors.white,
@@ -752,8 +766,10 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                             const SizedBox(width: 6),
                             Text(
                               isInStock
-                                  ? (isLowStock ? 'LOW STOCK' : 'IN STOCK')
-                                  : 'OUT OF STOCK',
+                                  ? (isLowStock
+                                        ? AppLocalizations.of(context).lowStock
+                                        : AppLocalizations.of(context).inStock)
+                                  : AppLocalizations.of(context).outOfStock,
                               style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w800,
@@ -783,7 +799,7 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                     Expanded(
                       child: _buildInputField(
                         controller: _priceController,
-                        label: 'PRICE',
+                        label: AppLocalizations.of(context).price,
                         icon: Icons.currency_rupee_rounded,
                         color: const Color(0xFF1976D2),
                       ),
@@ -795,7 +811,7 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                     Expanded(
                       child: _buildInputField(
                         controller: _stockController,
-                        label: 'STOCK (BAGS)',
+                        label: AppLocalizations.of(context).stockBags,
                         icon: Icons.inventory_2_rounded,
                         color: const Color(0xFF388E3C),
                       ),
@@ -818,15 +834,19 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                             MaterialPageRoute(
                               builder: (context) => FertilizerDetailsScreen(
                                 fertilizerId: widget.fertilizer.fertilizerId,
-                                fertilizerName: widget.fertilizer.fertilizerName ?? 'Fertilizer',
+                                fertilizerName:
+                                    widget.fertilizer.fertilizerName ??
+                                    AppLocalizations.of(context).fertilizer,
                               ),
                             ),
                           );
                         },
                         icon: const Icon(Icons.info_outline_rounded, size: 18),
-                        label: const Text(
-                          'DETAILS',
-                          style: TextStyle(
+                        label: Text(
+                          AppLocalizations.of(
+                            context,
+                          ).viewDetails.toUpperCase(),
+                          style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.5,
@@ -868,7 +888,9 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                               ? null
                               : [
                                   BoxShadow(
-                                    color: const Color(0xFF2E7D32).withValues(alpha: 0.4),
+                                    color: const Color(
+                                      0xFF2E7D32,
+                                    ).withValues(alpha: 0.4),
                                     blurRadius: 8,
                                     offset: const Offset(0, 4),
                                   ),
@@ -877,7 +899,9 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                         child: ElevatedButton.icon(
                           onPressed: _isSaving ? null : _handleSave,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _isSaving ? Colors.grey.shade300 : Colors.transparent,
+                            backgroundColor: _isSaving
+                                ? Colors.grey.shade300
+                                : Colors.transparent,
                             foregroundColor: Colors.white,
                             shadowColor: Colors.transparent,
                             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -892,17 +916,25 @@ class _FertilizerCardState extends State<_FertilizerCard> {
                                   height: 16,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2.5,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
                                   ),
                                 )
                               : const Icon(Icons.save_rounded, size: 18),
                           label: Text(
-                            _isSaving ? 'SAVING...' : 'SAVE',
+                            _isSaving
+                                ? AppLocalizations.of(context).saving
+                                : AppLocalizations.of(
+                                    context,
+                                  ).save.toUpperCase(),
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.5,
-                              color: _isSaving ? Colors.grey.shade600 : Colors.white,
+                              color: _isSaving
+                                  ? Colors.grey.shade600
+                                  : Colors.white,
                             ),
                           ),
                         ),
@@ -970,24 +1002,15 @@ class _FertilizerCardState extends State<_FertilizerCard> {
               fillColor: Colors.grey.shade50,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(
-                  color: Colors.grey.shade300,
-                  width: 1.5,
-                ),
+                borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(
-                  color: Colors.grey.shade300,
-                  width: 1.5,
-                ),
+                borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(
-                  color: color,
-                  width: 2.5,
-                ),
+                borderSide: BorderSide(color: color, width: 2.5),
               ),
             ),
             style: const TextStyle(
@@ -1012,19 +1035,12 @@ class _FertilizerCardState extends State<_FertilizerCard> {
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: color.withValues(alpha: 0.3),
-          width: 1,
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 12,
-            color: color,
-          ),
+          Icon(icon, size: 12, color: color),
           const SizedBox(width: 4),
           Text(
             label,

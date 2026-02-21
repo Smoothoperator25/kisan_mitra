@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:kisan_mitra/l10n/app_localizations.dart';
 
 /// ── Futuristic Soil Health Check Screen (Light Theme) ────────────────
 /// Multi-step wizard with glassmorphism, animated progress, 13+ fields,
@@ -174,11 +175,11 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
     setState(() => _gpsLocation = '19.0760° N, 72.8777° E');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Row(
+        content: Row(
           children: [
-            Icon(Icons.gps_fixed, color: Colors.white, size: 18),
-            SizedBox(width: 8),
-            Text('GPS Location captured!'),
+            const Icon(Icons.gps_fixed, color: Colors.white, size: 18),
+            const SizedBox(width: 8),
+            Text(AppLocalizations.of(context).gpsLocationCaptured),
           ],
         ),
         backgroundColor: _accent,
@@ -211,9 +212,9 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
             }
           },
         ),
-        title: const Text(
-          'Soil Health Check',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context).soilHealthCheck,
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w700,
             fontSize: 20,
@@ -241,7 +242,11 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
   //  HEADER + PROGRESS
   // ══════════════════════════════════════════════════════════════════════
   Widget _buildHeader() {
-    final labels = ['Farmer Info', 'Soil Details', 'Review'];
+    final labels = [
+      AppLocalizations.of(context).farmerInfo,
+      AppLocalizations.of(context).soilDetails,
+      AppLocalizations.of(context).review,
+    ];
     final icons = [Icons.person_outline, Icons.landscape, Icons.checklist_rtl];
 
     return Container(
@@ -348,24 +353,28 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _sectionTitle('Personal Information', Icons.badge_outlined),
+            _sectionTitle(
+              AppLocalizations.of(context).personalInformation,
+              Icons.badge_outlined,
+            ),
             const SizedBox(height: 16),
             _card(
               child: Column(
                 children: [
                   _styledTextField(
                     controller: _nameCtrl,
-                    label: 'Full Name',
-                    hint: 'Enter your full name',
+                    label: AppLocalizations.of(context).fullName,
+                    hint: AppLocalizations.of(context).fullName,
                     icon: Icons.person_outline,
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Name is required' : null,
+                    validator: (v) => v == null || v.isEmpty
+                        ? AppLocalizations.of(context).errorFieldRequired
+                        : null,
                   ),
                   const SizedBox(height: 16),
                   _styledTextField(
                     controller: _phoneCtrl,
-                    label: 'Phone Number',
-                    hint: '10-digit mobile number',
+                    label: AppLocalizations.of(context).phone,
+                    hint: AppLocalizations.of(context).phoneHint,
                     icon: Icons.phone_android,
                     keyboardType: TextInputType.phone,
                     inputFormatters: [
@@ -373,26 +382,31 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                       LengthLimitingTextInputFormatter(10),
                     ],
                     validator: (v) {
-                      if (v == null || v.isEmpty) return 'Phone is required';
-                      if (v.length != 10) return 'Enter 10-digit number';
+                      if (v == null || v.isEmpty) {
+                        return AppLocalizations.of(context).errorFieldRequired;
+                      }
+                      if (v.length != 10) {
+                        return AppLocalizations.of(context).phoneLengthError;
+                      }
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
                   _styledTextField(
                     controller: _addressCtrl,
-                    label: 'Village / Address',
+                    label: AppLocalizations.of(context).villageAddress,
                     hint: 'Village, Taluka, District',
                     icon: Icons.location_on_outlined,
                     maxLines: 2,
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Address is required' : null,
+                    validator: (v) => v == null || v.isEmpty
+                        ? AppLocalizations.of(context).errorFieldRequired
+                        : null,
                   ),
                   const SizedBox(height: 16),
                   _styledTextField(
                     controller: _pinCodeCtrl,
-                    label: 'Pin Code',
-                    hint: '6-digit pin code',
+                    label: AppLocalizations.of(context).pinCodeLabel,
+                    hint: AppLocalizations.of(context).pinCodeHint,
                     icon: Icons.pin_drop_outlined,
                     keyboardType: TextInputType.number,
                     inputFormatters: [
@@ -400,8 +414,12 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                       LengthLimitingTextInputFormatter(6),
                     ],
                     validator: (v) {
-                      if (v == null || v.isEmpty) return 'Pin code is required';
-                      if (v.length != 6) return 'Enter 6-digit pin code';
+                      if (v == null || v.isEmpty) {
+                        return AppLocalizations.of(context).pinCodeRequired;
+                      }
+                      if (v.length != 6) {
+                        return AppLocalizations.of(context).invalidPinCode;
+                      }
                       return null;
                     },
                   ),
@@ -432,61 +450,87 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                 children: [
                   _styledTextField(
                     controller: _farmAreaCtrl,
-                    label: 'Farm Area (Acres)',
-                    hint: 'e.g. 2.5',
+                    label: AppLocalizations.of(context).farmAreaAcres,
+                    hint: AppLocalizations.of(context).farmAreaHint,
                     icon: Icons.square_foot,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Farm area required' : null,
+                    validator: (v) => v == null || v.isEmpty
+                        ? AppLocalizations.of(context).farmAreaRequired
+                        : null,
                   ),
                   const SizedBox(height: 16),
                   _styledDropdown<String>(
-                    label: 'Soil Type',
+                    label: AppLocalizations.of(context).soilType,
                     icon: Icons.layers_outlined,
                     value: _selectedSoilType,
                     items: _soilTypes
-                        .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                        .map(
+                          (s) => DropdownMenuItem(
+                            value: s,
+                            child: Text(_getLocalizedSoilType(context, s)),
+                          ),
+                        )
                         .toList(),
                     onChanged: (v) => setState(() => _selectedSoilType = v),
-                    validator: (v) => v == null ? 'Select soil type' : null,
+                    validator: (v) => v == null
+                        ? AppLocalizations.of(context).selectSoilType
+                        : null,
                   ),
                   const SizedBox(height: 16),
                   _styledTextField(
                     controller: _prevCropCtrl,
-                    label: 'Previous Crop Grown',
-                    hint: 'e.g. Wheat, Soybean',
+                    label: AppLocalizations.of(context).prevCropGrown,
+                    hint: AppLocalizations.of(context).prevCropHint,
                     icon: Icons.grass,
                   ),
                   const SizedBox(height: 16),
                   _styledDropdown<String>(
-                    label: 'Water Source',
+                    label: AppLocalizations.of(context).waterSource,
                     icon: Icons.water_drop_outlined,
                     value: _selectedWaterSource,
                     items: _waterSources
-                        .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                        .map(
+                          (s) => DropdownMenuItem(
+                            value: s,
+                            child: Text(_getLocalizedWaterSource(context, s)),
+                          ),
+                        )
                         .toList(),
                     onChanged: (v) => setState(() => _selectedWaterSource = v),
-                    validator: (v) => v == null ? 'Select water source' : null,
+                    validator: (v) => v == null
+                        ? AppLocalizations.of(context).selectWaterSource
+                        : null,
                   ),
                   const SizedBox(height: 16),
                   _styledDropdown<String>(
-                    label: 'Irrigation Type',
+                    label: AppLocalizations.of(context).irrigationType,
                     icon: Icons.opacity,
                     value: _selectedIrrigation,
                     items: _irrigationTypes
-                        .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                        .map(
+                          (s) => DropdownMenuItem(
+                            value: s,
+                            child: Text(
+                              _getLocalizedIrrigationType(context, s),
+                            ),
+                          ),
+                        )
                         .toList(),
                     onChanged: (v) => setState(() => _selectedIrrigation = v),
-                    validator: (v) =>
-                        v == null ? 'Select irrigation type' : null,
+                    validator: (v) => v == null
+                        ? AppLocalizations.of(context).selectIrrigationType
+                        : null,
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
-            _sectionTitle('Collection & Location', Icons.calendar_month),
+            _sectionTitle(
+              AppLocalizations.of(context).collectionLocation,
+              Icons.calendar_month,
+            ),
             const SizedBox(height: 16),
             _card(
               child: Column(
@@ -497,12 +541,12 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                     borderRadius: BorderRadius.circular(14),
                     child: InputDecorator(
                       decoration: _inputDecoration(
-                        'Sample Collection Date',
+                        AppLocalizations.of(context).sampleCollectionDate,
                         Icons.calendar_today,
                       ),
                       child: Text(
                         _selectedDate == null
-                            ? 'Choose a date'
+                            ? AppLocalizations.of(context).chooseADate
                             : DateFormat('dd MMM yyyy').format(_selectedDate!),
                         style: TextStyle(
                           color: _selectedDate == null
@@ -543,7 +587,7 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'GPS Location',
+                                  AppLocalizations.of(context).gpsLocation,
                                   style: TextStyle(
                                     color: _textSecondary,
                                     fontSize: 12,
@@ -551,7 +595,10 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  _gpsLocation ?? 'Tap to capture location',
+                                  _gpsLocation ??
+                                      AppLocalizations.of(
+                                        context,
+                                      ).captureLocation,
                                   style: TextStyle(
                                     color: _gpsLocation != null
                                         ? _accent
@@ -594,7 +641,10 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle('Review Your Details', Icons.fact_check_outlined),
+          _sectionTitle(
+            AppLocalizations.of(context).reviewDetails,
+            Icons.fact_check_outlined,
+          ),
           const SizedBox(height: 16),
 
           // ── Farmer Info Card ──
@@ -602,12 +652,24 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _reviewCardHeader('Farmer Information', Icons.person),
+                _reviewCardHeader(
+                  AppLocalizations.of(context).farmerInformation,
+                  Icons.person,
+                ),
                 const Divider(height: 24),
-                _reviewRow('Name', _nameCtrl.text),
-                _reviewRow('Phone', _phoneCtrl.text),
-                _reviewRow('Address', _addressCtrl.text),
-                _reviewRow('Pin Code', _pinCodeCtrl.text),
+                _reviewRow(
+                  AppLocalizations.of(context).fullName,
+                  _nameCtrl.text,
+                ),
+                _reviewRow(AppLocalizations.of(context).phone, _phoneCtrl.text),
+                _reviewRow(
+                  AppLocalizations.of(context).villageAddress,
+                  _addressCtrl.text,
+                ),
+                _reviewRow(
+                  AppLocalizations.of(context).pinCodeLabel,
+                  _pinCodeCtrl.text,
+                ),
               ],
             ),
           ),
@@ -618,23 +680,53 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _reviewCardHeader('Soil & Farm Details', Icons.landscape),
+                _reviewCardHeader(
+                  AppLocalizations.of(context).soilFarmDetails,
+                  Icons.landscape,
+                ),
                 const Divider(height: 24),
-                _reviewRow('Farm Area', '${_farmAreaCtrl.text} Acres'),
-                _reviewRow('Soil Type', _selectedSoilType ?? '—'),
                 _reviewRow(
-                  'Previous Crop',
+                  AppLocalizations.of(context).farmAreaAcres,
+                  '${_farmAreaCtrl.text} Acres',
+                ),
+                _reviewRow(
+                  AppLocalizations.of(context).soilType,
+                  _selectedSoilType == null
+                      ? '—'
+                      : _getLocalizedSoilType(context, _selectedSoilType!),
+                ),
+                _reviewRow(
+                  AppLocalizations.of(context).prevCropGrown,
                   _prevCropCtrl.text.isEmpty ? '—' : _prevCropCtrl.text,
                 ),
-                _reviewRow('Water Source', _selectedWaterSource ?? '—'),
-                _reviewRow('Irrigation', _selectedIrrigation ?? '—'),
                 _reviewRow(
-                  'Collection Date',
+                  AppLocalizations.of(context).waterSource,
+                  _selectedWaterSource == null
+                      ? '—'
+                      : _getLocalizedWaterSource(
+                          context,
+                          _selectedWaterSource!,
+                        ),
+                ),
+                _reviewRow(
+                  AppLocalizations.of(context).irrigationType,
+                  _selectedIrrigation == null
+                      ? '—'
+                      : _getLocalizedIrrigationType(
+                          context,
+                          _selectedIrrigation!,
+                        ),
+                ),
+                _reviewRow(
+                  AppLocalizations.of(context).sampleCollectionDate,
                   _selectedDate == null
                       ? '—'
                       : DateFormat('dd MMM yyyy').format(_selectedDate!),
                 ),
-                _reviewRow('GPS Location', _gpsLocation ?? 'Not captured'),
+                _reviewRow(
+                  AppLocalizations.of(context).gpsLocation,
+                  _gpsLocation ?? 'Not captured',
+                ),
               ],
             ),
           ),
@@ -645,12 +737,15 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _reviewCardHeader('Additional Notes', Icons.note_alt_outlined),
+                _reviewCardHeader(
+                  AppLocalizations.of(context).additionalNotes,
+                  Icons.note_alt_outlined,
+                ),
                 const SizedBox(height: 12),
                 _styledTextField(
                   controller: _notesCtrl,
-                  label: 'Notes / Special Requests',
-                  hint: 'Any specific tests or concerns...',
+                  label: AppLocalizations.of(context).notesSpecialRequests,
+                  hint: AppLocalizations.of(context).notesHint,
                   icon: Icons.edit_note,
                   maxLines: 3,
                 ),
@@ -679,8 +774,8 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                   tween: Tween(begin: 0, end: 1),
                   duration: const Duration(milliseconds: 800),
                   curve: Curves.elasticOut,
-                  builder: (_, v, __) => Transform.scale(
-                    scale: v,
+                  builder: (context, scale, child) => Transform.scale(
+                    scale: scale,
                     child: Container(
                       width: 120,
                       height: 120,
@@ -706,9 +801,9 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                   ),
                 ),
                 const SizedBox(height: 32),
-                const Text(
-                  'Booking Confirmed!',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context).bookingConfirmed,
+                  style: const TextStyle(
                     color: _textPrimary,
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
@@ -716,7 +811,9 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Your soil health check has been scheduled.\nWe will contact you at ${_phoneCtrl.text}\nfor sample collection.',
+                  AppLocalizations.of(
+                    context,
+                  ).bookingSuccessMessage(_phoneCtrl.text),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: _textSecondary,
@@ -770,9 +867,9 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      'Back to Home',
-                      style: TextStyle(
+                    child: Text(
+                      AppLocalizations.of(context).backToHome,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -816,7 +913,7 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
               child: OutlinedButton.icon(
                 onPressed: _prevStep,
                 icon: const Icon(Icons.arrow_back_ios, size: 16),
-                label: const Text('Back'),
+                label: Text(AppLocalizations.of(context).back),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: _textSecondary,
                   side: BorderSide(color: _fieldBorder),
@@ -860,7 +957,9 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              isLast ? 'Submit' : 'Continue',
+                              isLast
+                                  ? AppLocalizations.of(context).submit
+                                  : AppLocalizations.of(context).continueText,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -990,7 +1089,7 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
     String? Function(T?)? validator,
   }) {
     return DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       items: items,
       onChanged: onChanged,
       validator: validator,
@@ -1053,5 +1152,71 @@ class _SoilHealthCheckScreenState extends State<SoilHealthCheckScreen>
         ],
       ),
     );
+  }
+
+  String _getLocalizedSoilType(BuildContext context, String type) {
+    final l10n = AppLocalizations.of(context);
+    switch (type) {
+      case 'Alluvial':
+        return l10n.soilAlluvial;
+      case 'Black (Regur)':
+        return l10n.soilBlack;
+      case 'Red':
+        return l10n.soilRed;
+      case 'Laterite':
+        return l10n.soilLaterite;
+      case 'Sandy':
+        return l10n.soilSandy;
+      case 'Loamy':
+        return l10n.soilLoamy;
+      case 'Clay':
+        return l10n.soilClay;
+      case 'Saline':
+        return l10n.soilSaline;
+      case 'Peaty':
+        return l10n.soilPeaty;
+      case 'Arid (Desert)':
+        return l10n.soilArid;
+      default:
+        return type;
+    }
+  }
+
+  String _getLocalizedWaterSource(BuildContext context, String source) {
+    final l10n = AppLocalizations.of(context);
+    switch (source) {
+      case 'Borewell':
+        return l10n.waterBorewell;
+      case 'Canal':
+        return l10n.waterCanal;
+      case 'Rain-fed':
+        return l10n.waterRainFed;
+      case 'River':
+        return l10n.waterRiver;
+      case 'Tank / Pond':
+        return l10n.waterTank;
+      case 'Other':
+        return l10n.waterOther;
+      default:
+        return source;
+    }
+  }
+
+  String _getLocalizedIrrigationType(BuildContext context, String type) {
+    final l10n = AppLocalizations.of(context);
+    switch (type) {
+      case 'Drip':
+        return l10n.irrDrip;
+      case 'Sprinkler':
+        return l10n.irrSprinkler;
+      case 'Flood / Surface':
+        return l10n.irrFlood;
+      case 'Furrow':
+        return l10n.irrFurrow;
+      case 'None (Rain-fed)':
+        return l10n.irrNone;
+      default:
+        return type;
+    }
   }
 }

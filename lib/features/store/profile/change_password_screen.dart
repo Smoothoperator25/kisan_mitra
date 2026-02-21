@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({Key? key}) : super(key: key);
@@ -40,7 +41,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        throw Exception('No user logged in');
+        throw Exception(AppLocalizations.of(context).userDataNotFound);
       }
 
       // Re-authenticate user with current password
@@ -58,8 +59,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password changed successfully!'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).updatedSuccessfully),
           backgroundColor: Color(0xFF27AE60),
           duration: Duration(seconds: 2),
         ),
@@ -68,14 +69,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       // Go back to profile
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
-      String errorMessage = 'Failed to change password';
+      String errorMessage = AppLocalizations.of(context).failedToChangePassword;
 
       if (e.code == 'wrong-password') {
-        errorMessage = 'Current password is incorrect';
+        errorMessage = AppLocalizations.of(context).currentPasswordIncorrect;
       } else if (e.code == 'weak-password') {
-        errorMessage = 'New password is too weak';
+        errorMessage = AppLocalizations.of(context).passwordWeak;
       } else if (e.code == 'requires-recent-login') {
-        errorMessage = 'Please log in again to change password';
+        errorMessage = AppLocalizations.of(context).recentLoginRequired;
       }
 
       if (mounted) {
@@ -91,7 +92,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text(
+              AppLocalizations.of(context).errorPrefix(e.toString()),
+            ),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
           ),
@@ -154,7 +157,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Password must be at least 6 characters long',
+                          AppLocalizations.of(context).passwordLengthError,
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             color: const Color(0xFF1976D2),
@@ -169,7 +172,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
                 // Current Password Field
                 Text(
-                  'Current Password',
+                  AppLocalizations.of(context).currentPassword,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -181,7 +184,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   controller: _currentPasswordController,
                   obscureText: _obscureCurrentPassword,
                   decoration: InputDecoration(
-                    hintText: 'Enter current password',
+                    hintText: AppLocalizations.of(context).enterCurrentPassword,
                     hintStyle: GoogleFonts.poppins(
                       fontSize: 14,
                       color: Colors.grey[400],
@@ -227,7 +230,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your current password';
+                      return AppLocalizations.of(context).enterCurrentPassword;
                     }
                     return null;
                   },
@@ -237,7 +240,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
                 // New Password Field
                 Text(
-                  'New Password',
+                  AppLocalizations.of(context).newPassword,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -249,7 +252,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   controller: _newPasswordController,
                   obscureText: _obscureNewPassword,
                   decoration: InputDecoration(
-                    hintText: 'Enter new password',
+                    hintText: AppLocalizations.of(context).enterNewPassword,
                     hintStyle: GoogleFonts.poppins(
                       fontSize: 14,
                       color: Colors.grey[400],
@@ -295,13 +298,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a new password';
+                      return AppLocalizations.of(context).enterNewPassword;
                     }
                     if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return AppLocalizations.of(context).errorPasswordTooShort;
                     }
                     if (value == _currentPasswordController.text) {
-                      return 'New password must be different from current password';
+                      return AppLocalizations.of(context).newPasswordDifferent;
                     }
                     return null;
                   },
@@ -311,7 +314,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
                 // Confirm Password Field
                 Text(
-                  'Confirm New Password',
+                  AppLocalizations.of(context).confirmNewPassword,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -323,7 +326,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
                   decoration: InputDecoration(
-                    hintText: 'Confirm new password',
+                    hintText: AppLocalizations.of(
+                      context,
+                    ).confirmNewPasswordHint,
                     hintStyle: GoogleFonts.poppins(
                       fontSize: 14,
                       color: Colors.grey[400],
@@ -369,10 +374,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please confirm your new password';
+                      return AppLocalizations.of(
+                        context,
+                      ).confirmNewPasswordHint;
                     }
                     if (value != _newPasswordController.text) {
-                      return 'Passwords do not match';
+                      return AppLocalizations.of(context).errorPasswordMismatch;
                     }
                     return null;
                   },
@@ -405,7 +412,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             ),
                           )
                         : Text(
-                            'Change Password',
+                            AppLocalizations.of(context).changePassword,
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -433,7 +440,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       ),
                     ),
                     child: Text(
-                      'Cancel',
+                      AppLocalizations.of(context).cancel,
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -449,4 +456,3 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     );
   }
 }
-

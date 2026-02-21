@@ -4,6 +4,7 @@ import '../../core/constants/app_constants.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/firestore_service.dart';
 import '../../core/utils/app_theme.dart';
+import 'package:kisan_mitra/l10n/app_localizations.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -99,7 +100,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -127,11 +128,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
             // Tagline
             Text(
-              'Smart Fertilizer Finder',
+              AppLocalizations.of(context).appSmartFertilizer,
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
               ),
             ),
             const SizedBox(height: 50),
@@ -144,10 +145,10 @@ class _SplashScreenState extends State<SplashScreen> {
             const SizedBox(height: 20),
 
             Text(
-              'Loading...',
+              AppLocalizations.of(context).loading,
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
               ),
             ),
           ],

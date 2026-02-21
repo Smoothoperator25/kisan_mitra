@@ -6,6 +6,7 @@ import '../controllers/advisory_controller.dart';
 import '../controllers/crop_controller.dart';
 import '../../../profile/profile_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../../l10n/app_localizations.dart';
 
 class AdvisoryScreen extends StatelessWidget {
   const AdvisoryScreen({super.key});
@@ -17,9 +18,9 @@ class AdvisoryScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.grey[50],
         appBar: AppBar(
-          title: const Text(
-            'Precision Advisory',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          title: Text(
+            AppLocalizations.of(context).fertilizerAdvisory,
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           backgroundColor: Colors.green[700],
           foregroundColor: Colors.white,
@@ -36,9 +37,9 @@ class AdvisoryScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildWeatherHeader(advisoryController),
+                  _buildWeatherHeader(context, advisoryController),
                   const SizedBox(height: 24),
-                  _buildSectionTitle("Select Crop"),
+                  _buildSectionTitle(AppLocalizations.of(context).selectCrop),
                   const SizedBox(height: 12),
                   _buildCropSelector(context, advisoryController),
                   const SizedBox(height: 12),
@@ -53,15 +54,22 @@ class AdvisoryScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildGrowthStageSelector(
+                              context,
                               advisoryController,
                               cropController.selectedCrop!,
                             ),
                             const SizedBox(height: 24),
-                            _buildFieldSizeSlider(advisoryController),
+                            _buildFieldSizeSlider(context, advisoryController),
                             const SizedBox(height: 24),
-                            _buildSoilHealthSection(advisoryController),
+                            _buildSoilHealthSection(
+                              context,
+                              advisoryController,
+                            ),
                             const SizedBox(height: 24),
-                            _buildCropIssuesSection(advisoryController),
+                            _buildCropIssuesSection(
+                              context,
+                              advisoryController,
+                            ),
                             const SizedBox(height: 32),
                             _buildCalculateButton(
                               context,
@@ -71,12 +79,14 @@ class AdvisoryScreen extends StatelessWidget {
                           ],
                         );
                       } else {
-                        return const Center(
+                        return Center(
                           child: Padding(
-                            padding: EdgeInsets.all(32.0),
+                            padding: const EdgeInsets.all(32.0),
                             child: Text(
-                              "Please select a crop above to proceed",
-                              style: TextStyle(color: Colors.grey),
+                              AppLocalizations.of(
+                                context,
+                              ).pleaseSelectACropAbove,
+                              style: const TextStyle(color: Colors.grey),
                             ),
                           ),
                         );
@@ -99,7 +109,10 @@ class AdvisoryScreen extends StatelessWidget {
                     ),
                   if (advisoryController.advisoryResult != null &&
                       !advisoryController.isCalculating)
-                    _buildResultSection(advisoryController.advisoryResult!),
+                    _buildResultSection(
+                      context,
+                      advisoryController.advisoryResult!,
+                    ),
                 ],
               ),
             );
@@ -120,7 +133,10 @@ class AdvisoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWeatherHeader(AdvisoryController controller) {
+  Widget _buildWeatherHeader(
+    BuildContext context,
+    AdvisoryController controller,
+  ) {
     final weather = controller.currentWeather;
     if (weather == null) return const SizedBox(); // Or a shimmer placeholder
 
@@ -148,7 +164,7 @@ class AdvisoryScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Current Weather",
+                AppLocalizations.of(context).currentWeather,
                 style: TextStyle(color: Colors.white.withValues(alpha: 0.9)),
               ),
               const SizedBox(height: 4),
@@ -176,7 +192,9 @@ class AdvisoryScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 _weatherInfoRow(
                   Icons.umbrella,
-                  "${(weather.rainProbability * 100).toInt()}% Rain",
+                  AppLocalizations.of(context).rainProbabilityAmount(
+                    (weather.rainProbability * 100).toInt().toString(),
+                  ),
                 ),
               ],
             ],
@@ -222,12 +240,12 @@ class AdvisoryScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Failed to load crops',
+                    AppLocalizations.of(context).failedToLoadCrops,
                     style: TextStyle(color: Colors.red),
                   ),
                   TextButton(
                     onPressed: () => cropController.retry(),
-                    child: Text('Retry'),
+                    child: Text(AppLocalizations.of(context).retry),
                   ),
                 ],
               ),
@@ -237,7 +255,8 @@ class AdvisoryScreen extends StatelessWidget {
 
         final crops = cropController.crops;
         final allCrops = cropController.allCrops;
-        final hasMoreCrops = allCrops.length > CropController.INITIAL_CROPS_LIMIT;
+        final hasMoreCrops =
+            allCrops.length > CropController.INITIAL_CROPS_LIMIT;
         final showViewAllButton = hasMoreCrops && !cropController.showAllCrops;
 
         return SizedBox(
@@ -253,7 +272,7 @@ class AdvisoryScreen extends StatelessWidget {
                   onTap: () {
                     _showAllCropsModal(context, advisoryController);
                   },
-                  child: _buildViewAllCard(),
+                  child: _buildViewAllCard(context),
                 );
               }
               final crop = crops[index];
@@ -302,10 +321,10 @@ class AdvisoryScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Container(
+                    SizedBox(
                       width: 80,
                       child: Text(
-                        crop.name,
+                        _getLocalizedCropName(context, crop.name),
                         textAlign: TextAlign.center,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -330,6 +349,439 @@ class AdvisoryScreen extends StatelessWidget {
     );
   }
 
+  String _getLocalizedCropName(BuildContext context, String name) {
+    final l10n = AppLocalizations.of(context);
+    switch (name) {
+      case 'Paddy (Rice)':
+        return l10n.cropPaddyRice;
+      case 'Wheat':
+        return l10n.cropWheat;
+      case 'Jowar (Sorghum)':
+        return l10n.cropJowarSorghum;
+      case 'Bajra (Pearl Millet)':
+        return l10n.cropBajraPearlMillet;
+      case 'Maize (Corn)':
+        return l10n.cropMaizeCorn;
+      case 'Ragi (Finger Millet)':
+        return l10n.cropRagiFingerMillet;
+      case 'Barley':
+        return l10n.cropBarley;
+      case 'Oats':
+        return l10n.cropOats;
+      case 'Tur (Pigeon Pea)':
+        return l10n.cropTurPigeonPea;
+      case 'Moong (Green Gram)':
+        return l10n.cropMoongGreenGram;
+      case 'Urad (Black Gram)':
+        return l10n.cropUradBlackGram;
+      case 'Chickpea (Gram)':
+        return l10n.cropChickpeaGram;
+      case 'Masoor (Red Lentil)':
+        return l10n.cropMasoorRedLentil;
+      case 'Cowpea (Lobia)':
+        return l10n.cropCowpeaLobia;
+      case 'Horse Gram (Kulthi)':
+        return l10n.cropHorseGramKulthi;
+      case 'Soybean':
+        return l10n.cropSoybean;
+      case 'Groundnut (Peanut)':
+        return l10n.cropGroundnutPeanut;
+      case 'Sunflower':
+        return l10n.cropSunflower;
+      case 'Mustard (Rapeseed)':
+        return l10n.cropMustardRapeseed;
+      case 'Sesame (Til)':
+        return l10n.cropSesameTil;
+      case 'Linseed (Flax)':
+        return l10n.cropLinseedFlax;
+      case 'Castor':
+        return l10n.cropCastor;
+      case 'Safflower':
+        return l10n.cropSafflower;
+      case 'Cotton':
+        return l10n.cropCotton;
+      case 'Sugarcane':
+        return l10n.cropSugarcane;
+      case 'Jute':
+        return l10n.cropJute;
+      case 'Tobacco':
+        return l10n.cropTobacco;
+      case 'Tomato':
+        return l10n.cropTomato;
+      case 'Onion':
+        return l10n.cropOnion;
+      case 'Potato':
+        return l10n.cropPotato;
+      case 'Brinjal (Eggplant)':
+        return l10n.cropBrinjalEggplant;
+      case 'Okra (Bhindi)':
+        return l10n.cropOkraBhindi;
+      case 'Chili (Hot Pepper)':
+        return l10n.cropChiliHotPepper;
+      case 'Capsicum (Bell Pepper)':
+        return l10n.cropCapsicumBellPepper;
+      case 'Cauliflower':
+        return l10n.cropCauliflower;
+      case 'Cabbage':
+        return l10n.cropCabbage;
+      case 'Cucumber':
+        return l10n.cropCucumber;
+      case 'Bitter Gourd (Karela)':
+        return l10n.cropBitterGourdKarela;
+      case 'Bottle Gourd (Lauki)':
+        return l10n.cropBottleGourdLauki;
+      case 'Pumpkin':
+        return l10n.cropPumpkin;
+      case 'Watermelon':
+        return l10n.cropWatermelon;
+      case 'Muskmelon (Kharbooj)':
+        return l10n.cropMuskmelonKharbooj;
+      case 'Garlic':
+        return l10n.cropGarlic;
+      case 'Spinach (Palak)':
+        return l10n.cropSpinachPalak;
+      case 'Fenugreek (Methi)':
+        return l10n.cropFenugreekMethi;
+      case 'Carrot':
+        return l10n.cropCarrot;
+      case 'Radish (Mooli)':
+        return l10n.cropRadishMooli;
+      case 'Mango':
+        return l10n.cropMango;
+      case 'Banana':
+        return l10n.cropBanana;
+      case 'Grapes':
+        return l10n.cropGrapes;
+      case 'Pomegranate':
+        return l10n.cropPomegranate;
+      case 'Orange (Nagpur)':
+        return l10n.cropOrangeNagpur;
+      case 'Papaya':
+        return l10n.cropPapaya;
+      case 'Guava':
+        return l10n.cropGuava;
+      case 'Coconut':
+        return l10n.cropCoconut;
+      case 'Custard Apple (Sitaphal)':
+        return l10n.cropCustardAppleSitaphal;
+      case 'Lemon':
+        return l10n.cropLemon;
+      case 'Strawberry':
+        return l10n.cropStrawberry;
+      case 'Fig (Anjeer)':
+        return l10n.cropFigAnjeer;
+      case 'Sweet Lime (Mosambi)':
+        return l10n.cropSweetLimeMosambi;
+      case 'Jackfruit':
+        return l10n.cropJackfruit;
+      case 'Sapodilla (Chiku)':
+        return l10n.cropSapodillaChiku;
+      case 'Turmeric (Haldi)':
+        return l10n.cropTurmericHaldi;
+      case 'Ginger (Adrak)':
+        return l10n.cropGingerAdrak;
+      case 'Coriander (Dhaniya)':
+        return l10n.cropCorianderDhaniya;
+      case 'Cumin (Jeera)':
+        return l10n.cropCuminJeera;
+      case 'Fennel (Saunf)':
+        return l10n.cropFennelSaunf;
+      case 'Cardamom (Elaichi)':
+        return l10n.cropCardamomElaichi;
+      case 'Pepper (Kali Mirch)':
+        return l10n.cropPepperKaliMirch;
+      case 'Tea':
+        return l10n.cropTea;
+      case 'Coffee':
+        return l10n.cropCoffee;
+      case 'Rubber':
+        return l10n.cropRubber;
+      case 'Sweet Potato':
+        return l10n.cropSweetPotato;
+      case 'Tapioca (Cassava)':
+        return l10n.cropTapiocaCassava;
+      case 'Colocasia (Arbi)':
+        return l10n.cropColocasiaArbi;
+      case 'Lucerne (Alfalfa)':
+        return l10n.cropLucerneAlfalfa;
+      case 'Berseem Clover':
+        return l10n.cropBerseemClover;
+      case 'Napier Grass':
+        return l10n.cropNapierGrass;
+      case 'Marigold':
+        return l10n.cropMarigold;
+      case 'Rose':
+        return l10n.cropRose;
+      case 'Jasmine (Mogra)':
+        return l10n.cropJasmineMogra;
+      case 'Chrysanthemum':
+        return l10n.cropChrysanthemum;
+      case 'Tuberose (Rajnigandha)':
+        return l10n.cropTuberoseRajnigandha;
+      case 'French Beans':
+        return l10n.cropFrenchBeans;
+      case 'Peas (Matar)':
+        return l10n.cropPeasMatar;
+      case 'Beetroot':
+        return l10n.cropBeetroot;
+      case 'Turnip (Shalgam)':
+        return l10n.cropTurnipShalgam;
+      case 'Drumstick (Moringa)':
+        return l10n.cropDrumstickMoringa;
+      case 'Snake Gourd':
+        return l10n.cropSnakeGourd;
+      case 'Sponge Gourd (Turai)':
+        return l10n.cropSpongeGourdTurai;
+      case 'Ridge Gourd (Torai)':
+        return l10n.cropRidgeGourdTorai;
+      case 'Lettuce':
+        return l10n.cropLettuce;
+      case 'Sweet Corn':
+        return l10n.cropSweetCorn;
+      case 'Apple':
+        return l10n.cropApple;
+      case 'Pineapple':
+        return l10n.cropPineapple;
+      case 'Avocado':
+        return l10n.cropAvocado;
+      case 'Aloe Vera':
+        return l10n.cropAloeVera;
+      case 'Stevia':
+        return l10n.cropStevia;
+      case 'Ashwagandha':
+        return l10n.cropAshwagandha;
+      default:
+        return name;
+    }
+  }
+
+  String _getLocalizedGrowthStage(BuildContext context, String stage) {
+    final l10n = AppLocalizations.of(context);
+    switch (stage) {
+      case 'Seedling':
+        return l10n.seedling;
+      case 'Vegetative':
+        return l10n.vegetative;
+      case 'Flowering':
+        return l10n.flowering;
+      case 'Fruiting':
+        return l10n.fruiting;
+      case 'Maturity':
+        return l10n.maturity;
+      case 'Transplanting':
+        return l10n.transplanting;
+      case 'Tillering':
+        return l10n.tillering;
+      case 'Panicle Initiation':
+        return l10n.panicleInitiation;
+      case 'Panicle Emergence':
+        return l10n.panicleEmergence;
+      case 'Jointing':
+        return l10n.jointing;
+      case 'Booting':
+        return l10n.booting;
+      case 'Grain Fill':
+        return l10n.grainFill;
+      case 'Knee High':
+        return l10n.kneeHigh;
+      case 'Tasseling':
+        return l10n.tasseling;
+      case 'Silking':
+        return l10n.silking;
+      case 'Dough':
+        return l10n.dough;
+      case 'Pod Development':
+        return l10n.podDevelopment;
+      case 'Germination':
+        return l10n.germination;
+      case 'Bud Differentiation':
+        return l10n.budDifferentiation;
+      case 'Fruit Set':
+        return l10n.fruitSet;
+      case 'Fruit Development':
+        return l10n.fruitDevelopment;
+      case 'Flower Bud':
+        return l10n.flowerBud;
+      case 'Juvenile':
+        return l10n.juvenile;
+      case 'Bearing':
+        return l10n.bearing;
+      case 'Full Production':
+        return l10n.fullProduction;
+      case 'Shoot Emergence':
+        return l10n.shootEmergence;
+      case 'Rhizome Development':
+        return l10n.rhizomeDevelopment;
+      case 'Capsule Development':
+        return l10n.capsuleDevelopment;
+      case 'Nursery':
+        return l10n.nursery;
+      case 'Plucking':
+        return l10n.plucking;
+      case 'Young Plantation':
+        return l10n.youngPlantation;
+      case 'Full Bearing':
+        return l10n.fullBearing;
+      case 'Immature':
+        return l10n.immature;
+      case 'Tapping':
+        return l10n.tapping;
+      case 'Tuber Development':
+        return l10n.tuberDevelopment;
+      case 'Corm Development':
+        return l10n.cormDevelopment;
+      case 'Cutting':
+        return l10n.cutting;
+      case 'Bud':
+        return l10n.bud;
+      case 'Establishment':
+        return l10n.establishment;
+      case 'Bud Initiation':
+        return l10n.budInitiation;
+      case 'Spike Emergence':
+        return l10n.spikeEmergence;
+      case 'Pod Fill':
+        return l10n.podFill;
+      case 'Root Development':
+        return l10n.rootDevelopment;
+      case 'Root Swelling':
+        return l10n.rootSwelling;
+      case 'Bud Break':
+        return l10n.budBreak;
+      case 'Flower Induction':
+        return l10n.flowerInduction;
+      default:
+        return stage;
+    }
+  }
+
+  String _getLocalizedSoilType(BuildContext context, String type) {
+    final l10n = AppLocalizations.of(context);
+    switch (type) {
+      case 'Loamy':
+        return l10n.soilLoamy;
+      case 'Clay':
+        return l10n.soilClay;
+      case 'Sandy':
+        return l10n.soilSandy;
+      case 'Black':
+        return l10n.soilBlack;
+      case 'Red':
+        return l10n.soilRed;
+      case 'Alluvial':
+        return l10n.soilAlluvial;
+      case 'Saline':
+        return l10n.soilSaline;
+      default:
+        return type;
+    }
+  }
+
+  String _getLocalizedIssue(BuildContext context, String issue) {
+    final l10n = AppLocalizations.of(context);
+    switch (issue) {
+      case 'Yellow leaves':
+        return l10n.issueYellowLeaves;
+      case 'Stunted growth':
+        return l10n.issueStuntedGrowth;
+      case 'Pest attack':
+        return l10n.issuePestAttack;
+      case 'Fungal disease':
+        return l10n.issueFungalDisease;
+      case 'Wilting':
+        return l10n.issueWilting;
+      case 'Low yield':
+        return l10n.issueLowYield;
+      default:
+        return issue;
+    }
+  }
+
+  String _getLocalizedFertilizerName(BuildContext context, String name) {
+    final l10n = AppLocalizations.of(context);
+    final n = name.toLowerCase();
+    if (n.contains("urea")) return l10n.fertUrea;
+    if (n.contains("dap")) return l10n.fertDAP;
+    if (n.contains("mop")) return l10n.fertMOP;
+    if (n.contains("tsp")) return l10n.fertTSP;
+    if (n.contains("ssp")) return l10n.fertSSP;
+    if (n.contains("can")) return l10n.fertCAN;
+    if (n.contains("sop") || n.contains("sulphate of potash")) {
+      return l10n.fertSOP;
+    }
+    if (n.contains("19:19:19") || n.contains("npk")) return l10n.fertNPK19;
+    if (n.contains("growth promoter") || n.contains("seaweed")) {
+      return l10n.fertGrowthPromoter;
+    }
+    return name;
+  }
+
+  String _getLocalizedMethod(BuildContext context, String method) {
+    final l10n = AppLocalizations.of(context);
+    switch (method) {
+      case 'Broadcast':
+        return l10n.methodBroadcast;
+      case 'Top Dressing':
+        return l10n.methodTopDressing;
+      case 'Soil Placement (Drilling)':
+        return l10n.methodSoilPlacement;
+      case 'Foliar Spray':
+        return l10n.methodFoliarSpray;
+      default:
+        return method;
+    }
+  }
+
+  String _getLocalizedTime(BuildContext context, String time) {
+    final l10n = AppLocalizations.of(context);
+    if (time.contains("Basal / Early Stage")) return l10n.timeBasalEarly;
+    if (time.contains("3 doses")) return l10n.timeSplit3Doses;
+    if (time.contains("1/2 now")) return l10n.timeSplit2Doses;
+    if (time.contains("Basal (At Sowing)")) return l10n.timeBasalSowing;
+    if (time.contains("applied in evening")) return l10n.timeEvening;
+    return time;
+  }
+
+  String _getLocalizedPrecaution(BuildContext context, String precaution) {
+    final l10n = AppLocalizations.of(context);
+    if (precaution.contains("Heavy rain forecast")) return l10n.precHighRain;
+    if (precaution.contains("Contains Calcium")) return l10n.precAcidicSoil;
+    if (precaution.contains("leaf coverage")) return l10n.precLeafCoverage;
+    if (precaution.contains("Mix well with water")) return l10n.precMixWater;
+    return precaution;
+  }
+
+  String _getLocalizedAdvice(BuildContext context, String advice) {
+    final l10n = AppLocalizations.of(context);
+    if (advice.contains("Normal irrigation schedule")) {
+      return l10n.adviceNormalIrrigation;
+    }
+    if (advice.contains("prevent leaching")) return l10n.adviceRainWarning;
+    if (advice.contains("High temperature detected")) {
+      return l10n.adviceHeatWarning;
+    }
+    return advice;
+  }
+
+  String _getLocalizedOrganic(BuildContext context, String organic) {
+    final l10n = AppLocalizations.of(context);
+    if (organic.contains("Farm Yard Manure")) return l10n.orgFYM;
+    if (organic.contains("Vermicompost")) return l10n.orgVermicompost;
+    if (organic.contains("Green Manure")) return l10n.orgGreenManure;
+    if (organic.contains("Bio-fertilizers")) return l10n.orgBioFertilizer;
+    return organic;
+  }
+
+  String _getLocalizedMicro(BuildContext context, String micro) {
+    final l10n = AppLocalizations.of(context);
+    if (micro.contains("Zinc Sulphate")) return l10n.microZinc;
+    if (micro.contains("Ferrous Sulphate")) return l10n.microIron;
+    if (micro.contains("Zinc is critical for Paddy")) {
+      return l10n.microZincPaddy;
+    }
+    return micro;
+  }
+
   Widget _buildShimmerCrop() {
     return Column(
       children: [
@@ -347,7 +799,7 @@ class AdvisoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildViewAllCard() {
+  Widget _buildViewAllCard(BuildContext context) {
     return Column(
       children: [
         Container(
@@ -371,7 +823,10 @@ class AdvisoryScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        const Text("View All", style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(
+          AppLocalizations.of(context).all,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
       ],
     );
   }
@@ -383,13 +838,16 @@ class AdvisoryScreen extends StatelessWidget {
 
         if (selectedCrop == null) {
           return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
             decoration: BoxDecoration(
               color: Colors.grey[100],
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              "No crop selected",
+              AppLocalizations.of(context).selectCrop,
               style: TextStyle(
                 color: Colors.grey[600],
                 fontSize: 14,
@@ -434,7 +892,7 @@ class AdvisoryScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Selected Crop",
+                      AppLocalizations.of(context).selectCrop,
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 12,
@@ -443,7 +901,7 @@ class AdvisoryScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      selectedCrop.name,
+                      _getLocalizedCropName(context, selectedCrop.name),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -466,11 +924,7 @@ class AdvisoryScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(
-                Icons.check_circle,
-                color: Colors.green[700],
-                size: 28,
-              ),
+              Icon(Icons.check_circle, color: Colors.green[700], size: 28),
             ],
           ),
         );
@@ -507,15 +961,15 @@ class AdvisoryScreen extends StatelessWidget {
                       child: Row(
                         children: [
                           Text(
-                            "All Crops",
-                            style: TextStyle(
+                            AppLocalizations.of(context).selectCrop,
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          Spacer(),
+                          const Spacer(),
                           IconButton(
-                            icon: Icon(Icons.close),
+                            icon: const Icon(Icons.close),
                             onPressed: () => Navigator.pop(context),
                           ),
                         ],
@@ -525,12 +979,12 @@ class AdvisoryScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: TextField(
                         decoration: InputDecoration(
-                          hintText: "Search crops...",
-                          prefixIcon: Icon(Icons.search),
+                          hintText: AppLocalizations.of(context).search,
+                          prefixIcon: const Icon(Icons.search),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          contentPadding: EdgeInsets.symmetric(
+                          contentPadding: const EdgeInsets.symmetric(
                             vertical: 0,
                             horizontal: 16,
                           ),
@@ -542,7 +996,7 @@ class AdvisoryScreen extends StatelessWidget {
                     Expanded(
                       child: GridView.builder(
                         controller: scrollController,
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
                           childAspectRatio: 0.8,
@@ -586,9 +1040,9 @@ class AdvisoryScreen extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 Text(
-                                  crop.name,
+                                  _getLocalizedCropName(context, crop.name),
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontWeight: isSelected
@@ -619,6 +1073,7 @@ class AdvisoryScreen extends StatelessWidget {
   }
 
   Widget _buildGrowthStageSelector(
+    BuildContext context,
     AdvisoryController advisoryController,
     Crop selectedCrop,
   ) {
@@ -648,7 +1103,10 @@ class AdvisoryScreen extends StatelessWidget {
           isExpanded: true,
           icon: const Icon(Icons.arrow_drop_down_circle, color: Colors.green),
           items: selectedCrop.growthStages.map((String stage) {
-            return DropdownMenuItem<String>(value: stage, child: Text(stage));
+            return DropdownMenuItem<String>(
+              value: stage,
+              child: Text(_getLocalizedGrowthStage(context, stage)),
+            );
           }).toList(),
           onChanged: (val) {
             if (val != null) advisoryController.setGrowthStage(val);
@@ -658,7 +1116,10 @@ class AdvisoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFieldSizeSlider(AdvisoryController controller) {
+  Widget _buildFieldSizeSlider(
+    BuildContext context,
+    AdvisoryController controller,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -666,7 +1127,7 @@ class AdvisoryScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "Field Size",
+              AppLocalizations.of(context).fieldSize,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             Container(
@@ -676,7 +1137,7 @@ class AdvisoryScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                "${controller.fieldSize.toStringAsFixed(1)} ${controller.isHectares ? 'Ha' : 'Acres'}",
+                "${controller.fieldSize.toStringAsFixed(1)} ${controller.isHectares ? 'Ha' : AppLocalizations.of(context).acres}",
                 style: TextStyle(
                   color: Colors.green[800],
                   fontWeight: FontWeight.bold,
@@ -691,57 +1152,135 @@ class AdvisoryScreen extends StatelessWidget {
           max: 50.0,
           divisions: 99,
           activeColor: Colors.green,
+          inactiveColor: Colors.green[200],
           onChanged: (val) => controller.setFieldSize(val),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            const Text("Acres"),
+            Text(AppLocalizations.of(context).acres),
             Switch(
               value: controller.isHectares,
-              activeColor: Colors.green,
+              activeThumbColor: Colors.green,
               onChanged: (val) => controller.toggleUnit(val),
             ),
-            const Text("Hectares"),
+            Text(AppLocalizations.of(context).hectares),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildSoilHealthSection(AdvisoryController controller) {
+  Widget _buildSoilHealthSection(
+    BuildContext context,
+    AdvisoryController controller,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle("Soil Health"),
+        _buildSectionTitle(AppLocalizations.of(context).soilHealth),
         const SizedBox(height: 12),
         // Soil Type Dropdown
         DropdownButtonFormField<String>(
           decoration: InputDecoration(
-            labelText: "Soil Type",
+            labelText: AppLocalizations.of(context).soilHealth,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: EdgeInsets.symmetric(horizontal: 16),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
           ),
-          value: controller.selectedSoilType,
-          items: [
-            "Loamy",
-            "Clay",
-            "Sandy",
-            "Black",
-            "Red",
-            "Alluvial",
-            "Saline",
-          ].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
+          initialValue: controller.selectedSoilType,
+          items:
+              ["Loamy", "Clay", "Sandy", "Black", "Red", "Alluvial", "Saline"]
+                  .map(
+                    (t) => DropdownMenuItem(
+                      value: t,
+                      child: Text(_getLocalizedSoilType(context, t)),
+                    ),
+                  )
+                  .toList(),
           onChanged: (val) {
             if (val != null) controller.setSoilType(val);
           },
         ),
         // Add more sophisticated inputs here later (N, P, K sliders/inputs)
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildNutrientInput(
+                context,
+                AppLocalizations.of(context).nitrogen,
+                controller.nitrogen,
+                (val) => controller.setNitrogen(val),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildNutrientInput(
+                context,
+                AppLocalizations.of(context).phosphorus,
+                controller.phosphorus,
+                (val) => controller.setPhosphorus(val),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildNutrientInput(
+                context,
+                AppLocalizations.of(context).potassium,
+                controller.potassium,
+                (val) => controller.setPotassium(val),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildNutrientInput(
+                context,
+                AppLocalizations.of(context).phLevel,
+                controller.ph,
+                (val) => controller.setPh(val),
+                isPh: true,
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
 
-  Widget _buildCropIssuesSection(AdvisoryController controller) {
+  Widget _buildNutrientInput(
+    BuildContext context,
+    String label,
+    double? value,
+    Function(double?) onChanged, {
+    bool isPh = false,
+  }) {
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: isPh ? "0.0 - 14.0" : "kg/acre",
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+      ),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      initialValue: value?.toString() ?? '',
+      onChanged: (val) {
+        final d = double.tryParse(val);
+        onChanged(d);
+      },
+    );
+  }
+
+  Widget _buildCropIssuesSection(
+    BuildContext context,
+    AdvisoryController controller,
+  ) {
     List<String> issues = [
       "Yellow leaves",
       "Stunted growth",
@@ -754,7 +1293,7 @@ class AdvisoryScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle("Observations / Issues"),
+        _buildSectionTitle(AppLocalizations.of(context).cropIssues),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
@@ -762,7 +1301,7 @@ class AdvisoryScreen extends StatelessWidget {
           children: issues.map((issue) {
             final isSelected = controller.selectedIssues.contains(issue);
             return FilterChip(
-              label: Text(issue),
+              label: Text(_getLocalizedIssue(context, issue)),
               selected: isSelected,
               selectedColor: Colors.red[100],
               checkmarkColor: Colors.red,
@@ -807,9 +1346,9 @@ class AdvisoryScreen extends StatelessWidget {
                   context.read<ProfileController>().incrementAdvisoryCount();
                 }
               },
-        child: const Text(
-          "Calculate Advice",
-          style: TextStyle(
+        child: Text(
+          AppLocalizations.of(context).calculateAdvisory,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -819,7 +1358,7 @@ class AdvisoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildResultSection(AdvisoryResponse result) {
+  Widget _buildResultSection(BuildContext context, AdvisoryResponse result) {
     return Container(
       margin: const EdgeInsets.only(top: 32),
       child: Column(
@@ -830,10 +1369,13 @@ class AdvisoryScreen extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.check_circle, color: Colors.green, size: 28),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
-                "Your Advisory Plan",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                AppLocalizations.of(context).calculateAdvisory,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -852,10 +1394,10 @@ class AdvisoryScreen extends StatelessWidget {
                 children: [
                   const Icon(Icons.warning_amber_rounded, color: Colors.orange),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      "Rain expected! Consider delaying fertilizer application.",
-                      style: TextStyle(
+                      AppLocalizations.of(context).rainExpectedWarning,
+                      style: const TextStyle(
                         color: Colors.orange,
                         fontWeight: FontWeight.bold,
                       ),
@@ -866,29 +1408,41 @@ class AdvisoryScreen extends StatelessWidget {
             ),
 
           // Recommendations List
-          ...result.recommendations.map((rec) => _buildFertilizerCard(rec)),
+          ...result.recommendations.map(
+            (rec) => _buildFertilizerCard(context, rec),
+          ),
 
           const SizedBox(height: 16),
-          _buildInfoCard("Irrigation", result.irrigationAdvice, Icons.water),
+          _buildInfoCard(
+            AppLocalizations.of(context).irrigation,
+            _getLocalizedAdvice(context, result.irrigationAdvice),
+            Icons.water,
+          ),
 
           if (result.micronutrients.isNotEmpty)
             _buildListCard(
-              "Micronutrients",
-              result.micronutrients,
+              AppLocalizations.of(context).micronutrients,
+              result.micronutrients
+                  .map((e) => _getLocalizedMicro(context, e))
+                  .toList(),
               Icons.science,
             ),
 
           if (result.organicAlternatives.isNotEmpty)
             _buildListCard(
-              "Organic Alternatives",
-              result.organicAlternatives,
+              AppLocalizations.of(context).organicAlternatives,
+              result.organicAlternatives
+                  .map((e) => _getLocalizedOrganic(context, e))
+                  .toList(),
               Icons.eco,
             ),
 
           const SizedBox(height: 24),
           Center(
             child: Text(
-              "Total Est. Cost: ₹${result.estimatedCost.toStringAsFixed(0)}",
+              AppLocalizations.of(
+                context,
+              ).totalEstimatedCost(result.estimatedCost.toStringAsFixed(0)),
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -901,7 +1455,10 @@ class AdvisoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFertilizerCard(FertilizerRecommendation rec) {
+  Widget _buildFertilizerCard(
+    BuildContext context,
+    FertilizerRecommendation rec,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -925,7 +1482,7 @@ class AdvisoryScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  rec.name,
+                  _getLocalizedFertilizerName(context, rec.name),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -954,15 +1511,21 @@ class AdvisoryScreen extends StatelessWidget {
           const Divider(),
           const SizedBox(height: 12),
           _buildDetailRow(
-            "Quantity",
-            "${rec.totalQuantity.toStringAsFixed(1)} kg (${rec.quantityPerAcre.toStringAsFixed(1)} kg/acre)",
+            AppLocalizations.of(context).quantity,
+            "${rec.totalQuantity.toStringAsFixed(1)} ${AppLocalizations.of(context).kg} (${rec.quantityPerAcre.toStringAsFixed(1)} ${AppLocalizations.of(context).kgPerAcre})",
           ),
-          _buildDetailRow("Method", rec.applicationMethod),
-          _buildDetailRow("Timing", rec.applicationTime),
+          _buildDetailRow(
+            AppLocalizations.of(context).method,
+            _getLocalizedMethod(context, rec.applicationMethod),
+          ),
+          _buildDetailRow(
+            AppLocalizations.of(context).timing,
+            _getLocalizedTime(context, rec.applicationTime),
+          ),
           const SizedBox(height: 8),
-          const Text(
-            "Precautions:",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+          Text(
+            AppLocalizations.of(context).precautionsLabel,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
           ),
           ...rec.precautions.map(
             (p) => Padding(
@@ -974,7 +1537,7 @@ class AdvisoryScreen extends StatelessWidget {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      p,
+                      _getLocalizedPrecaution(context, p),
                       style: TextStyle(color: Colors.grey[700], fontSize: 13),
                     ),
                   ),
@@ -1029,14 +1592,17 @@ class AdvisoryScreen extends StatelessWidget {
           Row(
             children: [
               Icon(icon, color: Colors.blue),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 title,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(content, style: TextStyle(color: Colors.grey[800])),
         ],
       ),
@@ -1061,17 +1627,20 @@ class AdvisoryScreen extends StatelessWidget {
           Row(
             children: [
               Icon(icon, color: Colors.orange),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 title,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           ...items.map(
             (i) => Padding(
-              padding: EdgeInsets.symmetric(vertical: 2),
+              padding: const EdgeInsets.symmetric(vertical: 2),
               child: Text("• $i"),
             ),
           ),

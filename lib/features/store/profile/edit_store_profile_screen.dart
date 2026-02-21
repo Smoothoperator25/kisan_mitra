@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import 'store_profile_controller.dart';
 import 'store_profile_model.dart';
 
@@ -54,8 +55,8 @@ class _EditStoreProfileScreenState extends State<EditStoreProfileScreen> {
           // Show error if profile couldn't be loaded
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Failed to load store profile'),
+              SnackBar(
+                content: Text(AppLocalizations.of(context).failedToLoadProfile),
                 backgroundColor: Colors.red,
               ),
             );
@@ -69,7 +70,9 @@ class _EditStoreProfileScreenState extends State<EditStoreProfileScreen> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error loading profile: $e'),
+            content: Text(
+              AppLocalizations.of(context).errorLoadingProfile(e.toString()),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -100,8 +103,8 @@ class _EditStoreProfileScreenState extends State<EditStoreProfileScreen> {
               icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3748)),
               onPressed: () => Navigator.pop(context),
             ),
-            title: const Text(
-              'Edit Store Profile',
+            title: Text(
+              AppLocalizations.of(context).editStoreDetails,
               style: TextStyle(
                 color: Color(0xFF2D3748),
                 fontSize: 20,
@@ -116,122 +119,138 @@ class _EditStoreProfileScreenState extends State<EditStoreProfileScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Form(
-                        key: _formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // Profile Image Section
-                            _buildProfileImageSection(controller),
-                            const SizedBox(height: 24),
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Profile Image Section
+                          _buildProfileImageSection(controller),
+                          const SizedBox(height: 24),
 
-                            // Store Name
-                            _buildTextField(
-                              controller: _storeNameController,
-                              label: 'Store Name',
-                              hint: 'Enter store name',
-                              icon: Icons.store,
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Store name is required';
-                                }
-                                return null;
-                              },
+                          // Store Name
+                          _buildTextField(
+                            controller: _storeNameController,
+                            label: AppLocalizations.of(context).storeName,
+                            hint: AppLocalizations.of(
+                              context,
+                            ).enterBusinessName,
+                            icon: Icons.store,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return AppLocalizations.of(
+                                  context,
+                                ).storeNameRequired;
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Owner Name
+                          _buildTextField(
+                            controller: _ownerNameController,
+                            label: AppLocalizations.of(context).ownerName,
+                            hint: AppLocalizations.of(context).enterOwnerName,
+                            icon: Icons.person,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return AppLocalizations.of(
+                                  context,
+                                ).ownerNameRequired;
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Phone
+                          _buildTextField(
+                            controller: _phoneController,
+                            label: AppLocalizations.of(context).phone,
+                            hint: AppLocalizations.of(context).phoneHint,
+                            icon: Icons.phone,
+                            keyboardType: TextInputType.phone,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(10),
+                            ],
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return AppLocalizations.of(
+                                  context,
+                                ).phoneRequired;
+                              }
+                              if (value.length != 10) {
+                                return AppLocalizations.of(
+                                  context,
+                                ).phoneLengthError;
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Email
+                          _buildTextField(
+                            controller: _emailController,
+                            label: AppLocalizations.of(context).emailAddress,
+                            hint: AppLocalizations.of(context).emailHint,
+                            icon: Icons.email,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return AppLocalizations.of(
+                                  context,
+                                ).errorFieldRequired;
+                              }
+                              final emailRegex = RegExp(
+                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                              );
+                              if (!emailRegex.hasMatch(value)) {
+                                return AppLocalizations.of(
+                                  context,
+                                ).errorInvalidEmail;
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Address
+                          _buildTextField(
+                            controller: _addressController,
+                            label: AppLocalizations.of(context).storeAddress,
+                            hint: AppLocalizations.of(context).enterAddressHint,
+                            icon: Icons.location_on,
+                            maxLines: 3,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return AppLocalizations.of(
+                                  context,
+                                ).addressRequired;
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Coordinates (Read-only)
+                          if (_currentProfile != null)
+                            _buildReadOnlyField(
+                              label: AppLocalizations.of(context).coordinates,
+                              value: _currentProfile!.coordinates,
+                              icon: Icons.location_searching,
                             ),
-                            const SizedBox(height: 16),
+                          const SizedBox(height: 32),
 
-                            // Owner Name
-                            _buildTextField(
-                              controller: _ownerNameController,
-                              label: 'Owner Name',
-                              hint: 'Enter owner name',
-                              icon: Icons.person,
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Owner name is required';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 16),
-
-                            // Phone
-                            _buildTextField(
-                              controller: _phoneController,
-                              label: 'Phone Number',
-                              hint: 'Enter 10-digit phone number',
-                              icon: Icons.phone,
-                              keyboardType: TextInputType.phone,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(10),
-                              ],
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Phone number is required';
-                                }
-                                if (value.length != 10) {
-                                  return 'Phone number must be 10 digits';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 16),
-
-                            // Email
-                            _buildTextField(
-                              controller: _emailController,
-                              label: 'Email Address',
-                              hint: 'Enter email address',
-                              icon: Icons.email,
-                              keyboardType: TextInputType.emailAddress,
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Email is required';
-                                }
-                                final emailRegex = RegExp(
-                                  r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                                );
-                                if (!emailRegex.hasMatch(value)) {
-                                  return 'Enter a valid email';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 16),
-
-                            // Address
-                            _buildTextField(
-                              controller: _addressController,
-                              label: 'Address',
-                              hint: 'Enter complete address',
-                              icon: Icons.location_on,
-                              maxLines: 3,
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Address is required';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 16),
-
-                            // Coordinates (Read-only)
-                            if (_currentProfile != null)
-                              _buildReadOnlyField(
-                                label: 'Coordinates',
-                                value: _currentProfile!.coordinates,
-                                icon: Icons.location_searching,
-                              ),
-                            const SizedBox(height: 32),
-
-                            // Save Button
-                            _buildSaveButton(controller),
-                            const SizedBox(height: 20),
-                          ],
-                        ),
+                          // Save Button
+                          _buildSaveButton(controller),
+                          const SizedBox(height: 20),
+                        ],
                       ),
                     ),
                   ),
+                ),
         );
       },
     );
@@ -315,7 +334,7 @@ class _EditStoreProfileScreenState extends State<EditStoreProfileScreen> {
             TextButton.icon(
               onPressed: () => controller.clearSelectedImage(),
               icon: const Icon(Icons.close, size: 18),
-              label: const Text('Remove Image'),
+              label: Text(AppLocalizations.of(context).removeImage),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
             ),
           ],
@@ -445,9 +464,9 @@ class _EditStoreProfileScreenState extends State<EditStoreProfileScreen> {
                 strokeWidth: 2,
               ),
             )
-          : const Text(
-              'Save Changes',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          : Text(
+              AppLocalizations.of(context).saveChanges,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
     );
   }
@@ -464,7 +483,10 @@ class _EditStoreProfileScreenState extends State<EditStoreProfileScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(controller.error ?? 'Failed to upload image'),
+              content: Text(
+                controller.error ??
+                    AppLocalizations.of(context).failedToUploadImage,
+              ),
               backgroundColor: Colors.red,
             ),
           );
@@ -485,8 +507,8 @@ class _EditStoreProfileScreenState extends State<EditStoreProfileScreen> {
     if (mounted) {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile updated successfully'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context).updatedSuccessfully),
             backgroundColor: Color(0xFF27AE60),
           ),
         );
@@ -494,7 +516,10 @@ class _EditStoreProfileScreenState extends State<EditStoreProfileScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(controller.error ?? 'Failed to update profile'),
+            content: Text(
+              controller.error ??
+                  AppLocalizations.of(context).failedToUpdateProfile,
+            ),
             backgroundColor: Colors.red,
           ),
         );

@@ -4,6 +4,7 @@ import '../../core/constants/app_constants.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/firestore_service.dart';
 import '../../core/utils/helpers.dart';
+import 'package:kisan_mitra/l10n/app_localizations.dart';
 
 class FarmerSignupScreen extends StatefulWidget {
   const FarmerSignupScreen({super.key});
@@ -75,7 +76,10 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
     }
 
     if (_selectedState == null) {
-      SnackBarHelper.showError(context, 'Please select a state');
+      SnackBarHelper.showError(
+        context,
+        AppLocalizations.of(context).errorFieldRequired,
+      );
       return;
     }
 
@@ -112,7 +116,10 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
 
         if (firestoreResult['success'] == true) {
           // Navigate to Farmer Home
-          SnackBarHelper.showSuccess(context, 'Account created successfully!');
+          SnackBarHelper.showSuccess(
+            context,
+            AppLocalizations.of(context).accountCreated,
+          );
 
           if (mounted) {
             Navigator.of(context).pushNamedAndRemoveUntil(
@@ -126,7 +133,8 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
           if (mounted) {
             SnackBarHelper.showError(
               context,
-              firestoreResult['message'] ?? 'Failed to create profile',
+              firestoreResult['message'] ??
+                  AppLocalizations.of(context).failedToCreateProfile,
             );
           }
         }
@@ -135,13 +143,16 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
         if (mounted) {
           SnackBarHelper.showError(
             context,
-            authResult['message'] ?? 'Signup failed',
+            authResult['message'] ?? AppLocalizations.of(context).signupFailed,
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, 'An error occurred: $e');
+        SnackBarHelper.showError(
+          context,
+          AppLocalizations.of(context).anErrorOccurred(e.toString()),
+        );
       }
     } finally {
       if (mounted) {
@@ -224,7 +235,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
 
                 // App Name
                 Text(
-                  'Kisan Mitra',
+                  AppLocalizations.of(context).appName,
                   style: GoogleFonts.poppins(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
@@ -236,7 +247,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
 
                 // Tagline
                 Text(
-                  '"BEEJ SE BAZAR TAK"',
+                  AppLocalizations.of(context).appTagline,
                   style: GoogleFonts.poppins(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
@@ -249,7 +260,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
 
                 // Create Farmer Account
                 Text(
-                  'Create Farmer Account',
+                  AppLocalizations.of(context).signupTitle,
                   style: GoogleFonts.poppins(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -261,7 +272,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
 
                 // Subtitle
                 Text(
-                  'Register to access fertilizer recommendations\nand nearby stores',
+                  AppLocalizations.of(context).signupSubtitle,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 13,
@@ -277,7 +288,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Full Name',
+                      AppLocalizations.of(context).fullName,
                       style: GoogleFonts.poppins(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -290,7 +301,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                       enabled: !_isLoading,
                       validator: Validators.validateName,
                       decoration: InputDecoration(
-                        hintText: 'Enter your full name',
+                        hintText: AppLocalizations.of(context).nameHint,
                         hintStyle: GoogleFonts.poppins(
                           fontSize: 14,
                           color: const Color(0xFFB0BDB4),
@@ -317,7 +328,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Email Address',
+                      AppLocalizations.of(context).emailAddress,
                       style: GoogleFonts.poppins(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -331,7 +342,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                       enabled: !_isLoading,
                       validator: Validators.validateEmail,
                       decoration: InputDecoration(
-                        hintText: 'name@example.com',
+                        hintText: AppLocalizations.of(context).emailAddressHint,
                         hintStyle: GoogleFonts.poppins(
                           fontSize: 14,
                           color: const Color(0xFFB0BDB4),
@@ -358,7 +369,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Password',
+                      AppLocalizations.of(context).password,
                       style: GoogleFonts.poppins(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -372,7 +383,9 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                       enabled: !_isLoading,
                       validator: Validators.validatePassword,
                       decoration: InputDecoration(
-                        hintText: 'Create a password',
+                        hintText: AppLocalizations.of(
+                          context,
+                        ).createPasswordHint,
                         hintStyle: GoogleFonts.poppins(
                           fontSize: 14,
                           color: const Color(0xFFB0BDB4),
@@ -412,7 +425,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'State',
+                      AppLocalizations.of(context).state,
                       style: GoogleFonts.poppins(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -430,7 +443,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                               });
                             },
                       decoration: InputDecoration(
-                        hintText: 'Select your state',
+                        hintText: AppLocalizations.of(context).state,
                         hintStyle: GoogleFonts.poppins(
                           fontSize: 14,
                           color: const Color(0xFFB0BDB4),
@@ -466,7 +479,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'City / District',
+                      AppLocalizations.of(context).city,
                       style: GoogleFonts.poppins(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -477,10 +490,12 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                     TextFormField(
                       controller: _cityController,
                       enabled: !_isLoading,
-                      validator: (value) =>
-                          Validators.validateRequired(value, 'City'),
+                      validator: (value) => Validators.validateRequired(
+                        value,
+                        AppLocalizations.of(context).city,
+                      ),
                       decoration: InputDecoration(
-                        hintText: 'Enter city or district',
+                        hintText: AppLocalizations.of(context).city,
                         hintStyle: GoogleFonts.poppins(
                           fontSize: 14,
                           color: const Color(0xFFB0BDB4),
@@ -507,7 +522,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Village',
+                      AppLocalizations.of(context).village,
                       style: GoogleFonts.poppins(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -518,10 +533,12 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                     TextFormField(
                       controller: _villageController,
                       enabled: !_isLoading,
-                      validator: (value) =>
-                          Validators.validateRequired(value, 'Village'),
+                      validator: (value) => Validators.validateRequired(
+                        value,
+                        AppLocalizations.of(context).village,
+                      ),
                       decoration: InputDecoration(
-                        hintText: 'Enter your village',
+                        hintText: AppLocalizations.of(context).village,
                         hintStyle: GoogleFonts.poppins(
                           fontSize: 14,
                           color: const Color(0xFFB0BDB4),
@@ -567,7 +584,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                             ),
                           )
                         : Text(
-                            'Sign Up',
+                            AppLocalizations.of(context).signup,
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -583,7 +600,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Already have an account? ',
+                      AppLocalizations.of(context).alreadyHaveAccount,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: const Color(0xFF5F7D63),
@@ -604,7 +621,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
-                        'Login',
+                        AppLocalizations.of(context).login,
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -622,7 +639,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Need help? ',
+                      AppLocalizations.of(context).needHelp,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: const Color(0xFF5F7D63),
@@ -638,7 +655,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
-                        'Contact Support',
+                        AppLocalizations.of(context).contactSupport,
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -678,7 +695,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'Contact Support',
+          AppLocalizations.of(context).contactSupport,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         content: Column(
@@ -686,12 +703,12 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Email: support@kisanmitra.com',
+              AppLocalizations.of(context).contactSupportEmail,
               style: GoogleFonts.poppins(fontSize: 14),
             ),
             const SizedBox(height: 8),
             Text(
-              'Phone: +91 1800-XXX-XXXX',
+              AppLocalizations.of(context).contactSupportPhone,
               style: GoogleFonts.poppins(fontSize: 14),
             ),
           ],
@@ -699,7 +716,7 @@ class _FarmerSignupScreenState extends State<FarmerSignupScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(AppLocalizations.of(context).close),
           ),
         ],
       ),

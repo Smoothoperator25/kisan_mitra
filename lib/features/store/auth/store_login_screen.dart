@@ -4,6 +4,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/firestore_service.dart';
 import '../../../core/utils/helpers.dart';
+import '../../../l10n/app_localizations.dart';
 
 class StoreLoginScreen extends StatefulWidget {
   const StoreLoginScreen({super.key});
@@ -38,7 +39,6 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Sign in with Firebase Auth
       final authResult = await _authService.signInWithEmailPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
@@ -47,7 +47,6 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
       if (!mounted) return;
 
       if (authResult['success'] == true) {
-        // Fetch store data from Firestore
         final uid = authResult['user'].uid;
         final firestoreResult = await _firestoreService.getStoreData(uid);
 
@@ -56,9 +55,7 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
         if (firestoreResult['success'] == true) {
           final role = firestoreResult['data']['role'] as String?;
 
-          // Verify role is store
           if (role == AppConstants.roleStore) {
-            // Navigate to Store Home
             if (mounted) {
               Navigator.of(context).pushNamedAndRemoveUntil(
                 AppConstants.storeHomeRoute,
@@ -66,37 +63,38 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
               );
             }
           } else {
-            // Wrong role
             await _authService.signOut();
             if (mounted) {
               SnackBarHelper.showError(
                 context,
-                'Invalid role. Please use the correct login.',
+                AppLocalizations.of(context).invalidRole,
               );
             }
           }
         } else {
-          // Store data not found
           await _authService.signOut();
           if (mounted) {
             SnackBarHelper.showError(
               context,
-              firestoreResult['message'] ?? 'Store data not found',
+              firestoreResult['message'] ??
+                  AppLocalizations.of(context).storeDataNotFound,
             );
           }
         }
       } else {
-        // Auth failed
         if (mounted) {
           SnackBarHelper.showError(
             context,
-            authResult['message'] ?? 'Login failed',
+            authResult['message'] ?? AppLocalizations.of(context).loginFailed,
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        SnackBarHelper.showError(context, 'An error occurred: $e');
+        SnackBarHelper.showError(
+          context,
+          '${AppLocalizations.of(context).errorOccurred}: $e',
+        );
       }
     } finally {
       if (mounted) {
@@ -107,6 +105,7 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final backgroundColor = _isDarkMode
         ? const Color(0xFF1B5E20)
         : const Color(0xFFD5E8D4);
@@ -177,7 +176,6 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
 
                 const SizedBox(height: 12),
 
-                // App Name
                 Text(
                   'Kisan Mitra',
                   style: GoogleFonts.poppins(
@@ -189,7 +187,6 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
 
                 const SizedBox(height: 4),
 
-                // Tagline
                 Text(
                   '"BEEJ SE BAZAR TAK"',
                   style: GoogleFonts.poppins(
@@ -202,9 +199,8 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
 
                 const SizedBox(height: 20),
 
-                // Store Login
                 Text(
-                  'Store Login',
+                  l10n.storeLogin,
                   style: GoogleFonts.poppins(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -214,9 +210,8 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
 
                 const SizedBox(height: 8),
 
-                // Subtitle
                 Text(
-                  'Login to manage your fertilizer inventory\nand track orders.',
+                  l10n.storeLoginSubtitle,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 15,
@@ -227,11 +222,10 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
 
                 const SizedBox(height: 16),
 
-                // Email ID Label
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Email ID',
+                    l10n.emailAddress,
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -242,7 +236,6 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
 
                 const SizedBox(height: 8),
 
-                // Email Field
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -269,12 +262,11 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
 
                 const SizedBox(height: 16),
 
-                // Password Label and Forgot
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Password',
+                      l10n.password,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -296,7 +288,7 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
-                        'Forgot?',
+                        l10n.forgotPassword,
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -309,14 +301,13 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
 
                 const SizedBox(height: 8),
 
-                // Password Field
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   enabled: !_isLoading,
                   validator: Validators.validatePassword,
                   decoration: InputDecoration(
-                    hintText: 'Enter your password',
+                    hintText: l10n.enterPassword,
                     hintStyle: GoogleFonts.poppins(
                       fontSize: 14,
                       color: const Color(0xFFB0BDB4),
@@ -349,7 +340,6 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
 
                 const SizedBox(height: 20),
 
-                // Login Button
                 SizedBox(
                   width: double.infinity,
                   height: 56,
@@ -373,7 +363,7 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
                             ),
                           )
                         : Text(
-                            'Login',
+                            l10n.login,
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -384,12 +374,11 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
 
                 const SizedBox(height: 16),
 
-                // Don't have a store account
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Don\'t have a store account? ',
+                      l10n.noStoreAccount,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: const Color(0xFF5F7D63),
@@ -410,7 +399,7 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
-                        'Sign Up',
+                        l10n.signUp,
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -423,12 +412,11 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
 
                 const SizedBox(height: 8),
 
-                // Contact Support
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Need help? ',
+                      l10n.needHelp,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: const Color(0xFF5F7D63),
@@ -436,7 +424,7 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        _showSupportDialog();
+                        _showSupportDialog(l10n);
                       },
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.zero,
@@ -444,7 +432,7 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
-                        'Contact Support',
+                        l10n.contactSupport,
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -462,7 +450,6 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
         ),
       ),
 
-      // Theme Toggle Button
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           setState(() {
@@ -479,33 +466,27 @@ class _StoreLoginScreenState extends State<StoreLoginScreen> {
     );
   }
 
-  void _showSupportDialog() {
+  void _showSupportDialog(AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'Contact Support',
+          l10n.contactSupport,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Email: support@kisanmitra.com',
-              style: GoogleFonts.poppins(fontSize: 14),
-            ),
+            Text(l10n.supportEmail, style: GoogleFonts.poppins(fontSize: 14)),
             const SizedBox(height: 8),
-            Text(
-              'Phone: +91 1800-XXX-XXXX',
-              style: GoogleFonts.poppins(fontSize: 14),
-            ),
+            Text(l10n.supportPhone, style: GoogleFonts.poppins(fontSize: 14)),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(l10n.close),
           ),
         ],
       ),

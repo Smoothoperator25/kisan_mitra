@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/utils/helpers.dart';
+import 'package:kisan_mitra/l10n/app_localizations.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -46,19 +47,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
         SnackBarHelper.showSuccess(
           context,
-          'Password reset email sent! Check your inbox.',
+          AppLocalizations.of(context).emailSent,
         );
       } else {
         setState(() => _isLoading = false);
         SnackBarHelper.showError(
           context,
-          result['message'] ?? 'Failed to send reset email',
+          result['message'] ?? AppLocalizations.of(context).somethingWentWrong,
         );
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        SnackBarHelper.showError(context, 'An error occurred: $e');
+        SnackBarHelper.showError(
+          context,
+          AppLocalizations.of(context).anErrorOccurred(e.toString()),
+        );
       }
     }
   }
@@ -114,7 +118,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 // Title
                 Center(
                   child: Text(
-                    'Forgot Password?',
+                    AppLocalizations.of(context).forgotPassword,
                     style: GoogleFonts.poppins(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -128,9 +132,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 // Description
                 Center(
                   child: Text(
-                    _emailSent
-                        ? 'We\'ve sent password reset instructions to your email address.'
-                        : 'Enter your registered email address and we\'ll send you instructions to reset your password.',
+                    AppLocalizations.of(context).forgotPasswordSubtitle,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       fontSize: 15,
@@ -145,7 +147,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 if (!_emailSent) ...[
                   // Email Field Label
                   Text(
-                    'Email Address',
+                    AppLocalizations.of(context).emailAddress,
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -162,7 +164,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     enabled: !_isLoading,
                     validator: Validators.validateEmail,
                     decoration: InputDecoration(
-                      hintText: 'Enter your email',
+                      hintText: AppLocalizations.of(context).emailAddress,
                       prefixIcon: const Icon(
                         Icons.email_outlined,
                         color: Color(0xFF5F7D63),
@@ -206,7 +208,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               ),
                             )
                           : Text(
-                              'Send Reset Link',
+                              AppLocalizations.of(context).resetPassword,
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -252,7 +254,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Next Steps:',
+                          AppLocalizations.of(context).nextSteps,
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -261,22 +263,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         ),
                         const SizedBox(height: 12),
                         _buildInstructionItem(
-                          '1. Check your email inbox',
+                          AppLocalizations.of(context).stepCheckEmail,
                           Icons.mail,
                         ),
                         const SizedBox(height: 8),
                         _buildInstructionItem(
-                          '2. Click the reset password link',
+                          AppLocalizations.of(context).stepClickLink,
                           Icons.link,
                         ),
                         const SizedBox(height: 8),
                         _buildInstructionItem(
-                          '3. Create a new password',
+                          AppLocalizations.of(context).stepCreatePassword,
                           Icons.lock,
                         ),
                         const SizedBox(height: 8),
                         _buildInstructionItem(
-                          '4. Login with your new password',
+                          AppLocalizations.of(context).stepLoginNew,
                           Icons.login,
                         ),
                       ],
@@ -300,7 +302,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         elevation: 2,
                       ),
                       child: Text(
-                        'Back to Login',
+                        AppLocalizations.of(context).backToLogin,
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -325,7 +327,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               });
                             },
                       child: Text(
-                        'Didn\'t receive email? Try again',
+                        AppLocalizations.of(context).didntReceiveEmail,
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -350,7 +352,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'Back to Login',
+                            AppLocalizations.of(context).backToLogin,
                             style: GoogleFonts.poppins(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -384,7 +386,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Need Help?',
+                        AppLocalizations.of(context).needHelp,
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -393,7 +395,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Contact our support team',
+                        AppLocalizations.of(context).contactSupport,
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           color: const Color(0xFF5F7D63),
@@ -410,7 +412,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'support@kisanmitra.com',
+                            AppLocalizations.of(context).supportEmail,
                             style: GoogleFonts.poppins(
                               fontSize: 13,
                               color: const Color(0xFF2E7D32),
@@ -435,11 +437,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget _buildInstructionItem(String text, IconData icon) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 20,
-          color: const Color(0xFF2E7D32),
-        ),
+        Icon(icon, size: 20, color: const Color(0xFF2E7D32)),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
